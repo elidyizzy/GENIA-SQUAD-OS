@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node --version)",
+      "Bash(npm --version)",
+      "Bash(git -C \"c:/Users/elidy/Downloads/GENIA - SQUAD - OS\" status)",
+      "Bash(pip --version)",
+      "Bash(git -C \"c:/Users/elidy/Downloads/GENIA - SQUAD - OS\" config user.name)",
+      "Bash(git -C \"c:/Users/elidy/Downloads/GENIA - SQUAD - OS\" config user.email)",
+      "Bash(git config user.name)",
+      "Bash(git config --global user.name)",
+      "Bash(git config --global user.email)",
+      "Bash(git config --global user.name \"Elidy Izidio\")",
+      "Bash(git config --global user.email \"elidyizidio@gmail.com\")",
+      "Bash(export PATH=\"/c/Program Files/GitHub CLI:$PATH\")",
+      "Bash(gh --version)",
+      "Bash(gh auth status)",
+      "Bash(gh auth login --web --git-protocol https)",
+      "Bash(gh repo create GENIA-SQUAD-OS --private --description \"GEN.IA SQUAD - Sistema de desenvolvimento assistido por IA com SQUAD de 6 agentes especializados\" --source . --push)",
+      "Bash(gh repo create GENIA-SQUAD-OS --private --description \"GEN.IA SQUAD - Sistema de desenvolvimento assistido por IA com SQUAD de 6 agentes especializados\" --source .)",
+      "Bash(git add .gitignore \"config - claude/\" .claude/ Apps/ \"config - openai/\")",
+      "Bash(git commit:*)"
+    ]
+  }
+}
