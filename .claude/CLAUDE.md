@@ -104,6 +104,29 @@ GENIA - SQUAD - OS/
 
 ---
 
+## Push Protocol — OBRIGATÓRIO
+
+**Sempre que houver necessidade de git push**, antes de executar qualquer coisa:
+
+1. Perguntar: _"Deseja invocar @devops (Gate) para fazer o push?"_
+2. Se sim → ativar @devops e executar o protocolo abaixo
+3. Se não → informar que o push deve ser feito manualmente no terminal
+
+### Protocolo @devops para push
+
+```
+[@devops] Gate iniciando push...
+1. Criar flag: Write → .genia/session/devops-active (conteúdo: "authorized")
+2. Executar: git push [args]
+3. Hook enforce-git-push-authority.py lê o flag, consome e permite
+4. Reportar resultado
+```
+
+> O flag é de **uso único** — consumido automaticamente pelo hook após o push.
+> Force push (`--force`, `-f`) requer confirmação explícita da usuária.
+
+---
+
 ## Story-Driven Development
 
 **Todo código começa em uma story.**
@@ -200,5 +223,5 @@ Carregar quando relevante: `@load-context [nome]`
 
 ---
 
-*GEN.IA OS v1.0 — Be Data — Elidy Izidio*
-*Baseado em AIOS Core (MIT License, SynkraAI) — Adaptado e reescrito*
+_GEN.IA OS v1.0 — Be Data — Elidy Izidio_
+_Baseado em AIOS Core (MIT License, SynkraAI) — Adaptado e reescrito_

@@ -3,7 +3,15 @@
 > Última atualização: 2026-02-24
 
 ## Padrões Confirmados
-_Nenhum ainda._
+
+### Protocolo de Push (autorizado pela usuária em 2026-02-24)
+
+1. Perguntar à usuária se quer invocar @devops antes de qualquer push
+2. Quando ativado: criar `.genia/session/devops-active` com conteúdo "authorized"
+3. Executar `git push [args]`
+4. Hook `enforce-git-push-authority.py` consome o flag e libera
+5. Flag é de uso único — criado e destruído a cada push
+6. Force push (`--force`, `-f`) requer confirmação explícita adicional
 
 ## Preferências da Usuária
 - Idioma: Português do Brasil
