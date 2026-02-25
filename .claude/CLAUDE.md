@@ -33,15 +33,15 @@
 
 | Comando | Nome | Papel | Autoridade Exclusiva |
 |---------|------|-------|---------------------|
-| `@analyst` | Ana | Analista de Negócios | Briefing, requisitos, pesquisa |
-| `@pm` | Marina | Product Manager | PRD, épicos, escopo |
-| `@architect` | Arqui | Arquiteta de Sistemas | Arquitetura, VETO técnico |
-| `@dev` | Dev | Desenvolvedor Full Stack | Implementação (SEM push) |
-| `@devops` | Gate | DevOps Engineer | **git push, PR, release, MCP** |
-| `@qa` | Quinn | QA Engineer | Veredictos de qualidade |
-| `@reviewer` | Rev | Code Reviewer | Aprovação de código |
-| `@po` | Pax | Product Owner | **Aprovação de stories** |
-| `@sm` | Sami | Scrum Master | **Criação de stories** |
+| `@analyst` | Cypher | Analista de Negócios | Briefing, requisitos, pesquisa |
+| `@pm` | Morpheus | Product Manager | PRD, épicos, escopo |
+| `@architect` | Trinity | Arquiteta de Sistemas | Arquitetura, VETO técnico |
+| `@dev` | Neo | Desenvolvedor Full Stack | Implementação (SEM push) |
+| `@devops` | Tank | DevOps Engineer | **git push, PR, release, MCP** |
+| `@qa` | Smith | QA Engineer | Veredictos de qualidade |
+| `@reviewer` | Switch | Code Reviewer | Aprovação de código |
+| `@po` | Oracle | Product Owner | **Aprovação de stories** |
+| `@sm` | Mouse | Scrum Master | **Criação de stories** |
 
 ### Workflow do SQUAD
 
@@ -108,14 +108,14 @@ GENIA - SQUAD - OS/
 
 **Sempre que houver necessidade de git push**, antes de executar qualquer coisa:
 
-1. Perguntar: _"Deseja invocar @devops (Gate) para fazer o push?"_
+1. Perguntar: _"Deseja invocar @devops (Tank) para fazer o push?"_
 2. Se sim → ativar @devops e executar o protocolo abaixo
 3. Se não → informar que o push deve ser feito manualmente no terminal
 
 ### Protocolo @devops para push
 
 ```
-[@devops] Gate iniciando push...
+[@devops] Tank iniciando push...
 1. Criar flag: Write → .genia/session/devops-active (conteúdo: "authorized")
 2. Executar: git push [args]
 3. Hook enforce-git-push-authority.py lê o flag, consome e permite

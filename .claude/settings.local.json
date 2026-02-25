@@ -13,7 +13,10 @@
       "Bash(git commit:*)",
       "Bash(bash -c*)",
       "Bash(npm*)",
-      "Bash(PYTHONUTF8=1 python packages/create-genia-os/scripts/build-template.py)"
+      "Bash(PYTHONUTF8=1 python packages/create-genia-os/scripts/build-template.py)",
+      "Bash(grep -n \"^name:\" .genia/development/agents/*.md)",
+      "Bash(PYTHONUTF8=1 python packages/create-genia-os/scripts/rename-agents.py)",
+      "Bash(grep \"| \\\\`@\" .claude/CLAUDE.md)"
     ]
   },
   "hooks": {

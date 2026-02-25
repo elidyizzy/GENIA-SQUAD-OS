@@ -1,4 +1,4 @@
-# MEMORY — @reviewer (Rev)
+# MEMORY — @reviewer (Switch)
 > Code Reviewer — GEN.IA OS
 > Última atualização: 2026-02-24
 

@@ -67,10 +67,10 @@ A ideia central é simples: ao invés de você ter um único assistente genéric
 
 Cada agente é uma especialização do Claude com persona, autoridade e restrições únicas. Para ativar, basta mencionar `@agente` no seu prompt.
 
-### @analyst — Ana
+### @analyst — Cypher
 **Analista de Negócios** · Exploradora · Gêmeos
 
-Responsável pela fase de descoberta. Ana coleta e estrutura requisitos, faz pesquisa de mercado, analisa viabilidade e entrega um `BRIEFING.md` completo antes de qualquer linha de código ser discutida.
+Responsável pela fase de descoberta. Cypher coleta e estrutura requisitos, faz pesquisa de mercado, analisa viabilidade e entrega um `BRIEFING.md` completo antes de qualquer linha de código ser discutida.
 
 ```
 @analyst quero criar um sistema de agendamentos online para uma clínica
@@ -81,10 +81,10 @@ Responsável pela fase de descoberta. Ana coleta e estrutura requisitos, faz pes
 
 ---
 
-### @pm — Marina
+### @pm — Morpheus
 **Product Manager** · Estrategista · Leão
 
-Transforma o briefing em documentação de produto. Marina cria o PRD (Product Requirements Document) com épicos, features priorizadas por MoSCoW e métricas de sucesso. Também cria o COMERCIAL.md para apresentações.
+Transforma o briefing em documentação de produto. Morpheus cria o PRD (Product Requirements Document) com épicos, features priorizadas por MoSCoW e métricas de sucesso. Também cria o COMERCIAL.md para apresentações.
 
 ```
 @pm crie o PRD para o sistema de agendamentos
@@ -95,10 +95,10 @@ Transforma o briefing em documentação de produto. Marina cria o PRD (Product R
 
 ---
 
-### @architect — Arqui
+### @architect — Trinity
 **Arquiteta de Sistemas** · Visionária · Escorpião
 
-A voz técnica máxima. Arqui projeta a arquitetura, escolhe o stack tecnológico, documenta decisões em ADRs e cria o SPEC-TECNICO. Tem **veto técnico irrevogável** — nenhuma decisão arquitetural passa sem ela.
+A voz técnica máxima. Trinity projeta a arquitetura, escolhe o stack tecnológico, documenta decisões em ADRs e cria o SPEC-TECNICO. Tem **veto técnico irrevogável** — nenhuma decisão arquitetural passa sem ela.
 
 ```
 @architect projete a arquitetura e crie o SPEC-TECNICO
@@ -109,10 +109,10 @@ A voz técnica máxima. Arqui projeta a arquitetura, escolhe o stack tecnológic
 
 ---
 
-### @po — Pax
+### @po — Oracle
 **Product Owner** · Validador · Gêmeos
 
-Valida as stories antes de ir para desenvolvimento. Pax usa um **checklist de 10 pontos** para garantir que cada story tem acceptance criteria claros, estimativa, branch definida e testes mapeados. Story com menos de 8 pontos = rejeitada.
+Valida as stories antes de ir para desenvolvimento. Oracle usa um **checklist de 10 pontos** para garantir que cada story tem acceptance criteria claros, estimativa, branch definida e testes mapeados. Story com menos de 8 pontos = rejeitada.
 
 ```
 @po valide a story STORY-001
@@ -122,10 +122,10 @@ Valida as stories antes de ir para desenvolvimento. Pax usa um **checklist de 10
 
 ---
 
-### @sm — Sami
+### @sm — Mouse
 **Scrum Master** · Facilitador · Aquário
 
-O **único** que cria stories. Sami quebra épicos em stories no formato correto, gerencia o sprint e remove blockers. Nenhum outro agente cria `STORY-*.md`.
+O **único** que cria stories. Mouse quebra épicos em stories no formato correto, gerencia o sprint e remove blockers. Nenhum outro agente cria `STORY-*.md`.
 
 ```
 @sm crie as stories para o módulo de agendamentos
@@ -136,10 +136,10 @@ O **único** que cria stories. Sami quebra épicos em stories no formato correto
 
 ---
 
-### @dev — Dev
+### @dev — Neo
 **Desenvolvedor Full Stack** · Construtor · Áries
 
-Implementa o código conforme o SPEC aprovado. Dev faz commits locais mas **nunca push** — isso é responsabilidade exclusiva do @devops. Trabalha em branches isoladas por story.
+Implementa o código conforme o SPEC aprovado. Neo faz commits locais mas **nunca push** — isso é responsabilidade exclusiva do @devops. Trabalha em branches isoladas por story.
 
 ```
 @dev implemente a STORY-003
@@ -150,10 +150,10 @@ Implementa o código conforme o SPEC aprovado. Dev faz commits locais mas **nunc
 
 ---
 
-### @qa — Quinn
+### @qa — Smith
 **QA Engineer** · Inspector · Virgem
 
-Responsável pela qualidade. Quinn testa os acceptance criteria, executa verificações de segurança, acessibilidade e performance. Usa o **QA Loop** (máx 5 iterações) com @dev até a story estar pronta. Nenhuma story passa para Done sem aprovação de Quinn.
+Responsável pela qualidade. Smith testa os acceptance criteria, executa verificações de segurança, acessibilidade e performance. Usa o **QA Loop** (máx 5 iterações) com @dev até a story estar pronta. Nenhuma story passa para Done sem aprovação de Smith.
 
 ```
 @qa revise a implementação da STORY-003
@@ -163,7 +163,7 @@ Responsável pela qualidade. Quinn testa os acceptance criteria, executa verific
 
 ---
 
-### @reviewer — Rev
+### @reviewer — Switch
 **Code Reviewer** · Crítico · Libra
 
 Revisa o código do ponto de vista técnico: clean code, padrões, segurança, performance. Emite LGTM (aprovado) ou CHANGES REQUESTED (bloqueante).
@@ -176,10 +176,10 @@ Revisa o código do ponto de vista técnico: clean code, padrões, segurança, p
 
 ---
 
-### @devops — Gate
+### @devops — Tank
 **DevOps Engineer** · Guardião · Capricórnio
 
-O **único** com permissão de fazer git push, criar PRs e executar releases. Gerencia também toda a infraestrutura e configuração de MCP. Nenhum deploy acontece sem Gate.
+O **único** com permissão de fazer git push, criar PRs e executar releases. Gerencia também toda a infraestrutura e configuração de MCP. Nenhum deploy acontece sem Tank.
 
 ```
 @devops faça push da branch feat/STORY-003 e crie o PR
@@ -213,7 +213,7 @@ Você digita: "@dev implemente o login"
          "Idioma PT-BR, identidade Be Data..."
 
     L2 — Agente @dev (detectado)
-         "Dev Full Stack, commits locais, regras de implementação..."
+         "Neo Full Stack, commits locais, regras de implementação..."
 
                     │
                     ▼
@@ -392,31 +392,31 @@ Bases de conhecimento especializadas. Carregue quando for trabalhar com aquela t
 
 ```
 1. @analyst quero criar [descreva o projeto]
-   → Ana coleta requisitos e entrega BRIEFING.md
+   → Cypher coleta requisitos e entrega BRIEFING.md
 
 2. @pm crie o PRD baseado no briefing
-   → Marina estrutura o produto e entrega PRD.md
+   → Morpheus estrutura o produto e entrega PRD.md
 
 3. @architect projete a arquitetura
-   → Arqui define stack e entrega SPEC-TECNICO.md
+   → Trinity define stack e entrega SPEC-TECNICO.md
 
 4. @sm quebre o PRD em stories para o primeiro sprint
-   → Sami cria STORY-001, STORY-002...
+   → Mouse cria STORY-001, STORY-002...
 
 5. @po valide as stories criadas
-   → Pax aprova ou rejeita cada story
+   → Oracle aprova ou rejeita cada story
 
 6. @dev implemente STORY-001
-   → Dev implementa o código
+   → Neo implementa o código
 
 7. @qa revise a STORY-001
-   → Quinn testa e aprova
+   → Smith testa e aprova
 
 8. @reviewer faça code review
-   → Rev aprova o código
+   → Switch aprova o código
 
 9. @devops faça push e crie o PR
-   → Gate faz push e abre PR no GitHub
+   → Tank faz push e abre PR no GitHub
 ```
 
 ---
@@ -425,14 +425,14 @@ Bases de conhecimento especializadas. Carregue quando for trabalhar com aquela t
 
 ```
 @dev debug [descreva o bug]
-→ Dev usa o workflow debug-sistematico
+→ Neo usa o workflow debug-sistematico
 → Identifica causa raiz, implementa fix, documenta
 
 @qa valide o fix
-→ Quinn confirma que o bug foi resolvido
+→ Smith confirma que o bug foi resolvido
 
 @devops push do fix
-→ Gate faz push para a branch de fix
+→ Tank faz push para a branch de fix
 ```
 
 ---
@@ -441,13 +441,13 @@ Bases de conhecimento especializadas. Carregue quando for trabalhar com aquela t
 
 ```
 @architect faça um discovery do sistema em [pasta]
-→ Arqui mapeia o sistema atual
+→ Trinity mapeia o sistema atual
 
 @qa faça auditoria de riscos e dívida técnica
-→ Quinn identifica pontos frágeis
+→ Smith identifica pontos frágeis
 
 @pm crie um épico de evolução baseado no discovery
-→ Marina estrutura o roadmap de melhorias
+→ Morpheus estrutura o roadmap de melhorias
 ```
 
 ---
@@ -474,7 +474,7 @@ Bases de conhecimento especializadas. Carregue quando for trabalhar com aquela t
 
 ---
 
-## Estrutura de Arquivos do Projeto
+## Estrutura de Trinityvos do Projeto
 
 ```
 GENIA - SQUAD - OS/

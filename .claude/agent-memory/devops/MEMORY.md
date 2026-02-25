@@ -1,4 +1,4 @@
-# MEMORY — @devops (Gate)
+# MEMORY — @devops (Tank)
 > DevOps Engineer — GEN.IA OS
 > Última atualização: 2026-02-24
 

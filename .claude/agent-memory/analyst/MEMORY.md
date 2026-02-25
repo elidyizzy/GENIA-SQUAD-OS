@@ -1,4 +1,4 @@
-# MEMORY — @analyst (Ana)
+# MEMORY — @analyst (Cypher)
 > Analista de Negócios — GEN.IA OS
 > Última atualização: 2026-02-24
 

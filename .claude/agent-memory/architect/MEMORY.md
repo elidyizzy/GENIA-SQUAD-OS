@@ -1,4 +1,4 @@
-# MEMORY — @architect (Arqui)
+# MEMORY — @architect (Trinity)
 > Arquiteta de Sistemas — GEN.IA OS
 > Última atualização: 2026-02-24
 

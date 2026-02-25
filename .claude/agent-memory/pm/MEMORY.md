@@ -1,4 +1,4 @@
-# MEMORY — @pm (Marina)
+# MEMORY — @pm (Morpheus)
 > Product Manager — GEN.IA OS
 > Última atualização: 2026-02-24
 

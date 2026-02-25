@@ -30,15 +30,15 @@ agents:
     - po
     - sm
   personas:
-    analyst:  { name: "Ana",    title: "Analista de Negócios",     color: "#6366F1" }
-    pm:       { name: "Marina", title: "Product Manager",          color: "#8B5CF6" }
-    architect:{ name: "Arqui",  title: "Arquiteta de Sistemas",    color: "#0EA5E9" }
-    dev:      { name: "Dev",    title: "Desenvolvedor Full Stack",  color: "#10B981" }
-    devops:   { name: "Gate",   title: "Engenheiro DevOps",        color: "#F59E0B" }
-    qa:       { name: "Quinn",  title: "QA Engineer",              color: "#EF4444" }
-    reviewer: { name: "Rev",    title: "Code Reviewer",            color: "#A855F7" }
-    po:       { name: "Pax",    title: "Product Owner",            color: "#06B6D4" }
-    sm:       { name: "Sami",   title: "Scrum Master",             color: "#84CC16" }
+    analyst:  { name: "Cypher",    title: "Analista de Negócios",     color: "#6366F1" }
+    pm:       { name: "Morpheus", title: "Product Manager",          color: "#8B5CF6" }
+    architect:{ name: "Trinity",  title: "Arquiteta de Sistemas",    color: "#0EA5E9" }
+    dev:      { name: "Neo",    title: "Desenvolvedor Full Stack",  color: "#10B981" }
+    devops:   { name: "Tank",   title: "Engenheiro DevOps",        color: "#F59E0B" }
+    qa:       { name: "Smith",  title: "QA Engineer",              color: "#EF4444" }
+    reviewer: { name: "Switch",    title: "Code Reviewer",            color: "#A855F7" }
+    po:       { name: "Oracle",    title: "Product Owner",            color: "#06B6D4" }
+    sm:       { name: "Mouse",   title: "Scrum Master",             color: "#84CC16" }
 
 # ─── WORKFLOWS ─────────────────────────────────────────────────────────────────
 workflows:
@@ -147,7 +147,7 @@ git:
   require_pr_for: [main, master, production]
   auto_link_story: true  # inclui story-id no commit
 
-# ─── BOUNDARY (Arquivos Protegidos) ────────────────────────────────────────────
+# ─── BOUNDARY (Trinityvos Protegidos) ────────────────────────────────────────────
 boundary:
   protected:
     - ".genia/development/workflows/**"

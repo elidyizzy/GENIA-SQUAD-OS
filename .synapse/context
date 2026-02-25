@@ -2,7 +2,7 @@
 Sistema: GEN.IA OS — Framework de desenvolvimento assistido por IA
 Marca: Be Data
 Criadora: Elidy Izidio
-Agentes: analyst(Ana), pm(Marina), architect(Arqui), dev(Dev), devops(Gate), qa(Quinn), reviewer(Rev), po(Pax), sm(Sami)
+Agentes: analyst(Cypher), pm(Morpheus), architect(Trinity), dev(Neo), devops(Tank), qa(Smith), reviewer(Switch), po(Oracle), sm(Mouse)
 Workflows: spec-pipeline, story-development-cycle, qa-loop, greenfield, brownfield, planning, development, delivery
 Contextos disponíveis: kommo-crm, supabase, whatsapp-cloud, nextjs-react, api-patterns
 Skills disponíveis: /pdf /xlsx /docx /pptx /frontend-design /canvas-design /mcp-builder /webapp-testing
