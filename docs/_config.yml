@@ -1,0 +1,22 @@
+title: GEN.IA OS
+description: Sistema operacional de desenvolvimento com IA para Claude Code. 9 agentes especializados, Synapse Engine e governança automática.
+theme: minima
+lang: pt-BR
+
+url: "https://elidyizzy.github.io"
+baseurl: "/GENIA-SQUAD-OS"
+
+author:
+  name: Elidy Izidio
+  email: elidyizidio@gmail.com
+
+github_username: elidyizzy
+
+minima:
+  skin: dark
+
+header_pages:
+  - index.md
+
+plugins:
+  - jekyll-seo-tag

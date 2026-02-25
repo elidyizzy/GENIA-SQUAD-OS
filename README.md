@@ -474,7 +474,7 @@ Bases de conhecimento especializadas. Carregue quando for trabalhar com aquela t
 
 ---
 
-## Estrutura de Trinityvos do Projeto
+## Estrutura de Arquivos do Projeto
 
 ```
 GENIA - SQUAD - OS/
