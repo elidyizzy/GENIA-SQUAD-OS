@@ -64,8 +64,8 @@ Quando o contexto estiver saturado (muitas trocas de agente):
 **@analyst → @pm (após briefing):**
 ```
 [@analyst → @pm]
-📋 Coletei requisitos completos do sistema de [funcionalidade].
-📌 Decisões: [decisões tomadas durante o briefing].
-📁 Criados: docs/[projeto]/BRIEFING.md
-⚠️  Pendências: Criar PRD com base no briefing. Atenção a [requisitos críticos].
+📋 Coletei requisitos completos do sistema de orçamentos BrasilUp.
+📌 Decisões: App web (não mobile), integração com Kommo CRM, 3 usuários simultâneos.
+📁 Criados: docs/brasilup/BRIEFING.md
+⚠️  Pendências: Criar PRD com base no briefing. Atenção ao requisito de relatórios PDF.
 ```

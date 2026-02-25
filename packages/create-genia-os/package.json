@@ -1,26 +1,32 @@
 {
   "name": "create-genia-os",
-  "version": "1.0.0",
-  "description": "GEN.IA OS — Sistema operacional de desenvolvimento com IA para Claude Code",
+  "version": "1.0.1",
+  "description": "GEN.IA OS — Sistema operacional de desenvolvimento com IA para Claude Code. Configura 9 agentes especializados, Synapse Engine e governança automática em segundos.",
   "keywords": [
     "claude-code",
     "ai",
+    "artificial-intelligence",
     "desenvolvimento",
     "agentes",
     "squads",
     "genia",
-    "claude"
+    "claude",
+    "anthropic",
+    "developer-tools",
+    "pt-br"
   ],
   "author": "Elidy Izidio <elidyizidio@gmail.com>",
   "license": "MIT",
-  "homepage": "https://github.com/elidyizzy/GENIA-SQUAD-OS",
+  "homepage": "https://github.com/elidyizzy/GENIA-SQUAD-OS#readme",
+  "bugs": {
+    "url": "https://github.com/elidyizzy/GENIA-SQUAD-OS/issues"
+  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/elidyizzy/GENIA-SQUAD-OS.git"
+    "url": "git+https://github.com/elidyizzy/GENIA-SQUAD-OS.git",
+    "directory": "packages/create-genia-os"
   },
-  "bin": {
-    "create-genia-os": "./bin/index.js"
-  },
+  "bin": "./bin/index.js",
   "files": [
     "bin/",
     "template/"
