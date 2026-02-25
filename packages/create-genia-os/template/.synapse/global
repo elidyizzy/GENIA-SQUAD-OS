@@ -1,0 +1,8 @@
+=== REGRAS GLOBAIS GEN.IA OS ===
+IDIOMA: Sempre responder em Português do Brasil.
+IDENTIDADE: {{TEAM_NAME}} | {{CREATOR_NAME}} | GEN.IA OS v1.0
+MEMORY: Ler .claude/agent-memory/[agente]/MEMORY.md ao ativar agente.
+HANDOFF: Ao transferir agente, usar formato de handoff (≤400 tokens).
+IDS: REUSAR > ADAPTAR > CRIAR — verificar antes de criar novo artefato.
+DOCS: PRD em docs/[projeto]/PRD.md | SPEC em docs/[projeto]/SPEC-TECNICO.md | Stories em docs/stories/
+COMMITS: formato "tipo(escopo): descricao" | Co-Authored-By: GEN.IA OS <genia@bedata.com.br>
