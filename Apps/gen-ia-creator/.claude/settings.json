@@ -1,0 +1,58 @@
+{
+  "permissions": {
+    "deny": [
+      "Bash(git push --force*)",
+      "Bash(rm -rf .genia/CONSTITUTION.md)",
+      "Bash(rm -rf .genia/development/workflows/*)",
+      "Bash(rm -rf .genia/development/tasks/*)",
+      "Bash(rm -rf .claude/hooks/*)",
+      "Bash(rm -rf .claude/rules/*)"
+    ]
+  },
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c \"cd \\\"$(git rev-parse --show-toplevel)\\\" && node .claude/hooks/synapse-engine.cjs\""
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c \"cd \\\"$(git rev-parse --show-toplevel)\\\" && node .claude/hooks/precompact-session-digest.cjs\""
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c \"cd \\\"$(git rev-parse --show-toplevel)\\\" && python .claude/hooks/enforce-git-push-authority.py\""
+          },
+          {
+            "type": "command",
+            "command": "bash -c \"cd \\\"$(git rev-parse --show-toplevel)\\\" && python .claude/hooks/sql-governance.py\""
+          }
+        ]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c \"cd \\\"$(git rev-parse --show-toplevel)\\\" && python .claude/hooks/write-path-validation.py\""
+          }
+        ]
+      }
+    ]
+  }
+}

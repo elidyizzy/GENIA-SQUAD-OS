@@ -1,0 +1,192 @@
+# GEN.IA OS — Configuração Central
+# Be Data | Elidy Izidio | v1.0.0
+# Ratificado: 2026-02-24
+
+version: "1.0.0"
+name: "GEN.IA OS"
+brand: "Be Data"
+language: "pt-BR"
+constitution: ".genia/CONSTITUTION.md"
+
+# ─── IDENTIDADE ────────────────────────────────────────────────────────────────
+identity:
+  creator: "Elidy Izidio"
+  organization: "Be Data"
+  timezone: "America/Sao_Paulo"
+  locale: "pt-BR"
+  contact: "genia@bedata.com.br"
+
+# ─── AGENTES ───────────────────────────────────────────────────────────────────
+agents:
+  active: null  # definido por @agente no prompt
+  available:
+    - analyst
+    - pm
+    - architect
+    - dev
+    - devops
+    - qa
+    - reviewer
+    - po
+    - sm
+  personas:
+    analyst:  { name: "Ana",    title: "Analista de Negócios",     color: "#6366F1" }
+    pm:       { name: "Marina", title: "Product Manager",          color: "#8B5CF6" }
+    architect:{ name: "Arqui",  title: "Arquiteta de Sistemas",    color: "#0EA5E9" }
+    dev:      { name: "Dev",    title: "Desenvolvedor Full Stack",  color: "#10B981" }
+    devops:   { name: "Gate",   title: "Engenheiro DevOps",        color: "#F59E0B" }
+    qa:       { name: "Quinn",  title: "QA Engineer",              color: "#EF4444" }
+    reviewer: { name: "Rev",    title: "Code Reviewer",            color: "#A855F7" }
+    po:       { name: "Pax",    title: "Product Owner",            color: "#06B6D4" }
+    sm:       { name: "Sami",   title: "Scrum Master",             color: "#84CC16" }
+
+# ─── WORKFLOWS ─────────────────────────────────────────────────────────────────
+workflows:
+  available:
+    - planning
+    - development
+    - delivery
+    - spec-pipeline
+    - story-development-cycle
+    - qa-loop
+    - greenfield
+    - brownfield
+  definitions_path: ".genia/development/workflows/"
+  default: "story-development-cycle"
+
+# ─── CONTEXTOS ─────────────────────────────────────────────────────────────────
+contexts:
+  auto_load: []
+  available:
+    - supabase
+    - whatsapp-cloud
+    - nextjs-react
+    - api-patterns
+  definitions_path: ".genia/contexts/"
+
+# ─── SISTEMA SYNAPSE (Gestão de Contexto) ──────────────────────────────────────
+synapse:
+  mode: default  # default = L0-L2; full = L0-L7
+  timeout_ms: 100
+  description: "Sistema de priorização de contexto baseado no estado da janela"
+  brackets:
+    fresh:
+      label: "Janela fresca"
+      max_context: 25
+      layers: [0, 1, 2, 3, 4, 5, 6, 7]
+      strategy: "Carrega contexto completo, todos os layers disponíveis"
+    moderate:
+      label: "Janela moderada"
+      max_context: 50
+      layers: [0, 1, 2, 3, 4, 5]
+      strategy: "Omite layers de histórico e contexto de baixa prioridade"
+    depleted:
+      label: "Janela depletada"
+      max_context: 75
+      layers: [0, 1, 2]
+      strategy: "Apenas Constituição, agente ativo e story em andamento"
+    critical:
+      label: "Janela crítica"
+      max_context: 100
+      layers: [0]
+      strategy: "Somente Constituição — modo de emergência"
+  layers:
+    0: "Constituição GEN.IA OS (sempre presente)"
+    1: "Perfil do agente ativo"
+    2: "Story em andamento"
+    3: "Contexto técnico do projeto (SPEC-TECNICO)"
+    4: "Histórico de decisões arquiteturais (ADRs)"
+    5: "Contextos de integração (APIs, CRMs)"
+    6: "Histórico de sprint e velocity"
+    7: "Logs e métricas de qualidade"
+
+# ─── QUALITY GATES ─────────────────────────────────────────────────────────────
+quality_gates:
+  pre_commit:
+    - lint
+    - typecheck
+    - test_unit
+  pre_deploy:
+    - build
+    - integration_test
+    - security_scan
+    - performance_check
+  story_dod:
+    - acceptance_criteria_met
+    - tests_passing
+    - coverage_above_80
+    - code_reviewed_and_approved
+    - no_critical_bugs
+    - no_high_bugs_undocumented
+    - documentation_updated
+    - pr_created_by_devops
+  coverage:
+    minimum: 80
+    target: 90
+    enforce: true
+
+# ─── CONFIGURAÇÕES GIT ─────────────────────────────────────────────────────────
+git:
+  push_authority: devops_only
+  branch_pattern: "{tipo}/{story-id}-{descricao-kebab-case}"
+  commit_format: "tipo(escopo): descricao em imperativo"
+  co_author: "GEN.IA OS <genia@bedata.com.br>"
+  branch_types:
+    - feat      # nova funcionalidade
+    - fix       # correção de bug
+    - refactor  # refatoração sem mudança de comportamento
+    - test      # adição ou correção de testes
+    - docs      # documentação
+    - chore     # manutenção, configs, dependências
+    - hotfix    # correção urgente em produção
+  protected_branches:
+    - main
+    - master
+    - production
+  require_pr_for: [main, master, production]
+  auto_link_story: true  # inclui story-id no commit
+
+# ─── BOUNDARY (Arquivos Protegidos) ────────────────────────────────────────────
+boundary:
+  protected:
+    - ".genia/development/workflows/**"
+    - ".genia/development/tasks/**"
+    - ".genia/CONSTITUTION.md"
+    - ".genia/core-config.yaml"
+  editable:
+    - ".genia/contexts/**"
+    - ".genia/guidelines/**"
+    - ".claude/agent-memory/**"
+    - "docs/**"
+  auto_versioned:
+    - ".genia/CONSTITUTION.md"  # versionamento semântico obrigatório
+
+# ─── PATHS PRINCIPAIS ──────────────────────────────────────────────────────────
+paths:
+  agents: ".genia/development/agents/"
+  workflows: ".genia/development/workflows/"
+  tasks: ".genia/development/tasks/"
+  checklists: ".genia/development/checklists/"
+  contexts: ".genia/contexts/"
+  guidelines: ".genia/guidelines/"
+  stories: "docs/stories/"
+  prd: "docs/prd/"
+  specs: "docs/specs/"
+  adr: "docs/adr/"
+  memory: ".claude/agent-memory/"
+
+# ─── NOTIFICAÇÕES E LOGGING ────────────────────────────────────────────────────
+logging:
+  level: info  # debug | info | warn | error
+  audit_trail: true
+  violations_log: ".genia/logs/violations.log"
+  decisions_log: ".genia/logs/decisions.log"
+
+# ─── INTEGRAÇÕES ───────────────────────────────────────────────────────────────
+integrations:
+  mcp:
+    authority: devops_only
+    configured_by: "@devops"
+  ci_cd:
+    authority: devops_only
+    environments: [development, staging, production]

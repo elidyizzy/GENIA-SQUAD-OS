@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <title>GEN.IA Creator</title>
+  <style>
+    body { font-family: Inter, sans-serif; margin: 0; padding: 24px; background: #08090f; color: #f0f0f0; }
+    h1 { font-size: 18px; color: #6366f1; margin-bottom: 8px; }
+    p  { font-size: 13px; color: #888; }
+  </style>
+</head>
+<body>
+  <h1>GEN.IA Creator</h1>
+  <p>Plugin em desenvolvimento. Stack será definida por @architect.</p>
+  <script>
+    window.onmessage = (event) => { /* handle messages from plugin */ };
+    function closePlugin() {
+      parent.postMessage({ pluginMessage: { type: 'close' } }, '*');
+    }
+  </script>
+</body>
+</html>

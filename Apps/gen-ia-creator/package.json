@@ -1,0 +1,29 @@
+{
+  "name": "gen-ia-creator",
+  "version": "0.1.0",
+  "description": "Plugin Figma — GEN.IA Creator | Be Data",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"vite build --watch\" \"cross-env BUILD_TARGET=sandbox vite build --watch\"",
+    "build": "vite build && cross-env BUILD_TARGET=sandbox vite build",
+    "typecheck": "tsc --noEmit && tsc -p tsconfig.node.json --noEmit"
+  },
+  "dependencies": {
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0"
+  },
+  "devDependencies": {
+    "@figma/plugin-typings": "*",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.0",
+    "autoprefixer": "^10.4.0",
+    "concurrently": "^9.0.0",
+    "cross-env": "^7.0.3",
+    "postcss": "^8.4.0",
+    "tailwindcss": "^3.4.0",
+    "typescript": "^5.4.0",
+    "vite": "^5.4.0"
+  }
+}

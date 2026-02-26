@@ -1,0 +1,14 @@
+# GEN.IA OS — Synapse Manifest
+# Formato: nome=caminho_relativo_ao_projeto
+constitution=.synapse/constitution
+global=.synapse/global
+context=.synapse/context
+agent-analyst=.synapse/agent-analyst
+agent-pm=.synapse/agent-pm
+agent-architect=.synapse/agent-architect
+agent-dev=.synapse/agent-dev
+agent-devops=.synapse/agent-devops
+agent-qa=.synapse/agent-qa
+agent-reviewer=.synapse/agent-reviewer
+agent-po=.synapse/agent-po
+agent-sm=.synapse/agent-sm
