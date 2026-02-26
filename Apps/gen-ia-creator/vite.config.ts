@@ -8,8 +8,20 @@ import { resolve } from 'path'
 
 const isSandbox = process.env.BUILD_TARGET === 'sandbox'
 
+// Figma plugin iframe roda sem rede — não suporta ES modules (type="module").
+// Este plugin remove o atributo do HTML gerado pelo Vite.
+const figmaHtmlCompat = {
+  name: 'figma-html-compat',
+  transformIndexHtml(html: string): string {
+    return html
+      .replace(/<script type="module"/g, '<script')
+      .replace(/ crossorigin=""/g, '')
+      .replace(/ crossorigin/g, '')
+  },
+}
+
 export default defineConfig({
-  plugins: isSandbox ? [] : [react()],
+  plugins: isSandbox ? [] : [react(), figmaHtmlCompat],
 
   // Paths relativos — obrigatório para Figma (iframe sem servidor)
   base: './',
@@ -37,15 +49,17 @@ export default defineConfig({
       }
     : {
         // ── Build A: React UI ────────────────────────────────────────
-        // root = src/ui  →  index.html de src/ui/ vira dist/index.html
+        // format: 'iife' + inlineDynamicImports: true → bundle único,
+        // sem type="module", compatível com o iframe sandboxed do Figma.
         root: resolve(__dirname, 'src/ui'),
         build: {
           outDir: resolve(__dirname, 'dist'),
           emptyOutDir: true,
           rollupOptions: {
             output: {
+              format: 'iife',
+              inlineDynamicImports: true,
               entryFileNames: 'ui.js',
-              chunkFileNames: 'ui-[hash].js',
               assetFileNames: (info) =>
                 info.name === 'index.css' ? 'ui.css' : '[name][extname]',
             },
