@@ -80,7 +80,10 @@ function Hero({ s, whatsappUrl }: { s: SiteSettings; whatsappUrl: string }) {
         <div
           className="relative flex min-h-[560px] flex-col gap-6 overflow-hidden rounded-xl bg-cover bg-center bg-no-repeat p-8 md:p-12 items-center justify-center text-center shadow-lg"
           style={{
-            backgroundImage: `linear-gradient(rgba(20, 24, 17, 0.3) 0%, rgba(20, 24, 17, 0.6) 100%), url("${s['hero.bg_image']}")`,
+            backgroundColor: '#2d5a12',
+            backgroundImage: s['hero.bg_image']
+              ? `linear-gradient(rgba(20, 24, 17, 0.35) 0%, rgba(20, 24, 17, 0.65) 100%), url("${s['hero.bg_image']}")`
+              : 'linear-gradient(135deg, #1a3a0a 0%, #2d5a12 40%, #3a7019 70%, #1a3a0a 100%)',
           }}
         >
           <div className="flex flex-col gap-4 max-w-3xl z-10">

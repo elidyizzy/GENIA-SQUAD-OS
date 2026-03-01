@@ -2,11 +2,12 @@ import 'dotenv/config';
 import bcrypt from 'bcryptjs';
 import { getDb } from './db.js';
 
-const HERO_BG = 'https://lh3.googleusercontent.com/aida-public/AB6AXuBzvLbTueYOB4B3s1N7YB9b6EuG4gxMucVmau2rO9x5yoNAIKudAY-b3p0zuXPfEIS7sdDyjUQlXvtyXCwJ_vzlNsDllrkMxC_4xfl5zBj4KaK9JChYsHRmVRT1KSP6W3wX7AVB28H0XXTEHqqXYlV0VErKU2hDYyQzlmka6jTYC8oBJMouE1a5G5kMuupEfiSf7-tmKS52oeOknBEINpbMflpihUR8fB0UMVZcsrktkmkR9p70SFiOtiFE2Qwf7GPmW_Ngc34p2wIi';
-const PRODUTO1_IMG = 'https://lh3.googleusercontent.com/aida-public/AB6AXuD-owbWmgXo4zfwPXznCuMp87-oQ_iDojnCZHeiJVhXGTBmyBLpKJsvknw65TxyPTqe-hNTd5uVNora8I0F-f_2MvNf28Qy0C5gJHPJELIvs6uscWwOVc0nrHtX7OiC_-xyYwMxKuNmNqTkLBFvXbmohOEu-hCzty7tR2qsc6auT-DF1DI2R9bn15_4pZo50-FSSWjpLhfZenxFGbCk4ixnHbU5iWhskI50a-RaKwQ_atwfKxUWUcSwP-l5DIZKKMfNYknVlqH2VKk2';
-const PRODUTO2_IMG = 'https://lh3.googleusercontent.com/aida-public/AB6AXuAIcJ_sMcVg24_NbsEjVA1B5tXfh9ctjUkVFcXCmB1SIBJVUMFqPe4KumkGeMhKj_e5pnPWiHhT7SrZBehraUQ4EJbtH_UcpwLjh2eQZSqFNWXkntA2WCkQ4pFzZc2-cmhMYcwWRz3oX_r9om_BoXYtI6uKRcpwlB8tDIsWTergzeZ5vtxA21AGDwoajfUZ_Eq5nG0nfk8y-etzxB0t3u5ZJW58qM5xQVgrtSlDE7LOm731v3KW_HV0oflxPpexizH_6FDE4Qb_ym7L';
-const PRODUTO3_IMG = 'https://lh3.googleusercontent.com/aida-public/AB6AXuDaylF_ca53UNvUlId16Ir-UEk1r0UQWx6KhRdxXREjmLq8ZBczR-DslIVsZKBVX9o60PyJS_yNOz_7slL2SJKiL6Grh72d2TbknxMSzy8F21JvnJtCqPl06WWuDoZv6lvxaQRFKmIWpL1vFbhoF4iH_egGU0GVKji_E7tO2Hj5rZ1uY2gN80RQYhZahMTJNiqqcPFg7suejJbH1_J4HM3YKiVjbt_gqJ6yjg5H_Mr87rIxR0hnyi-zHibSSYDPyIDgobFMKloS74Hd';
-const BOX_IMG = 'https://lh3.googleusercontent.com/aida-public/AB6AXuDec9zlyB03EQ1hdUDZvSe-LJdR6bztR4saIN5ZAWmUIP9c1XDTL_dv6bUWURIOJhLWBeX3wExlL308KCHufODACfVIlqrArusasRO6WNXcCU5PyhhQImPVlFSzgy7VGe4Bcr8qo7roMrzTuKNzzPUogv2cgzryatnCl7pP6ei9g4OBcmuZwyX7msiduVxJR_Rgx7PFH39YIwroe_OmAZs3BFsazm1hlSNzIk6p7LtTzPaXH3btoFFRMwmtkWyefQvdMVQvKo-0gq6X';
+// URLs de imagem padrão — vazias para novos installs (usuária sobe as próprias pelo admin)
+const HERO_BG = '';
+const PRODUTO1_IMG = '';
+const PRODUTO2_IMG = '';
+const PRODUTO3_IMG = '';
+const BOX_IMG = '';
 
 const DEFAULTS: Record<string, string> = {
   'navbar.brand': 'CUORE',
