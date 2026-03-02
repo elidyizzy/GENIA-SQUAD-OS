@@ -205,7 +205,7 @@ function Eventos({ s, whatsappUrl, events }: { s: SiteSettings; whatsappUrl: str
 
                 {/* Info */}
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-white font-bold text-base md:text-lg leading-tight truncate">{event.name}</h3>
+                  <h3 className="text-white font-bold text-base md:text-lg leading-tight">{event.name}</h3>
                   <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2">
                     {event.location && (
                       <span className="flex items-center gap-1.5 text-white/45 text-sm">
