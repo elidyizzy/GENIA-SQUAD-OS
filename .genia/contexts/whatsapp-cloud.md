@@ -1,5 +1,9 @@
 # Contexto: WhatsApp Cloud API
 
+> **última_atualização:** 2026-03-23
+> **versão_api:** Graph API v21.0 (Meta)
+> **status:** ativo
+>
 > Base de conhecimento para integracao com WhatsApp Cloud API (Meta).
 
 ## Configuracao

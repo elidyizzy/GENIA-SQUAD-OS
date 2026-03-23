@@ -1,5 +1,9 @@
 # Contexto: API Patterns
 
+> **última_atualização:** 2026-03-23
+> **versão_api:** REST / OpenAPI 3.1
+> **status:** ativo
+>
 > Principios de design de API e tomada de decisao.
 
 ## Mapa de Conteudo

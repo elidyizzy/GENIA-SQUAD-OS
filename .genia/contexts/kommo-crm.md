@@ -1,5 +1,9 @@
 # Contexto: Kommo CRM
 
+> **última_atualização:** 2026-03-23
+> **versão_api:** v4 (estável)
+> **status:** ativo
+>
 > Base de conhecimento para integracao com Kommo CRM.
 
 ## Configuracao

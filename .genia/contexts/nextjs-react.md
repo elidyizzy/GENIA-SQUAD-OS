@@ -1,5 +1,9 @@
 # Contexto: Next.js & React
 
+> **última_atualização:** 2026-03-23
+> **versão_api:** Next.js 14+ / React 18
+> **status:** ativo
+>
 > Patterns de performance e boas praticas para Next.js e React.
 
 ## Eliminando Waterfalls

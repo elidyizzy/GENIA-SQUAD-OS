@@ -1,5 +1,9 @@
 # Contexto: Supabase
 
+> **última_atualização:** 2026-03-23
+> **versão_api:** supabase-js v2 / REST API v1
+> **status:** ativo
+>
 > Base de conhecimento para integracao com Supabase.
 
 ## Configuracao
