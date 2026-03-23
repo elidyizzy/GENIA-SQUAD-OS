@@ -1,5 +1,12 @@
 # GEN.IA OS — Synapse Manifest
 # Formato: nome=caminho_relativo_ao_projeto
+#
+# CONVENÇÃO DE ARQUIVOS:
+# Domínios .synapse/ NÃO têm extensão — lidos por nome exato pelo synapse-engine.cjs
+# via readDomain(cwd, domainName) → path.join(cwd, '.synapse', domainName)
+# Adicionar extensão quebraria a leitura sem alteração no hook.
+# Arquivos .business/ referenciados aqui SIM têm extensão .md (caminhos completos).
+# Para editar conteúdo de um domínio: abrir o arquivo sem extensão diretamente.
 constitution=.synapse/constitution
 global=.synapse/global
 context=.synapse/context
