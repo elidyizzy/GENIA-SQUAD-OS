@@ -123,6 +123,48 @@ GENIA - SQUAD - OS/
 
 ---
 
+## Guia de Integração — GEN.IA OS + Google Antigravity
+
+### Relação entre as plataformas
+
+O GEN.IA OS roda em **duas plataformas simultaneamente**:
+
+| Plataforma | Arquivo de instrução | Hooks ativos | Melhor para |
+|------------|---------------------|--------------|-------------|
+| **Claude Code** (VS Code) | `.claude/CLAUDE.md` | Synapse Engine + 4 hooks | Desenvolvimento, código, git, sessões longas |
+| **Google Antigravity** | `.agents/AGENTS.md` | Skills isoladas | Tarefas rápidas, integração com Google Workspace |
+
+Os dois sistemas compartilham os **mesmos 9 agentes**, as **mesmas regras** e o **mesmo contexto de negócio** (`.business/`). A diferença é o ambiente de execução.
+
+### Guia de decisão — quando usar qual
+
+**Use Claude Code quando:**
+- Está escrevendo ou revisando código
+- Precisa dos hooks de governança (push, SQL, paths)
+- A sessão vai durar mais de 10 minutos
+- Precisa do Synapse Engine injetando contexto automaticamente
+- Está executando git, npm, ou comandos de terminal
+
+**Use Google Antigravity quando:**
+- Precisa de uma tarefa rápida e isolada
+- Está no Google Workspace (Docs, Sheets, Gmail)
+- Quer acionar uma skill específica sem abrir o VS Code
+- A tarefa não envolve código ou git
+
+### Skills expostas no Antigravity
+
+Apenas 3 skills do SQUAD estão disponíveis no Antigravity — as mais úteis fora do VS Code:
+
+| Skill | Agente-dono | Quando usar |
+|-------|-------------|-------------|
+| `story-create` | @sm (Mouse) | Criar uma story rapidamente, mesmo fora do VS Code |
+| `deploy-check` | @devops (Tank) | Verificar prontidão antes de um push |
+| `memory-update` | qualquer agente | Registrar uma decisão importante na memória do agente |
+
+> As demais capacidades do SQUAD (implementação, QA, arquitetura) ficam **exclusivamente no Claude Code** — onde os hooks de governança garantem a qualidade.
+
+---
+
 ## Hooks de Governança Ativos
 
 | Hook | Trigger | Ação |
