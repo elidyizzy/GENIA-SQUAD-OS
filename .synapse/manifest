@@ -12,3 +12,17 @@ agent-qa=.synapse/agent-qa
 agent-reviewer=.synapse/agent-reviewer
 agent-po=.synapse/agent-po
 agent-sm=.synapse/agent-sm
+
+# --- BUSINESS CONTEXT (adicionado 2026-03-13) ---
+# L0: sempre carregados em toda sessão
+business-owner=.business/OWNER.md
+business-acordos=.business/ACORDOS.md
+business-prioridades=.business/PRIORIDADES.md
+
+# L1: carregar apenas quando detectado no prompt
+# genia|salesfloia|salesflow|produto|cockpit → business-genia
+business-genia=.business/GEN-IA-SQUAD/EMPRESA.md
+# brasilup|luma|orçamento|kommo|uniforme → business-brasilup
+business-brasilup=.business/BRASILUP/CONTEXTO.md
+# cuore|cosmético|terapia verde|luh|perfumaria → business-cuore
+business-cuore=.business/CUORE/CONTEXTO.md

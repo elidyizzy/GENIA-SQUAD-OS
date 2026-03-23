@@ -1,18 +1,25 @@
 # GEN.IA OS — Master Instructions
 
 > Sistema operacional de desenvolvimento assistido por IA
-> Be Data | Elidy Izidio | v1.0 | Idioma: Português do Brasil
+> GEN.IA SQUAD | Elidy Izidio | v1.1 | Idioma: Português do Brasil
 
 ---
 
 ## Identidade e Ativação Automática
 
 **Em TODA tarefa**, antes de responder:
-1. Identificar a fase: Planning / Development / QA / Delivery
-2. Assumir o agente apropriado
-3. Anunciar: `[@agente] [Nome] iniciando...`
-4. Ler `.claude/agent-memory/[agente]/MEMORY.md`
-5. Seguir as regras de `.claude/rules/`
+1. Ler `.business/OWNER.md` — quem é Elidy e as regras invioláveis
+2. Ler `.business/ACORDOS.md` — os termos do contrato de trabalho
+3. Ler `.business/PRIORIDADES.md` — o que está em foco agora
+4. Detectar empresa/projeto no prompt e carregar contexto L1:
+   - Menciona GEN.IA, SalesFloIA, salesflow, produto, cockpit → ler `.business/GEN-IA-SQUAD/EMPRESA.md`
+   - Menciona BrasilUp, Luma, orçamento, Kommo, uniforme → ler `.business/BRASILUP/CONTEXTO.md`
+   - Menciona Cuore, cosmético, terapia verde, Luh, perfumaria → ler `.business/CUORE/CONTEXTO.md`
+5. Identificar a fase: Planning / Development / QA / Delivery
+6. Assumir o agente apropriado
+7. Anunciar: `[@agente] [Nome] iniciando...`
+8. Ler `.claude/agent-memory/[agente]/MEMORY.md`
+9. Seguir as regras de `.claude/rules/`
 
 ---
 
@@ -57,10 +64,22 @@ PLANNING                           DEVELOPMENT                    QA / DELIVERY
 
 ```
 GENIA - SQUAD - OS/
-├── .claude/                    ← Integração Claude Code (este diretório)
+├── .business/                  ← Contexto de negócio (identidade e empresas)
+│   ├── OWNER.md                ← Quem é Elidy, regras invioláveis (L0)
+│   ├── ACORDOS.md              ← Contrato de trabalho Claude↔Elidy (L0)
+│   ├── PRIORIDADES.md          ← Foco atual, arquivo vivo (L0)
+│   ├── GEN-IA-SQUAD/
+│   │   └── EMPRESA.md          ← Contexto GEN.IA e SalesFloIA (L1)
+│   ├── BRASILUP/
+│   │   └── CONTEXTO.md         ← Contexto BrasilUp e funil (L1)
+│   └── CUORE/
+│       └── CONTEXTO.md         ← Contexto Cuore (L1)
+│
+├── .claude/                    ← Integração Claude Code
 │   ├── CLAUDE.md               ← Este arquivo
 │   ├── hooks/                  ← 5 hooks de governança
-│   ├── rules/                  ← 7 arquivos de regras
+│   ├── rules/                  ← Regras do sistema
+│   │   └── new-project.md      ← Protocolo obrigatório de novo projeto
 │   ├── agents/                 ← Slash commands dos agentes
 │   ├── agent-memory/           ← MEMORY.md por agente
 │   └── settings.json           ← Permissões e hooks config
@@ -71,7 +90,8 @@ GENIA - SQUAD - OS/
 │   ├── development/
 │   │   ├── agents/             ← 9 definições completas
 │   │   ├── workflows/          ← 8 workflows
-│   │   ├── tasks/              ← 7 tasks reutilizáveis
+│   │   ├── tasks/              ← Tasks reutilizáveis
+│   │   │   └── PITCH.md        ← Template de documento comercial
 │   │   └── checklists/         ← 5 checklists
 │   ├── skills/                 ← Capacidades especializadas
 │   ├── contexts/               ← Bases de conhecimento
@@ -84,10 +104,9 @@ GENIA - SQUAD - OS/
 │   ├── context                 ← L1 (sempre ativa)
 │   └── agent-*/                ← L2 (por agente detectado)
 │
-├── Apps/                       ← Projetos de apps
-├── docs/                       ← Documentação de projetos
-│   └── stories/                ← STORY-NNN-slug.md
-└── .gitignore
+├── .Apps/                      ← Todos os projetos e apps
+└── docs/                       ← Documentação geral
+    └── stories/                ← STORY-NNN-slug.md
 ```
 
 ---
@@ -124,6 +143,67 @@ GENIA - SQUAD - OS/
 
 > O flag é de **uso único** — consumido automaticamente pelo hook após o push.
 > Force push (`--force`, `-f`) requer confirmação explícita da usuária.
+
+---
+
+## Protocolo de Novo Projeto — OBRIGATÓRIO
+
+**Qualquer solicitação de novo app, site, automação ou agente segue este protocolo.**
+Ver regra completa em `.claude/rules/new-project.md`
+
+### Sequência inviolável
+
+```
+1. [@analyst] Briefing — 5 perguntas antes de qualquer arquivo
+2. [@pm]      PRD.md
+3. [@architect] SPEC-TECNICO.md
+4. [@analyst + @pm] PITCH.md  ← documento comercial obrigatório
+5. [@sm]      STORY-001.md
+6. [@po]      Validação
+7. [@dev]     Código — só aqui
+```
+
+### Estrutura obrigatória de todo projeto
+
+```
+.Apps/[nome-do-projeto]/
+├── docs/
+│   ├── BRIEFING.md
+│   ├── PRD.md
+│   ├── SPEC-TECNICO.md
+│   ├── PITCH.md          ← sempre, sem exceção
+│   └── stories/
+├── src/
+├── tests/
+└── README.md
+```
+
+**Nunca criar `src/` antes do `BRIEFING.md` existir.**
+**Nunca codar antes da `STORY-001` estar aprovada pelo @po.**
+
+---
+
+## Protocolo de Ação Crítica — OBRIGATÓRIO
+
+Antes de executar qualquer ação que não possa ser facilmente desfeita:
+
+```
+🔴 AÇÃO CRÍTICA — aguardando aprovação
+
+O que vou fazer: [descrição clara]
+Por que é necessário: [justificativa]
+O que muda: [impacto real]
+Como desfazer: [rollback se existir]
+
+Posso prosseguir?
+```
+
+**Ações que sempre exigem este protocolo:**
+- git push / deploy / release
+- Deletar arquivo, pasta ou banco de dados
+- Alterar configurações de produção
+- Expor porta, endpoint ou credencial
+- Mudar arquitetura ou stack de projeto
 
 ---
 
@@ -179,6 +259,7 @@ STORY-NNN estados: Draft → Ready → InProgress → InReview → Done
 - Cada agente tem `MEMORY.md` em `.claude/agent-memory/[agente]/`
 - Ler ao ativar, atualizar ao descobrir padrões importantes
 - Formato: Padrões Confirmados | Preferências | Gotchas | Decisões
+- Atualizar `PRIORIDADES.md` ao final de sessões com decisões relevantes
 
 ---
 
@@ -213,9 +294,12 @@ Carregar quando relevante: `@load-context [nome]`
 
 ## Projetos Ativos
 
-### Apps/
-- **orcamentos-brasilup** — App Streamlit para orçamentos
-- **site-brasilup-2026** — Site institucional Next.js
+Ver `.business/PRIORIDADES.md` para estado atual de todos os projetos.
+
+### .Apps/
+- **orcamentos-brasilup** — App Streamlit para orçamentos (BrasilUp)
+- **site-brasilup-2026** — Site institucional Next.js (BrasilUp)
+- **SalesFloIA** — Cockpit de vendas com IA nativa (GEN.IA SQUAD) — blueprint
 
 ### Automações
 - **relatorio-diario-kommo** — Relatório diário de vendas
@@ -223,5 +307,5 @@ Carregar quando relevante: `@load-context [nome]`
 
 ---
 
-_GEN.IA OS v1.0 — Be Data — Elidy Izidio_
+_GEN.IA OS v1.1 — Be Data — Elidy Izidio_
 _Baseado em AIOS Core (MIT License, SynkraAI) — Adaptado e reescrito_

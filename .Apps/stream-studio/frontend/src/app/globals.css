@@ -1,0 +1,46 @@
+@import "tailwindcss";
+
+@theme {
+  /* Colors - Yolk (Primary) */
+  --color-yolk-500: #eab308; /* Example yolk color */
+  --color-yolk-600: #ca8a04;
+  --color-yolk-900: #713f12;
+  --color-yolk-soft: rgba(234, 179, 8, 0.2);
+
+  /* Colors - Graphite (Surfaces and Backgrounds) */
+  --color-graphite-700: #334155;
+  --color-graphite-800: #1e293b;
+  --color-graphite-900: #0f172a;
+  --color-graphite-950: #020617;
+
+  /* Semantic Mappings */
+  --color-background: var(--color-graphite-950);
+  --color-foreground: #f1f5f9; /* gray-100 */
+
+  /* Typography */
+  --font-sans: 'Inter', system-ui, sans-serif;
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: var(--color-graphite-950);
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--color-graphite-700);
+  border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--color-graphite-800);
+}

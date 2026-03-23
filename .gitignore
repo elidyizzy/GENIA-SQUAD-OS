@@ -36,3 +36,8 @@ npm-debug.log*
 *.tmp
 *.bak
 *.swp
+
+# GEN.IA OS — runtime e dados pessoais
+conversas - salvas/
+.genia/session-digests/
+.genia/session/

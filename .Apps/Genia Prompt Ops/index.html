@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GEN.IA PROMPT OPS</title>
+  <meta name="description" content="GEN.IA PROMPT OPS — Plataforma de prompts da GEN.IA SQUAD" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <!-- NAVIGATION -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="#" class="nav-logo" onclick="showPage('prompts'); setActiveNav('prompts')">
+        <div class="logo-icon">
+          <svg width="20" height="20" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path
+              d="M32 8c-6 0-11 4-12 9-3 1-5 4-5 7 0 2 1 4 2 5-2 2-3 4-3 7 0 4 3 7 7 8v2h22v-2c4-1 7-4 7-8 0-3-1-5-3-7 1-1 2-3 2-5 0-3-2-6-5-7-1-5-6-9-12-9z" />
+            <line x1="32" y1="17" x2="32" y2="46" />
+            <line x1="24" y1="24" x2="32" y2="28" />
+            <line x1="40" y1="24" x2="32" y2="28" />
+            <line x1="22" y1="34" x2="32" y2="38" />
+            <line x1="42" y1="34" x2="32" y2="38" />
+          </svg>
+        </div>
+        <span class="logo-text"><strong>GEN.IA</strong><span class="logo-sub"> PROMPT OPS</span></span>
+      </a>
+      <div class="nav-links">
+        <a href="#" class="nav-link active" id="nav-prompts"
+          onclick="showPage('prompts'); setActiveNav('prompts')">Prompts</a>
+        <a href="#" class="nav-link" id="nav-admin" onclick="goToAdmin()">Admin</a>
+      </div>
+    </div>
+    <div class="nav-border"></div>
+  </nav>
+
+  <!-- PAGE: PROMPTS -->
+  <div id="page-prompts" class="page active">
+    <header class="hero">
+      <h1 class="hero-title">Explorar Prompts GEN.IA SQUAD</h1>
+      <p class="hero-subtitle">Tenha acesso aos mesmos prompts que utilizamos na GEN.IA SQUAD</p>
+    </header>
+
+    <div class="search-section">
+      <div class="search-bar-wrapper">
+        <div class="search-bar-inner">
+          <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="searchInput" class="search-input"
+            placeholder="Buscar por categoria, objetivo ou resultado..." oninput="filterPrompts()" />
+        </div>
+        <div class="sort-dropdown" onclick="toggleSortDropdown()">
+          <span id="sortLabel">Melhor Avaliados</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+          <div class="sort-menu" id="sortMenu">
+            <div class="sort-option active-sort" onclick="setSort('score','Melhor Avaliados')">Melhor Avaliados</div>
+            <div class="sort-option" onclick="setSort('recent','Mais Recentes')">Mais Recentes</div>
+            <div class="sort-option" onclick="setSort('visits','Mais Visitados')">Mais Visitados</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="filter-tabs">
+        <button class="filter-tab active-tab" id="tab-categorias" onclick="switchTab('categorias')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+          </svg>
+          Categorias (14)
+        </button>
+        <button class="filter-tab" id="tab-tags" onclick="switchTab('tags')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+            <line x1="7" y1="7" x2="7.01" y2="7"></line>
+          </svg>
+          Tags (21)
+        </button>
+      </div>
+
+      <div id="filter-categorias" class="filter-pills">
+        <button class="pill active-pill" onclick="filterByCategory('')">Todos os Prompts</button>
+        <button class="pill" onclick="filterByCategory('Análise')">Análise</button>
+        <button class="pill" onclick="filterByCategory('Autoconhecimento')">Autoconhecimento</button>
+        <button class="pill" onclick="filterByCategory('Desenvolvimento')">Desenvolvimento</button>
+        <button class="pill" onclick="filterByCategory('Design')">Design</button>
+        <button class="pill" onclick="filterByCategory('Educação')">Educação</button>
+        <button class="pill" onclick="filterByCategory('Eng. Prompt')">Eng. Prompt</button>
+        <button class="pill" onclick="filterByCategory('Escrita')">Escrita</button>
+        <button class="pill" onclick="filterByCategory('Geral')">Geral</button>
+        <button class="pill" onclick="filterByCategory('Marketing')">Marketing</button>
+        <button class="pill" onclick="filterByCategory('Negócios')">Negócios</button>
+        <button class="pill" onclick="filterByCategory('Produtividade')">Produtividade</button>
+        <button class="pill" onclick="filterByCategory('RH')">RH</button>
+        <button class="pill" onclick="filterByCategory('Saúde')">Saúde</button>
+        <button class="pill" onclick="filterByCategory('Vendas')">Vendas</button>
+      </div>
+
+      <div id="filter-tags" class="filter-pills hidden">
+        <button class="pill active-pill" onclick="filterByTag('')">Todas as Tags</button>
+        <button class="pill" onclick="filterByTag('Acadêmico')">Acadêmico</button>
+        <button class="pill" onclick="filterByTag('Análise')">Análise</button>
+        <button class="pill" onclick="filterByTag('Autoconhecimento')">Autoconhecimento</button>
+        <button class="pill" onclick="filterByTag('Copy')">Copy</button>
+        <button class="pill" onclick="filterByTag('Copywriting')">Copywriting</button>
+        <button class="pill" onclick="filterByTag('Desenvolvimento')">Desenvolvimento</button>
+        <button class="pill" onclick="filterByTag('Design')">Design</button>
+        <button class="pill" onclick="filterByTag('Eng. Prompt')">Eng. Prompt</button>
+        <button class="pill" onclick="filterByTag('Escrita')">Escrita</button>
+        <button class="pill" onclick="filterByTag('Geral')">Geral</button>
+        <button class="pill" onclick="filterByTag('Ideação')">Ideação</button>
+        <button class="pill" onclick="filterByTag('Marketing')">Marketing</button>
+        <button class="pill" onclick="filterByTag('Memória')">Memória</button>
+        <button class="pill" onclick="filterByTag('Meta Prompt')">Meta Prompt</button>
+        <button class="pill" onclick="filterByTag('Negócios')">Negócios</button>
+        <button class="pill" onclick="filterByTag('OKR')">OKR</button>
+        <button class="pill" onclick="filterByTag('Páginas')">Páginas</button>
+        <button class="pill" onclick="filterByTag('Persona')">Persona</button>
+        <button class="pill" onclick="filterByTag('Produtividade')">Produtividade</button>
+        <button class="pill" onclick="filterByTag('Saúde')">Saúde</button>
+        <button class="pill" onclick="filterByTag('Trilha de Aprendizado')">Trilha de Aprendizado</button>
+      </div>
+    </div>
+
+    <main class="prompts-grid" id="promptsGrid"></main>
+  </div>
+
+  <!-- PAGE: PROMPT DETAIL -->
+  <div id="page-detail" class="page hidden">
+    <div class="detail-container" id="detailContainer"></div>
+  </div>
+
+  <!-- PAGE: ADMIN -->
+  <div id="page-admin" class="page hidden">
+    <div class="admin-container">
+      <div class="admin-header">
+        <div>
+          <h1 class="admin-page-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 20h9" />
+              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z" />
+            </svg>
+            Painel de Gerenciamento
+          </h1>
+          <p class="admin-page-sub">Gerencie os prompts da plataforma GEN.IA SQUAD</p>
+        </div>
+        <div class="admin-header-actions">
+          <button class="btn-admin-add" onclick="openPromptModal(null)">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            Novo Prompt
+          </button>
+          <button class="btn-admin-reset" onclick="resetToOriginal()" title="Restaurar prompts originais">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="1 4 1 10 7 10" />
+              <path d="M3.51 15a9 9 0 1 0 .49-3.5" />
+            </svg>
+            Restaurar
+          </button>
+          <button class="btn-admin-logout" onclick="logout()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+            Sair
+          </button>
+        </div>
+      </div>
+
+      <div class="admin-stats" id="adminStats"></div>
+
+      <div class="admin-table-wrapper">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Score</th>
+              <th>Prompt</th>
+              <th>Categoria</th>
+              <th>Tag</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="adminTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-logo">
+        <svg width="14" height="14" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.5"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path
+            d="M32 8c-6 0-11 4-12 9-3 1-5 4-5 7 0 2 1 4 2 5-2 2-3 4-3 7 0 4 3 7 7 8v2h22v-2c4-1 7-4 7-8 0-3-1-5-3-7 1-1 2-3 2-5 0-3-2-6-5-7-1-5-6-9-12-9z" />
+          <line x1="32" y1="17" x2="32" y2="46" />
+        </svg>
+        <span>GEN.IA PROMPT OPS</span>
+      </div>
+      <p class="footer-credit">Desenvolvido por <strong>GEN.IA SQUAD</strong></p>
+      <p class="footer-copy">&copy; 2025 GEN.IA SQUAD. Todos os direitos reservados.</p>
+    </div>
+  </footer>
+
+  <!-- COPY TOAST -->
+  <div class="copy-toast" id="copyToast">✓ Prompt copiado!</div>
+
+  <!-- MODAL: ADD / EDIT PROMPT -->
+  <div class="modal-overlay" id="promptModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modalTitle">Novo Prompt</h2>
+        <button class="modal-close" onclick="closePromptModal()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+      <form id="promptForm" onsubmit="event.preventDefault(); savePromptForm();">
+        <div class="form-row">
+          <div class="form-group" style="flex:2">
+            <label class="form-label">Título *</label>
+            <input type="text" id="fTitle" class="form-input" placeholder="Ex: Gerador de Headlines Virais" required />
+          </div>
+          <div class="form-group" style="flex:0 0 90px">
+            <label class="form-label">Score</label>
+            <input type="number" id="fScore" class="form-input" min="0" max="100" value="75" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Categoria *</label>
+            <select id="fCategory" class="form-input form-select" required></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Tag *</label>
+            <input type="text" id="fTag" class="form-input" placeholder="Ex: Copywriting" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Descrição curta *</label>
+          <input type="text" id="fDescription" class="form-input"
+            placeholder="Uma linha descrevendo o que este prompt faz..." required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Conteúdo do Prompt *</label>
+          <textarea id="fContent" class="form-textarea" placeholder="Cole ou escreva o prompt completo aqui..."
+            required></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-modal-cancel" onclick="closePromptModal()">Cancelar</button>
+          <button type="submit" class="btn-modal-save">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+            Salvar Prompt
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="prompts-data.js"></script>
+  <script src="app.js"></script>
+</body>
+
+</html>
