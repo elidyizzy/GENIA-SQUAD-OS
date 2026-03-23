@@ -41,3 +41,4 @@ npm-debug.log*
 conversas - salvas/
 .genia/session-digests/
 .genia/session/
+.genia/metrics/

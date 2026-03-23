@@ -53,6 +53,17 @@
           }
         ]
       }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c \"cd \\\"$(git rev-parse --show-toplevel)\\\" && node .claude/hooks/metrics-tracker.cjs\""
+          }
+        ]
+      }
     ]
   }
 }
