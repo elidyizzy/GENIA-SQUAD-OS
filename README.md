@@ -1,7 +1,7 @@
 # GEN.IA OS
 
 > **Sistema Operacional de Desenvolvimento Assistido por IA**
-> Be Data · Elidy Izidio · v1.0
+> GEN.IA SQUAD · Elidy Izidio · v1.1
 
 ---
 
@@ -260,6 +260,8 @@ Injeta contexto em cada prompt. O coração do sistema. Ativo em 100% dos prompt
 
 ### `precompact-session-digest.cjs` — PreCompact
 Quando o Claude Code precisar compactar o contexto (sessão longa), este hook salva automaticamente um resumo em `.genia/session-digests/`. Você não perde histórico.
+
+> **v1.1:** O Synapse Engine agora detecta automaticamente o início e o fim de cada sessão via flag de controle. Ao iniciar, registra a sessão ativa em `.genia/session/`; ao encerrar, dispara o digest de forma confiável — mesmo em sessões curtas que não atingiriam o threshold de compactação.
 
 ### `enforce-git-push-authority.py` — PreToolUse(Bash)
 **Bloqueia git push** de qualquer agente que não seja @devops. Isso foi provado em tempo real durante a própria criação do GEN.IA OS — o hook bloqueou o push do Claude durante o setup.
@@ -527,7 +529,15 @@ GENIA - SQUAD - OS/
 │   ├── context                       ← Domínio L1 (sempre ativo)
 │   └── agent-[nome]                  ← Domínios L2 (por agente)
 │
-├── Apps/                             ← Seus projetos de apps
+├── .agents/                          ← Suporte ao Google Antigravity
+│   ├── AGENTS.md                     ← Registry de agentes externos
+│   └── skills/                       ← Skills compatíveis com Antigravity
+│
+├── .Apps/                            ← Seus projetos e apps
+│   └── create-genia-os/              ← CLI npm instalador oficial
+│       ├── bin/create.js             ← Instala o GEN.IA OS via clone do repo
+│       └── package.json              ← v2.0.0 — publicável no npm
+│
 ├── docs/
 │   └── stories/                      ← STORY-NNN-slug.md
 └── .gitignore
@@ -587,9 +597,9 @@ Cada agente aprende o que é relevante para seu papel. O MEMORY.md do @architect
 
 ## Roadmap
 
-### v1.0 (atual)
+### v1.0 ✅
 - 9 agentes com personas completas
-- Synapse Engine (3 camadas)
+- Synapse Engine (3 camadas L0/L1/L2)
 - 5 hooks de governança
 - 8 workflows
 - 7 tasks reutilizáveis
@@ -597,14 +607,21 @@ Cada agente aprende o que é relevante para seu papel. O MEMORY.md do @architect
 - 5 contextos de integração
 - 8 skills especializadas
 
-### v1.1 (próximo)
+### v1.1 (atual) ✅
+- **Synapse Engine v1.1** — detecção automática de início e fim de sessão via flag
+- **`create-genia-os@2.0.0`** — CLI npm que instala o GEN.IA OS clonando o repo oficial (`npx create-genia-os`)
+- **`.agents/`** — estrutura paralela para suporte ao Google Antigravity
+- **Contexto de negócio expandido** — OWNER.md, ACORDOS.md e arquivos L1 por empresa (GEN.IA SQUAD, BrasilUp, Cuore)
+- **GEN.IA SQUAD** — renomeação de Be Data; foco em plataforma de IA para negócios B2B
+
+### v2.0 (próximo)
 - Entity Registry — rastreamento de artefatos com checksums
 - Workflow Intelligence — aprendizado de padrões de execução
 - Autonomous Build Loop — @dev executa `*build STORY-NNN` de forma autônoma
 - CodeRabbit integration — code review em CI/CD
 - Project management adapters — ClickUp, Jira nativos
 
-### v2.0 (futuro)
+### v3.0 (futuro)
 - Squad System — criar squads temáticos (marketing, dados, produto)
 - IDE Sync — sincronizar agentes para Cursor e Copilot
 - LLM Routing — rotear para Claude Free/Max por tipo de tarefa
@@ -613,10 +630,10 @@ Cada agente aprende o que é relevante para seu papel. O MEMORY.md do @architect
 
 ## Créditos
 
-**GEN.IA OS** foi criado por **Elidy Izidio** / **Be Data**.
+**GEN.IA OS** foi criado por **Elidy Izidio** / **GEN.IA SQUAD**.
 
 Inspirado arquiteturalmente pelo [AIOS Core](https://github.com/SynkraAI/aios-core) (MIT License, SynkraAI). O Synapse Engine, o sistema de hooks, a estrutura de domínios `.synapse/` e os padrões de governance foram adaptados e reescritos para o contexto GEN.IA OS.
 
 ---
 
-*GEN.IA OS v1.0 · Be Data · 2026*
+GEN.IA OS v1.1 · GEN.IA SQUAD · 2026

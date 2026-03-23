@@ -1,7 +1,7 @@
 # PRIORIDADES — Arquivo Vivo
 > Atualizar a cada mudança de foco. Data sempre visível.
 
-**Última atualização:** 2026-03-15
+**Última atualização:** 2026-03-23
 
 ---
 
@@ -124,6 +124,9 @@ FASE 3 — Quando SalesFlow.IA completo
 | 2026-03-15 | Cockpit web: Netlify (não Railway) — app estático não precisa de Docker |
 | 2026-03-15 | GEN.IA OS: NUNCA usar `npx create-genia-os` — sempre clonar do repositório oficial |
 | 2026-03-15 | story-gate.py instalado — deploy bloqueado sem story InProgress |
+| 2026-03-23 | create-genia-os@2.0.0: clona repo oficial em vez de template estático — mais confiável |
+| 2026-03-23 | .agents/: estrutura paralela criada para suporte ao Google Antigravity |
+| 2026-03-23 | Synapse Engine v1.1: detecção automática de início/fim de sessão via flag |
 
 ---
 
