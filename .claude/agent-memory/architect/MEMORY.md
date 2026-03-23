@@ -1,31 +1,39 @@
 # MEMORY — @architect (Trinity)
+
 > Arquiteta de Sistemas — GEN.IA OS
-> Última atualização: 2026-02-24
+> Última atualização: 2026-03-23
 
 ## Padrões Confirmados
-_Nenhum ainda._
+
+- **SPEC-TECNICO.md antes de código**: arquitetura documentada é pré-requisito
+- **Veto técnico irrevogável**: qualquer decisão arquitetural passa por Trinity
+- **ADRs para decisões relevantes**: Architecture Decision Records para mudanças de stack
 
 ## Preferências da Usuária
+
 - Idioma: Português do Brasil
-- Usuária: Elidy Izidio
+- Usuária: Elidy Izidio — Fundadora da GEN.IA SQUAD
 
 ## Stack Tecnológica Confirmada
-- Frontend: Next.js 14+ (App Router), React, TypeScript
-- Backend: Supabase (PostgreSQL + Auth + Storage + Edge Functions)
-- Automações: Python 3.12
-- UI Apps: Streamlit
+
+- **Frontend**: Next.js 14+ (App Router), React 18, TypeScript 5
+- **Backend**: Supabase (PostgreSQL + Auth + Storage + Edge Functions)
+- **Automações**: Python 3.12, Node.js 24
+- **UI Apps**: Streamlit
+- **Hooks GEN.IA OS**: Python (PreToolUse) + JavaScript/CJS (UserPromptSubmit, PreCompact)
+- **Deploy web**: Netlify para estático, Railway para container
 
 ## Decisões Arquiteturais
-- **gen-ia-creator (2026-02-25):** React 18 + TypeScript 5 + Vite 5 + Tailwind 3 + @figma/plugin-typings. Sem backend próprio — Claude API chamada via fetch direto da UI do plugin. API key armazenada em figma.clientStorage. SPEC em Apps/gen-ia-creator/docs/SPEC-TECNICO.md
-- **gen-ia-creator — modelo de uso (2026-02-25):** USO INTERNO (só Be Data/Elidy). Cada usuária usa sua própria API key Anthropic. Quando migrar para produto comercial, ver opções de monetização abaixo.
-- **Sistema dual-plugin (2026-02-25):** gen.ia creator (gera template) + gen.ia fill (popula com conteúdo). Comunicação entre plugins via figma.clientStorage / Plugin ID.
 
-## Opções de Monetização (gen-ia-creator — usar quando Elidy quiser escalar)
-- **Opção A — Supabase Edge Functions (RECOMENDADA):** Plugin UI → Edge Function → Anthropic API. Chave Anthropic em Supabase Secrets. Auth via Supabase Auth. Alinha com stack existente. Ideal para SaaS com login.
-- **Opção B — Vercel API Routes:** Plugin UI → Vercel Serverless → Anthropic API. MVP rápido. JWT simples para auth. Chave em Vercel Environment Vars.
-- **Opção C — Next.js próprio:** Servidor próprio com controle total. Mais complexo. Melhor para volume alto.
+- **GEN.IA OS hooks (2026-02-24)**: Python para hooks síncronos (enforce, sql, write-path); CJS para hooks assíncronos (synapse-engine, precompact). Motivo: Windows compatibility com sys.stdin.read()
+- **Synapse Engine (2026-02-24)**: 3 camadas L0/L1/L2. Timeout 100ms, falha silenciosa. Arquivos .synapse/ em texto simples para performance
+- **gen-ia-creator (2026-02-25)**: React 18 + Vite 5 + Tailwind 3 + @figma/plugin-typings. Claude API via fetch direto da UI (sem backend). API key em figma.clientStorage
+- **Cockpit web (2026-03-15)**: Netlify (não Railway) — app estático não precisa de Docker
+- **create-genia-os (2026-03-23)**: CLI npm que clona repo oficial — não usa template estático
 
 ## Gotchas
+
 - Figma plugin UI (iframe) pode fazer fetch para APIs externas — CORS não é problema
-- Dual build Vite: build A (React UI → ui.html) + build B (sandbox → code.js) em sequência
+- Dual Vite build: build A (React UI → ui.html) + build B (sandbox → code.js) em sequência
 - figma.clientStorage é por usuário+plugin — seguro para API keys
+- Hooks com caminhos relativos quebram quando bash CWD muda — usar git rev-parse --show-toplevel
