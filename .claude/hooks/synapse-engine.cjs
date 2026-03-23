@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * GEN.IA OS — Synapse Engine v1.0
+ * GEN.IA OS — Synapse Engine v1.1
  * Trigger: UserPromptSubmit
  *
  * Pipeline de 3 camadas de injeção de contexto em cada prompt:
@@ -8,9 +8,13 @@
  *   L1: Global + Contexto (sempre ativa)
  *   L2: Agente específico (quando @agente detectado no prompt)
  *
+ * Detecções adicionais:
+ *   Session Start: injeta aviso de skill session-start no primeiro prompt
+ *   Session End:   injeta aviso de skill session-end ao detectar palavras-chave
+ *
  * Timeout: 100ms — NUNCA bloqueia o usuário
  * Inspirado no AIOS Synapse Engine (MIT License, SynkraAI)
- * Adaptado e reescrito para GEN.IA OS — Be Data — Elidy Izidio
+ * Adaptado e reescrito para GEN.IA OS — GEN.IA SQUAD — Elidy Izidio
  */
 
 'use strict';
@@ -21,6 +25,14 @@ const readline = require('readline');
 
 const TIMEOUT_MS = 100;
 const SYNAPSE_DIR = '.synapse';
+const SESSION_FLAG = path.join('.genia', 'session', 'session-active');
+
+// Palavras-chave que indicam encerramento de sessão
+const SESSION_END_KEYWORDS = [
+  'encerrar sessão', 'fechar sessão', 'pode fechar',
+  'boa noite', 'até amanhã', 'vou parar por hoje',
+  'session end', 'end session',
+];
 
 // Mapeamento de @agente → domínio synapse
 const AGENT_DOMAINS = {
@@ -45,6 +57,40 @@ function readDomain(cwd, domainName) {
     // Falha silenciosa — Synapse nunca quebra o fluxo
   }
   return null;
+}
+
+function detectSessionEnd(prompt) {
+  if (!prompt) return false;
+  const lower = prompt.toLowerCase();
+  return SESSION_END_KEYWORDS.some((kw) => lower.includes(kw));
+}
+
+function detectSessionStart(cwd) {
+  try {
+    const flagPath = path.join(cwd, SESSION_FLAG);
+    return !fs.existsSync(flagPath);
+  } catch (_) {
+    return false;
+  }
+}
+
+function createSessionFlag(cwd) {
+  try {
+    const flagPath = path.join(cwd, SESSION_FLAG);
+    fs.mkdirSync(path.dirname(flagPath), { recursive: true });
+    fs.writeFileSync(flagPath, new Date().toISOString(), 'utf8');
+  } catch (_) {
+    // Falha silenciosa
+  }
+}
+
+function removeSessionFlag(cwd) {
+  try {
+    const flagPath = path.join(cwd, SESSION_FLAG);
+    if (fs.existsSync(flagPath)) fs.unlinkSync(flagPath);
+  } catch (_) {
+    // Falha silenciosa
+  }
 }
 
 function detectActiveAgent(prompt) {
@@ -97,6 +143,27 @@ async function run() {
   if (agentDomain) {
     const agentRules = readDomain(cwd, agentDomain);
     if (agentRules) layers.push(agentRules);
+  }
+
+  // Session End — detectar antes do Start para prioridade correta
+  const isEnding = detectSessionEnd(prompt);
+  if (isEnding) {
+    removeSessionFlag(cwd);
+    layers.push(
+      'ATENÇÃO: Encerramento detectado. Tank (@devops) deve ' +
+      'executar a skill session-end ANTES de encerrar.\n' +
+      'Arquivo: .claude/skills/session-end/SKILL.md'
+    );
+  }
+
+  // Session Start — apenas se não for encerramento
+  if (!isEnding && detectSessionStart(cwd)) {
+    createSessionFlag(cwd);
+    layers.push(
+      'ATENÇÃO: Sessão iniciada. Execute a skill session-start ' +
+      'ANTES de qualquer outra ação.\n' +
+      'Arquivo: .claude/skills/session-start/SKILL.md'
+    );
   }
 
   if (layers.length === 0) return '';
