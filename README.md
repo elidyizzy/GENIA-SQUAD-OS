@@ -24,6 +24,40 @@ A ideia central é simples: ao invés de você ter um único assistente genéric
 
 ---
 
+## Quickstart — 5 minutos para o primeiro agente
+
+### 1. Instale o GEN.IA OS no seu projeto
+
+```bash
+npx create-genia-os meu-projeto
+cd meu-projeto
+```
+
+> Isso clona `.claude/`, `.genia/`, `.synapse/` e `.business/` do repositório oficial direto no seu projeto.
+
+### 2. Preencha seu contexto de negócio
+
+```bash
+# Abra e edite com suas informações reais
+code .business/OWNER.md
+```
+
+Este é o passo mais importante. O GEN.IA OS precisa saber quem é você para os agentes trabalharem com contexto real.
+
+### 3. Abra no VS Code com Claude Code e chame seu primeiro agente
+
+```
+@analyst quero criar [descreva seu projeto em uma frase]
+```
+
+O agente Cypher vai fazer 5 perguntas, entregar um `BRIEFING.md` e passar automaticamente para @pm criar o PRD. O SQUAD inteiro entra em ação a partir daí.
+
+---
+
+**Precisa de mais contexto antes de começar?** Leia a seção [Como Usar](#como-usar--guia-prático) abaixo.
+
+---
+
 ## Arquitetura
 
 ```
