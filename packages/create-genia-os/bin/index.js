@@ -34,7 +34,7 @@ function bold(msg) { return `${c.bold}${msg}${c.reset}`; }
 function banner() {
   log('');
   log(`${c.cyan}${c.bold}╔═══════════════════════════════════════════╗${c.reset}`);
-  log(`${c.cyan}${c.bold}║       GEN.IA OS — Setup Wizard v1.0       ║${c.reset}`);
+  log(`${c.cyan}${c.bold}║       GEN.IA OS — Setup Wizard v1.1       ║${c.reset}`);
   log(`${c.cyan}${c.bold}║  Sistema operacional de dev com IA         ║${c.reset}`);
   log(`${c.cyan}${c.bold}╚═══════════════════════════════════════════╝${c.reset}`);
   log('');
@@ -159,14 +159,44 @@ async function main() {
   copyTemplate(templateDir, targetDir, vars);
   ok(`Projeto criado em ./${projectName}/`);
 
-  // ── Criar docs/stories/ e .genia/session/ ──
-  fs.mkdirSync(path.join(targetDir, 'docs', 'stories'), { recursive: true });
-  fs.writeFileSync(path.join(targetDir, 'docs', 'stories', '.gitkeep'), '');
+  // ── Criar docs/ estrutura profissional obrigatória ──
+  const docsDirs = [
+    ['docs', 'stories'],
+    ['docs', 'handover'],
+    ['docs', 'produto'],
+    ['docs', 'tecnico', 'adr'],
+    ['docs', 'comercial'],
+  ];
+  for (const parts of docsDirs) {
+    fs.mkdirSync(path.join(targetDir, ...parts), { recursive: true });
+    fs.writeFileSync(path.join(targetDir, ...parts, '.gitkeep'), '');
+  }
+
+  // ── Criar squads/ estrutura ──
+  const squadsDirs = [
+    ['squads', 'advisory-board'],
+    ['squads', 'copy-squad'],
+    ['squads', 'hormozi-squad'],
+    ['squads', 'brand-squad'],
+    ['squads', 'clevel-squad'],
+    ['squads', 'data-squad'],
+  ];
+  for (const parts of squadsDirs) {
+    fs.mkdirSync(path.join(targetDir, ...parts), { recursive: true });
+    fs.writeFileSync(path.join(targetDir, ...parts, '.gitkeep'), '');
+  }
+
+  // ── Criar .genia/session/ ──
   fs.mkdirSync(path.join(targetDir, '.genia', 'session'), { recursive: true });
   fs.mkdirSync(path.join(targetDir, '.genia', 'session-digests'), { recursive: true });
   fs.writeFileSync(path.join(targetDir, '.genia', 'session', '.gitkeep'), '');
   fs.writeFileSync(path.join(targetDir, '.genia', 'session-digests', '.gitkeep'), '');
-  ok('Diretórios de sessão e stories criados');
+  ok('Estrutura docs/ profissional e squads/ criados');
+
+  // ── Criar .claude/agent-memory/squads/ ──
+  fs.mkdirSync(path.join(targetDir, '.claude', 'agent-memory', 'squads'), { recursive: true });
+  fs.writeFileSync(path.join(targetDir, '.claude', 'agent-memory', 'squads', '.gitkeep'), '');
+  ok('Diretórios de memória e sessão criados');
 
   // ── Git init ──
   if (initGit.toLowerCase() !== 'n') {
@@ -174,7 +204,7 @@ async function main() {
       const { execSync } = require('child_process');
       execSync('git init', { cwd: targetDir, stdio: 'ignore' });
       execSync('git add .', { cwd: targetDir, stdio: 'ignore' });
-      execSync(`git commit -m "chore: GEN.IA OS v1.0 — setup inicial\n\nCo-Authored-By: GEN.IA OS <genia@bedata.com.br>"`, {
+      execSync(`git commit -m "chore: GEN.IA OS v1.1 — setup inicial\n\nCo-Authored-By: GEN.IA OS <genia@bedata.com.br>"`, {
         cwd: targetDir, stdio: 'ignore',
       });
       ok('Repositório git inicializado com commit inicial');
