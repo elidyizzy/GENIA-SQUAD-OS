@@ -1,11 +1,15 @@
 # create-genia-os
 
-[![npm version](https://img.shields.io/npm/v/create-genia-os.svg)](https://www.npmjs.com/package/create-genia-os)
-[![node](https://img.shields.io/node/v/create-genia-os.svg)](https://nodejs.org)
-[![license](https://img.shields.io/npm/l/create-genia-os.svg)](https://github.com/elidyizzy/GENIA-SQUAD-OS/blob/main/LICENSE)
+<p align="center">
+  <a href="https://www.npmjs.com/package/create-genia-os"><img src="https://img.shields.io/npm/v/create-genia-os.svg?style=flat-square" /></a>
+  <img src="https://img.shields.io/badge/Claude%20Code-Compatible-blue?style=flat-square" />
+  <img src="https://img.shields.io/badge/Agentes-9%20%2B%20Squads-purple?style=flat-square" />
+  <img src="https://img.shields.io/node/v/create-genia-os.svg?style=flat-square" />
+  <img src="https://img.shields.io/npm/l/create-genia-os.svg?style=flat-square" />
+</p>
 
-> **GEN.IA OS** — Sistema operacional de desenvolvimento com IA para Claude Code.
-> Configure um time completo de 9 agentes especializados, Synapse Engine e governança automática em segundos.
+> **Transforma o Claude Code em um time completo de especialistas.**
+> 9 agentes de desenvolvimento + Squads de negócio, Synapse Engine, governança automática e documentação profissional — tudo em 30 segundos.
 
 ---
 
@@ -13,62 +17,121 @@
 
 ```bash
 npx create-genia-os meu-projeto
+cd meu-projeto
+code .
 ```
 
-O wizard interativo vai perguntar: nome do projeto, equipe, GitHub user/repo, idioma e stack. Em menos de 1 minuto você tem tudo configurado.
+O wizard interativo configura nome do projeto, equipe, GitHub, idioma e stack. Em seguida, chame seu primeiro agente:
+
+```
+@analyst quero criar [seu projeto em uma frase]
+```
 
 ---
 
 ## O que você recebe
 
-- **9 agentes Matrix** com papéis, personas e autoridades únicas (Neo, Trinity, Morpheus, Oracle, Smith, Cypher, Tank, Mouse, Switch)
-- **Synapse Engine** — hook que injeta contexto correto em *cada* prompt automaticamente
-- **5 hooks de governança** — enforcement automático de boas práticas (push bloqueado sem @devops, DDL SQL bloqueado, paths validados)
-- **8 workflows** — do greenfield ao hotfix, com handoffs documentados
-- **7 tasks reutilizáveis** — criar PRD, SPEC, story, implementar, QA, debug, code review
-- **5 contextos** de integração — Kommo CRM, Supabase, WhatsApp Cloud, Next.js, API patterns
-- **8 skills** especializadas — PDF, Excel, Word, PowerPoint, Frontend Design, Canvas, MCP Builder, Webapp Testing
-- **Memória persistente** por agente — cada agente acumula conhecimento do projeto ao longo do tempo
+### Sistema 1 — 9 Agentes de Desenvolvimento
 
----
+Um time completo com papéis, personas e autoridades únicas. Cada agente sabe exatamente o que pode e o que não pode fazer.
 
-## Os 9 Agentes
-
-| Comando | Persona | Papel | Autoridade exclusiva |
-|---------|---------|-------|---------------------|
-| `@analyst` | Cypher | Analista de Negócios | Briefing, requisitos |
-| `@pm` | Morpheus | Product Manager | PRD, épicos, escopo |
+| Agente | Persona | Papel | Autoridade exclusiva |
+|--------|---------|-------|---------------------|
+| `@analyst` | Cypher | Analista de Negócios | Briefing, requisitos, pesquisa |
+| `@pm` | Morpheus | Product Manager | PRD, épicos, roadmap |
 | `@architect` | Trinity | Arquiteta de Sistemas | Arquitetura, **veto técnico** |
 | `@po` | Oracle | Product Owner | **Aprovação de stories** |
-| `@sm` | Mouse | Scrum Master | **Criação de stories** |
-| `@dev` | Neo | Desenvolvedor Full Stack | Implementação |
+| `@sm` | Mouse | Scrum Master | **Criação exclusiva de stories** |
+| `@dev` | Neo | Desenvolvedor Full Stack | Implementação (sem push) |
 | `@qa` | Smith | QA Engineer | Veredictos de qualidade |
 | `@reviewer` | Switch | Code Reviewer | Aprovação de código |
 | `@devops` | Tank | DevOps Engineer | **git push, PR, releases** |
 
-Ative qualquer agente mencionando `@agente` no seu prompt no Claude Code.
+### Sistema 2 — Squads Xquads (negócio e estratégia)
+
+Consultores de alto nível disponíveis a qualquer momento. Recomendam — o SQUAD executa.
+
+| Squad | Agentes |
+|-------|---------|
+| Advisory Board | `@ray-dalio`, `@charlie-munger`, `@naval-ravikant` |
+| Copy Squad | `@dan-kennedy`, `@david-ogilvy`, `@gary-halbert` |
+| Hormozi Squad | `@hormozi-offer` |
+| Brand Squad | `@brand-chief`, `@marty-neumeier` |
+| C-Level Squad | `@cmo-architect`, `@cto-architect` |
+| Data Squad | `@avinash-kaushik`, `@sean-ellis` |
+
+```
+@dan-kennedy escreva o pitch de vendas
+@ray-dalio analise os riscos desta estratégia
+@hormozi-offer monte a estrutura de oferta do plano Enterprise
+```
 
 ---
 
-## Como funciona
+## Como funciona — o Synapse Engine
+
+A cada prompt que você digita, um hook JavaScript (`synapse-engine.cjs`) roda em **menos de 100ms** e injeta o contexto certo automaticamente:
 
 ```
 Você digita: "@dev implemente o login"
-                  │
-                  ▼
-     synapse-engine.cjs detecta "@dev"
-                  │
-     Carrega 3 camadas de contexto:
-     L0 — Constituição (sempre)
-     L1 — Global + Contexto do projeto
-     L2 — Domínio específico de @dev (Neo)
-                  │
-                  ▼
-     Claude recebe: prompt + contexto + regras
-     Resultado: resposta precisa como @dev
+                    │
+                    ▼
+        Synapse Engine detecta "@dev"
+                    │
+                    ▼
+    L0 — Constituição  (SEMPRE)
+    L1 — Global + Contexto do projeto  (SEMPRE)
+    L2 — Regras específicas do @dev  (detectado)
+                    │
+                    ▼
+    Claude recebe prompt + contexto completo
+    e responde como Neo, com as regras certas
 ```
 
-O Synapse Engine roda em **cada prompt** via hook `UserPromptSubmit`. Timeout de 100ms, nunca bloqueia.
+Para agentes Xquads, o engine injeta também:
+- Quem é você (`.business/OWNER.md`)
+- Prioridades atuais (`.business/PRIORIDADES.md`)
+- Contexto da empresa
+- Memória do agente (`.claude/agent-memory/squads/`)
+
+---
+
+## Governança automática — 5 hooks
+
+| Hook | Quando ativa | O que faz |
+|------|-------------|-----------|
+| `synapse-engine.cjs` | Todo prompt | Injeta contexto em camadas |
+| `enforce-git-push-authority.py` | Antes de Bash | **Bloqueia** push fora do @devops |
+| `sql-governance.py` | Antes de Bash | **Bloqueia** DDL perigoso |
+| `write-path-validation.py` | Antes de Write | Valida paths de arquivo |
+| `precompact-session-digest.cjs` | Antes de compactar | Salva memória da sessão |
+
+---
+
+## Documentação profissional criada automaticamente
+
+Todo projeto novo inclui:
+
+```
+docs/
+├── produto/     PRD.md · ROADMAP.md · CHANGELOG.md
+├── tecnico/     ARQUITETURA.md · STACK.md · SETUP.md · API.md · DEPLOY.md · adr/
+├── comercial/   PITCH.md · PROPOSTA.md · ONBOARDING.md · CASOS-DE-USO.md
+├── stories/     criadas pelo @sm (Mouse)
+└── handover/    atualizado pelo @devops (Tank) a cada sessão
+```
+
+---
+
+## A Constituição — regras que não se negociam
+
+| Artigo | Regra |
+|--------|-------|
+| I — CLI First | Claude Code é fonte de verdade |
+| II — Autoridade | @devops = único com push; @sm = único cria stories |
+| III — Story-Driven | Zero código sem story aprovada pelo @po |
+| IV — Sem Invenção | Apenas features dos requisitos explícitos |
+| V — Qualidade | Lint + testes + build devem passar |
 
 ---
 
@@ -77,23 +140,8 @@ O Synapse Engine roda em **cada prompt** via hook `UserPromptSubmit`. Timeout de
 - **Node.js** ≥ 18.0.0
 - **Claude Code** (CLI da Anthropic)
 - **VS Code** (recomendado)
-- **Python 3.8+** (para os hooks de governança)
+- **Python 3.8+** (para hooks de governança)
 - **Git**
-
----
-
-## Primeiros passos após instalar
-
-```bash
-# 1. Abra o projeto no VS Code com Claude Code
-cd meu-projeto && code .
-
-# 2. Inicie um projeto do zero
-"@analyst quero criar [descreva seu projeto]"
-
-# 3. Ou pule direto para uma story
-"@sm crie a primeira story do projeto"
-```
 
 ---
 
@@ -103,4 +151,4 @@ cd meu-projeto && code .
 
 ---
 
-*GEN.IA OS v1.0 · Be Data · Elidy Izidio · 2026*
+*GEN.IA OS v2.1 · Criado por **Elidy Izidio** · Founder, GEN.IA SQUAD · 2026*
