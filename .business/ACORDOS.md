@@ -140,4 +140,29 @@ Qualquer nome diferente desses = template errado instalado.
 
 ---
 
+---
+
+## Regra de Documentação — INVIOLÁVEL
+
+Sem PRD aprovado → Neo não começa
+Sem ARQUITETURA documentada → Neo não começa
+Sem SETUP.md → Tank não faz deploy
+Sem CHANGELOG atualizado → Tank não faz release
+
+---
+
+## Regra de Instalação dos Squads — INVIOLÁVEL
+
+NUNCA instalar Squads sem o GEN.IA OS base instalado primeiro.
+Os Squads dependem do .business/ para ter contexto da Elidy.
+Sem .business/ → agentes Xquads respondem de forma genérica.
+
+Verificação obrigatória após instalar Squads:
+```bash
+grep -i "cypher\|neo\|tank\|trinity" .claude/CLAUDE.md
+```
+Se não retornar — PARAR. Não continuar sem os agentes corretos.
+
+---
+
 _Estes acordos só mudam com aprovação explícita de Elidy._

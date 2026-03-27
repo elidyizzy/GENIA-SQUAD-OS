@@ -307,5 +307,67 @@ Ver `.business/PRIORIDADES.md` para estado atual de todos os projetos.
 
 ---
 
-_GEN.IA OS v1.1 — Be Data — Elidy Izidio_
+---
+
+## Regra de Documentação — INVIOLÁVEL
+
+Todo projeto com GEN.IA OS instalado DEVE ter docs/ completo.
+
+| Agente | Documenta |
+|--------|-----------|
+| Morpheus (@pm) | PRD.md, ROADMAP.md |
+| Trinity (@architect) | ARQUITETURA.md, STACK.md, ADRs |
+| Neo (@dev) | SETUP.md, API.md, VARIAVEIS-AMBIENTE.md |
+| Tank (@devops) | DEPLOY.md, HANDOVER, CHANGELOG.md |
+| Mouse (@sm) | docs/stories/ |
+| Dan Kennedy | Contribui PITCH.md, PROPOSTA.md |
+| Ray Dalio | Contribui estratégia do PITCH.md |
+
+Regras:
+- Nenhuma story começa sem PRD existente
+- Nenhum deploy sem DEPLOY.md atualizado
+- Toda decisão arquitetural vira ADR em docs/tecnico/adr/
+- Todo encerramento de sessão → Tank atualiza docs/handover/
+- CHANGELOG.md atualizado a cada release
+- ONBOARDING.md pronto antes do primeiro cliente
+
+---
+
+## GEN.IA OS Squads — Agentes de Negócio
+
+Dois sistemas coexistem neste OS:
+
+### SISTEMA 1 — 9 Agentes de Desenvolvimento
+@analyst (Cypher), @pm (Morpheus), @architect (Trinity),
+@dev (Neo), @qa (Smith), @reviewer (Switch),
+@po (Oracle), @sm (Mouse), @devops (Tank)
+
+### SISTEMA 2 — Agentes Xquads (negócio e estratégia)
+
+| Squad | Agentes |
+|-------|---------|
+| Advisory Board | @ray-dalio, @charlie-munger, @naval-ravikant |
+| Copy Squad | @david-ogilvy, @dan-kennedy, @gary-halbert |
+| Hormozi Squad | @hormozi-offer |
+| Brand Squad | @brand-chief, @marty-neumeier |
+| C-Level Squad | @cmo-architect, @cto-architect |
+| Data Squad | @avinash-kaushik, @sean-ellis |
+
+Ver lista e definições completas em `squads/`
+
+### Regra de Coexistência — INVIOLÁVEL
+
+```
+Xquads RECOMENDAM → 9 agentes do SQUAD EXECUTAM
+```
+
+- Xquads NÃO fazem código
+- Xquads NÃO criam stories
+- Xquads NÃO fazem git push
+- Todos os acordos do .business/ACORDOS.md se aplicam a todos
+- O Synapse Engine injeta contexto de negócio automaticamente ao detectar @xquad
+
+---
+
+_GEN.IA OS v2.0 — Be Data — Elidy Izidio_
 _Baseado em AIOS Core (MIT License, SynkraAI) — Adaptado e reescrito_

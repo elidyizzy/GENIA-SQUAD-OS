@@ -1,16 +1,18 @@
 #!/usr/bin/env node
 /**
- * GEN.IA OS — Synapse Engine v1.1
+ * GEN.IA OS — Synapse Engine v2.0
  * Trigger: UserPromptSubmit
  *
  * Pipeline de 3 camadas de injeção de contexto em cada prompt:
  *   L0: Constituição (sempre ativa, não-negociável)
  *   L1: Global + Contexto (sempre ativa)
  *   L2: Agente específico (quando @agente detectado no prompt)
+ *   L2x: Agente Xquad (quando @xquad detectado — injeta contexto de negócio)
  *
  * Detecções adicionais:
  *   Session Start: injeta aviso de skill session-start no primeiro prompt
  *   Session End:   injeta aviso de skill session-end ao detectar palavras-chave
+ *   Xquads: detecta agentes de negócio, injeta .business/ + MEMORY.md
  *
  * Timeout: 100ms — NUNCA bloqueia o usuário
  * Inspirado no AIOS Synapse Engine (MIT License, SynkraAI)
@@ -34,7 +36,7 @@ const SESSION_END_KEYWORDS = [
   'session end', 'end session',
 ];
 
-// Mapeamento de @agente → domínio synapse
+// Mapeamento de @agente → domínio synapse (9 agentes do SQUAD)
 const AGENT_DOMAINS = {
   '@analyst': 'agent-analyst',
   '@pm': 'agent-pm',
@@ -47,16 +49,30 @@ const AGENT_DOMAINS = {
   '@sm': 'agent-sm',
 };
 
-function readDomain(cwd, domainName) {
+// Agentes Xquads — recebem contexto de negócio injetado
+// Estes são agentes de estratégia/negócio que RECOMENDAM (não executam código)
+const XQUAD_AGENTS = new Set([
+  '@ray-dalio', '@charlie-munger', '@naval-ravikant',
+  '@david-ogilvy', '@dan-kennedy', '@gary-halbert',
+  '@hormozi-offer',
+  '@brand-chief', '@marty-neumeier',
+  '@cmo-architect', '@cto-architect',
+  '@avinash-kaushik', '@sean-ellis',
+]);
+
+function readFile(filePath) {
   try {
-    const domainPath = path.join(cwd, SYNAPSE_DIR, domainName);
-    if (fs.existsSync(domainPath)) {
-      return fs.readFileSync(domainPath, 'utf8').trim();
+    if (fs.existsSync(filePath)) {
+      return fs.readFileSync(filePath, 'utf8').trim();
     }
   } catch (_) {
     // Falha silenciosa — Synapse nunca quebra o fluxo
   }
   return null;
+}
+
+function readDomain(cwd, domainName) {
+  return readFile(path.join(cwd, SYNAPSE_DIR, domainName));
 }
 
 function detectSessionEnd(prompt) {
@@ -104,6 +120,50 @@ function detectActiveAgent(prompt) {
   return null;
 }
 
+function detectXquadAgent(prompt) {
+  if (!prompt) return null;
+  const lower = prompt.toLowerCase();
+  for (const mention of XQUAD_AGENTS) {
+    if (lower.includes(mention)) {
+      // Retorna o slug sem o '@'
+      return mention.slice(1);
+    }
+  }
+  return null;
+}
+
+function buildXquadContext(cwd, agentSlug) {
+  const contextParts = [];
+
+  // 1. Contexto da fundadora
+  const owner = readFile(path.join(cwd, '.business', 'OWNER.md'));
+  if (owner) contextParts.push(`## Contexto da Fundadora\n${owner}`);
+
+  // 2. Prioridades atuais
+  const prioridades = readFile(path.join(cwd, '.business', 'PRIORIDADES.md'));
+  if (prioridades) contextParts.push(`## Prioridades Atuais\n${prioridades}`);
+
+  // 3. Contexto da empresa GEN.IA (tenta dois nomes possíveis de arquivo)
+  const empresa = readFile(path.join(cwd, '.business', 'GEN-IA-SQUAD', 'GEN-IA-SQUAD-EMPRESA.md'))
+    || readFile(path.join(cwd, '.business', 'GEN-IA-SQUAD', 'EMPRESA.md'));
+  if (empresa) contextParts.push(`## Empresa\n${empresa}`);
+
+  // 4. MEMORY.md do agente Xquad (se existir)
+  const memory = readFile(path.join(cwd, '.claude', 'agent-memory', 'squads', agentSlug, 'MEMORY.md'));
+  if (memory) contextParts.push(`## Memória do Agente @${agentSlug}\n${memory}`);
+
+  // 5. Regra de coexistência — sempre injetada
+  contextParts.push(
+    `## Regra Xquads — INVIOLÁVEL\n` +
+    `Você é @${agentSlug}, um agente de estratégia/negócio.\n` +
+    `RECOMENDA → os 9 agentes do SQUAD (Neo, Morpheus, Trinity, Tank, Mouse, Oracle, Cypher, Smith, Switch) EXECUTAM.\n` +
+    `NÃO faz código. NÃO cria stories. NÃO faz git push.\n` +
+    `Responda em português do Brasil como sua persona.`
+  );
+
+  return contextParts.join('\n\n');
+}
+
 async function run() {
   let inputData = '';
   try {
@@ -138,11 +198,18 @@ async function run() {
   const context = readDomain(cwd, 'context');
   if (context) layers.push(context);
 
-  // L2 — Agente específico (se detectado)
+  // L2 — Agente específico do SQUAD (se detectado)
   const agentDomain = detectActiveAgent(prompt);
   if (agentDomain) {
     const agentRules = readDomain(cwd, agentDomain);
     if (agentRules) layers.push(agentRules);
+  }
+
+  // L2x — Agente Xquad (se detectado — injeta contexto de negócio)
+  const xquadSlug = detectXquadAgent(prompt);
+  if (xquadSlug) {
+    const xquadContext = buildXquadContext(cwd, xquadSlug);
+    if (xquadContext) layers.push(xquadContext);
   }
 
   // Session End — detectar antes do Start para prioridade correta
