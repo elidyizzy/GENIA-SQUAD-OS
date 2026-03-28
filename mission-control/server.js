@@ -306,17 +306,35 @@ function handleMessage(ws, wsId, message) {
 
 // ─── Boot ─────────────────────────────────────────────────────────────────────
 
-server.listen(PORT, () => {
+function printBanner(port) {
   console.log('\n┌─────────────────────────────────────────┐');
   console.log('│         MISSION CONTROL SERVER          │');
   console.log('│              GEN.IA SQUAD               │');
   console.log('└─────────────────────────────────────────┘\n');
-  console.log(`🚀  http://localhost:${PORT}`);
+  console.log(`🚀  http://localhost:${port}`);
   console.log(`📁  Projeto: ${PROJECT_DIR}`);
   console.log(`🤖  GEN.IA OS: ${fs.existsSync(path.join(PROJECT_DIR, '.claude/CLAUDE.md')) ? '✅' : '❌ não encontrado'}`);
   console.log(`🏢  .business: ${fs.existsSync(path.join(PROJECT_DIR, '.business')) ? '✅' : '❌ não encontrado'}`);
   console.log(`\nPressione Ctrl+C para parar.\n`);
+}
+
+function tryListen(port) {
+  server.listen(port, () => printBanner(port));
+}
+
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    const next = err.port + 1;
+    console.warn(`\n⚠️  Porta ${err.port} ocupada — tentando porta ${next}...\n`);
+    server.close();
+    tryListen(next);
+  } else {
+    console.error('Erro no servidor:', err.message);
+    process.exit(1);
+  }
 });
+
+tryListen(PORT);
 
 process.on('SIGINT', () => {
   console.log('\n[Mission Control] Encerrando...');
