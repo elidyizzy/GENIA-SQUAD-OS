@@ -173,6 +173,14 @@ const server = http.createServer((req, res) => {
 // ─── WebSocket Server ─────────────────────────────────────────────────────────
 
 const wss = new WebSocketServer({ server });
+
+// STORY-002: wss re-emite erros do HTTP server — silenciar EADDRINUSE aqui
+// (já tratado pelo server.on('error')); logar outros erros
+wss.on('error', (err) => {
+  if (err.code !== 'EADDRINUSE') {
+    console.error('[WS] Erro:', err.message);
+  }
+});
 let wsCounter = 0;
 
 wss.on('connection', (ws) => {
@@ -318,14 +326,18 @@ function printBanner(port) {
   console.log(`\nPressione Ctrl+C para parar.\n`);
 }
 
+// STORY-003: rastrear porta atual para evitar err.port undefined (Node.js não garante)
+let currentPort = PORT;
+
 function tryListen(port) {
+  currentPort = port;
   server.listen(port, () => printBanner(port));
 }
 
 server.on('error', (err) => {
   if (err.code === 'EADDRINUSE') {
-    const next = err.port + 1;
-    console.warn(`\n⚠️  Porta ${err.port} ocupada — tentando porta ${next}...\n`);
+    const next = currentPort + 1;
+    console.warn(`\n⚠️  Porta ${currentPort} ocupada — tentando porta ${next}...\n`);
     server.close();
     tryListen(next);
   } else {
