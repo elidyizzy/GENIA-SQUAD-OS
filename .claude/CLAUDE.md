@@ -369,5 +369,38 @@ Xquads RECOMENDAM → 9 agentes do SQUAD EXECUTAM
 
 ---
 
+---
+
+## Protocolo de Encerramento de Sessão — OBRIGATÓRIO
+
+Ao final de toda sessão relevante (quando Elidy disser "pode fechar",
+"boa noite", "vou parar" ou similar), @tank executa:
+
+1. Gera arquivo de resumo em `C:\Users\Dell\segundo-cerebro-elidy\memoria\`
+   Nome: `YYYY-MM-DD-resumo-sessao.md`
+   Conteúdo:
+   - Data e hora
+   - Projetos trabalhados
+   - Decisões tomadas
+   - Arquivos criados ou modificados
+   - Próximos passos
+
+2. Atualiza `C:\Users\Dell\segundo-cerebro-elidy\PRIORIDADES.md`
+   se algo mudou no foco
+
+3. Faz commit e push do Segundo Cérebro:
+   ```
+   cd C:\Users\Dell\segundo-cerebro-elidy
+   git add .
+   git commit -m "sessao: resumo YYYY-MM-DD"
+   git push origin main
+   ```
+
+4. Confirma: "Segundo Cérebro atualizado. Obsidian vai sincronizar em até 10 minutos."
+
+Após confirmar, aguarda o encerramento.
+
+---
+
 _GEN.IA OS v2.0 — Be Data — Elidy Izidio_
 _Baseado em AIOS Core (MIT License, SynkraAI) — Adaptado e reescrito_
