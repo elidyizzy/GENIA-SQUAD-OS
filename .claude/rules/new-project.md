@@ -35,13 +35,22 @@ Sem respostas → sem projeto. Não é burocracia, é clareza antes de custo.
 
 ---
 
-## Passo 2 — Criar a estrutura de pastas
+## Passo 2 — Criar a estrutura de pastas com GEN.IA OS instalado
 
-Após briefing aprovado, criar dentro de `.Apps/`:
+Após briefing aprovado, criar dentro de `.Apps/` **com instalação completa do GEN.IA OS**:
 
 ```
 .Apps/
 └── [nome-do-projeto]/
+    ├── .claude/                 ← GEN.IA OS — copiado do repositório oficial
+    │   ├── CLAUDE.md
+    │   ├── hooks/
+    │   ├── rules/
+    │   ├── agent-memory/
+    │   └── settings.json
+    ├── .genia/                  ← GEN.IA OS — framework core
+    ├── .synapse/                ← GEN.IA OS — runtime
+    ├── .business/               ← contexto de negócio do projeto
     ├── docs/
     │   ├── BRIEFING.md          ← @analyst preenche
     │   ├── PRD.md               ← @pm preenche
@@ -54,10 +63,22 @@ Após briefing aprovado, criar dentro de `.Apps/`:
     └── README.md                ← @pm preenche ao final
 ```
 
-**Comando de criação (executado por @devops):**
+**Instalação obrigatória do GEN.IA OS — NUNCA usar `npx create-genia-os`:**
 ```bash
-mkdir -p .Apps/[nome-do-projeto]/{docs/stories,src,tests}
+cd .Apps/[nome-do-projeto]
+git clone https://github.com/elidyizzy/GENIA-SQUAD-OS temp-genia-os
+cp -r temp-genia-os/.claude .claude
+cp -r temp-genia-os/.genia .genia
+cp -r temp-genia-os/.synapse .synapse
+rm -rf temp-genia-os
+mkdir -p docs/stories src tests
 ```
+
+**Verificação obrigatória após instalação:**
+```bash
+grep -i "cypher\|morpheus\|trinity\|neo\|tank\|oracle\|mouse\|smith\|switch" .claude/CLAUDE.md
+```
+Se não retornar resultado — PARAR. Refazer antes de continuar.
 
 ---
 
