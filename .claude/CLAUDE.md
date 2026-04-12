@@ -376,7 +376,7 @@ Xquads RECOMENDAM → 9 agentes do SQUAD EXECUTAM
 Ao final de toda sessão relevante (quando Elidy disser "pode fechar",
 "boa noite", "vou parar" ou similar), @tank executa:
 
-1. Gera arquivo de resumo em `C:\Users\Dell\segundo-cerebro-elidy\memoria\`
+1. Gera arquivo de resumo em `C:\Users\Dell\GENIA-SQUAD-OS\segundo-cerebro-elidy\memoria\`
    Nome: `YYYY-MM-DD-resumo-sessao.md`
    Conteúdo:
    - Data e hora
@@ -385,12 +385,12 @@ Ao final de toda sessão relevante (quando Elidy disser "pode fechar",
    - Arquivos criados ou modificados
    - Próximos passos
 
-2. Atualiza `C:\Users\Dell\segundo-cerebro-elidy\PRIORIDADES.md`
+2. Atualiza `C:\Users\Dell\GENIA-SQUAD-OS\segundo-cerebro-elidy\PRIORIDADES.md`
    se algo mudou no foco
 
 3. Faz commit e push do Segundo Cérebro:
    ```
-   cd C:\Users\Dell\segundo-cerebro-elidy
+   cd C:\Users\Dell\GENIA-SQUAD-OS\segundo-cerebro-elidy
    git add .
    git commit -m "sessao: resumo YYYY-MM-DD"
    git push origin main

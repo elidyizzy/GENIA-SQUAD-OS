@@ -42,3 +42,6 @@ conversas - salvas/
 .genia/session-digests/
 .genia/session/
 .genia/metrics/
+
+# Segundo Cérebro — repo independente com .git próprio
+segundo-cerebro-elidy/
