@@ -14,11 +14,20 @@
 5. Flag é de uso único — criado e destruído a cada push
 6. Force push (`--force`, `-f`) requer confirmação explícita adicional
 
-### npm publish
+### npm publish — REGRA INVIOLÁVEL (2026-04-12)
 
-- Pacote: `create-genia-os` — publicado como `elidyizzy` no npm
-- Versões publicadas: 1.0.0, 1.0.1, 2.0.0 (latest)
-- Comando: `cd .Apps/create-genia-os && npm publish --access public`
+Toda alteração no GEN.IA OS deve ser publicada em DOIS lugares obrigatoriamente:
+1. GitHub (`elidyizzy/GENIA-SQUAD-OS`) via git push
+2. npm (`create-genia-os`) via npm publish com versão incrementada
+
+**Nunca** atualizar um sem o outro.
+
+- Pacote: `create-genia-os` — publicado como `gen.ia` no npm
+- Versão atual: 2.2.0 (publicada em 2026-04-12)
+- Diretório: `packages/create-genia-os/`
+- Token de automação configurado em `~/.npmrc` (Classic Automation token)
+- Comando: `cd packages/create-genia-os && npm publish`
+- Sincronizar template em `packages/create-genia-os/template/` antes de publicar
 
 ## Preferências da Usuária
 
@@ -34,7 +43,7 @@ Nenhuma release sem aprovação de @pm.
 
 - **GitHub**: elidyizzy/GENIA-SQUAD-OS (público)
 - **GitHub CLI** (gh) versão 2.87.3, autenticado como elidyizzy
-- **npm**: create-genia-os@2.0.0 publicado
+- **npm**: create-genia-os@2.2.0 publicado (2026-04-12)
 - **Railway**: conta ativa — ver .env do projeto (não armazenar tokens aqui)
 - **Netlify**: cockpit web do SalesFlow.IA (app estático)
 
@@ -54,4 +63,5 @@ Nenhuma release sem aprovação de @pm.
 
 - Hooks com caminhos relativos quebram quando bash CWD muda para subdiretório
   → Solução: sempre usar `bash -c "cd \"$(git rev-parse --show-toplevel)\" && ..."`
-- npm bin field deve ser shorthand `"./bin/index.js"` — npm v9+ rejeita formato objeto
+- npm bin field deve ser objeto: `{"create-genia-os": "bin/index.js"}` — usar `npm pkg fix` para corrigir
+- Token de automação npm: Classic Automation token (não Granular) — único que bypassa 2FA para publish
