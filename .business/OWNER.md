@@ -39,9 +39,9 @@ Opero múltiplos negócios simultaneamente com IA como infraestrutura central, n
 ## Empresas ativas
 
 Ver `.business/` para contexto completo de cada uma.
-- **GEN.IA SQUAD** → empresa-mãe, laboratório e produto
-- **BrasilUp** → laboratório do SalesFloIA, cliente piloto
-- **Cuore** → co-fundadora, responsável por marketing e vendas
+- **GEN.IA SQUAD** → empresa-mãe, infraestrutura de IA B2B (SalesFlow.IA, Operator Free/Pro, Educação)
+- **Cuore Terapia Verde** → co-fundadora, responsável por marketing e vendas
+- **Dona Brechó Boutique** → cliente interno, curadoria Luh Izidio, moda circular
 
 ---
 

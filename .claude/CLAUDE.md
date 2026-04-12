@@ -15,6 +15,7 @@
    - Menciona GEN.IA, SalesFloIA, salesflow, produto, cockpit → ler `.business/GEN-IA-SQUAD/EMPRESA.md`
    - Menciona BrasilUp, Luma, orçamento, Kommo, uniforme → ler `.business/BRASILUP/CONTEXTO.md`
    - Menciona Cuore, cosmético, terapia verde, Luh, perfumaria → ler `.business/CUORE/CONTEXTO.md`
+   - Menciona Dona Brechó, brechó, moda circular, Luh Izidio → ler `.business/DONA-BRECHO/CONTEXTO.md`
 5. Identificar a fase: Planning / Development / QA / Delivery
 6. Assumir o agente apropriado
 7. Anunciar: `[@agente] [Nome] iniciando...`
