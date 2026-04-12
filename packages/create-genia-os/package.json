@@ -29,7 +29,9 @@
     "url": "git+https://github.com/elidyizzy/GENIA-SQUAD-OS.git",
     "directory": "packages/create-genia-os"
   },
-  "bin": "./bin/index.js",
+  "bin": {
+    "create-genia-os": "bin/index.js"
+  },
   "files": [
     "bin/",
     "template/"
