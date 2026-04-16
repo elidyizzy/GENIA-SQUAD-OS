@@ -1,14 +1,15 @@
 # PRIORIDADES — Arquivo Vivo
 > Atualizar a cada mudança de foco. Data sempre visível.
 
-**Última atualização:** 2026-04-14
+**Última atualização:** 2026-04-16
 
 ---
 
 ## Foco agora
 
-**Integrar mini consultoria TRINITY → cockpit SalesFlow.IA**
-Quem fizer a mini consultoria em geniasquad.com deve virar lead no CRM da GEN.IA SQUAD.
+**SalesFlow.IA — ajustes de UI e configuração das IAs**
+Sessão 2026-04-16: login criado, tema claro/escuro corrigido, domínio `vendas.geniasquad.com` no ar.
+Amanhã: ajustar visual, configurar as IAs dentro do cockpit.
 
 ---
 
@@ -17,7 +18,7 @@ Quem fizer a mini consultoria em geniasquad.com deve virar lead no CRM da GEN.IA
 | Projeto | Empresa | Status | Próxima ação |
 |---------|---------|--------|--------------|
 | geniasquad.com | GEN.IA SQUAD | No ar ✅ | Integrar TRINITY → SalesFlow |
-| SalesFlow.IA | GEN.IA SQUAD | No ar ✅ | Receber leads do site + auth multi-usuário |
+| SalesFlow.IA | GEN.IA SQUAD | **No ar ✅ vendas.geniasquad.com** | Configurar IAs + ajustes visuais |
 | FLG Trinity (conteúdo) | GEN.IA SQUAD | Estrutura pronta | Execução visual dos posts |
 | OPERATOR FREE | GEN.IA SQUAD | Pendente | Iniciar build |
 
@@ -33,11 +34,12 @@ Quem fizer a mini consultoria em geniasquad.com deve virar lead no CRM da GEN.IA
 
 | Data | Decisão |
 |------|---------|
+| 2026-04-16 | `vendas.geniasquad.com` no ar — domínio Cloudflare configurado |
+| 2026-04-16 | Login criado — credenciais master em segundo-cerebro |
+| 2026-04-16 | Tema claro/escuro corrigido — Tailwind tokens → CSS variables RGB |
 | 2026-04-14 | Site geniasquad.com no ar — TRINITY funcionando |
 | 2026-04-14 | Repositório site-genia-squad criado no GitHub |
-| 2026-04-14 | Diário de bordo criado no Segundo Cérebro |
 | 2026-04-14 | Migração Anthropic → OpenAI no SalesFlow concluída (STORY-034) |
-| 2026-04-12 | Prioridades zeradas — novo ciclo iniciado |
 
 ---
 
