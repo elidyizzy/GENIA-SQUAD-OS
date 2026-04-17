@@ -1,15 +1,15 @@
 # PRIORIDADES — Arquivo Vivo
 > Atualizar a cada mudança de foco. Data sempre visível.
 
-**Última atualização:** 2026-04-16
+**Última atualização:** 2026-04-16 (noite — sessão ProspectAI)
 
 ---
 
-## Foco agora
+## Foco amanhã
 
-**SalesFlow.IA — ajustes de UI e configuração das IAs**
-Sessão 2026-04-16: login criado, tema claro/escuro corrigido, domínio `vendas.geniasquad.com` no ar.
-Amanhã: ajustar visual, configurar as IAs dentro do cockpit.
+**ProspectAI — STORY-004 (Cockpit de Vendas)**
+Sessão 2026-04-16: STORY-001, 002, 003 entregues. Pipeline Python completo. Railway PostgreSQL live. 17 testes passando.
+Amanhã: STORY-004 (kanban drag-and-drop Next.js + ficha do lead) → STORY-005 (cron + deploy worker)
 
 ---
 
@@ -17,6 +17,7 @@ Amanhã: ajustar visual, configurar as IAs dentro do cockpit.
 
 | Projeto | Empresa | Status | Próxima ação |
 |---------|---------|--------|--------------|
+| **ProspectAI** | **Ramos Silva Advogados** | **Em desenvolvimento 🔵** | **STORY-004 cockpit (amanhã)** |
 | geniasquad.com | GEN.IA SQUAD | No ar ✅ | Integrar TRINITY → SalesFlow |
 | SalesFlow.IA | GEN.IA SQUAD | **No ar ✅ vendas.geniasquad.com** | Configurar IAs + ajustes visuais |
 | FLG Trinity (conteúdo) | GEN.IA SQUAD | Estrutura pronta | Execução visual dos posts |
