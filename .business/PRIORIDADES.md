@@ -1,15 +1,25 @@
 # PRIORIDADES — Arquivo Vivo
 > Atualizar a cada mudança de foco. Data sempre visível.
 
-**Última atualização:** 2026-04-16 (noite — sessão ProspectAI)
+**Última atualização:** 2026-04-17 (sessão de investigação de scraping + handover)
 
 ---
 
-## Foco amanhã
+## Foco na próxima sessão
 
-**ProspectAI — STORY-004 (Cockpit de Vendas)**
-Sessão 2026-04-16: STORY-001, 002, 003 entregues. Pipeline Python completo. Railway PostgreSQL live. 17 testes passando.
-Amanhã: STORY-004 (kanban drag-and-drop Next.js + ficha do lead) → STORY-005 (cron + deploy worker)
+**ProspectAI — STORY-004 (Cockpit Kanban) — BLOQUEADA por decisão TRF**
+
+**Bloqueador ativo:** Elidy vai testar manualmente o fluxo TRF1/TRF3 e enviar prints.
+Após decisão (remover / manter vazio / buscar solução paga), @po aprova STORY-004 e @dev implementa.
+
+**Descobertas críticas da sessão 2026-04-17:**
+- PGFN scraper atual está quebrado (hCaptcha 401) — reescrever para Open Data (STORY-006)
+- Banco Railway VAZIO — zero leads reais importados
+- TRF1/TRF3 bloqueados em headless; Datajud não tem campo `partes` (impossível buscar por CNPJ)
+- BrasilAPI OK · Railway DB OK · Apollo sem chave local (funciona em produção)
+- STORY-006 criada e aprovada: filtros UF + Valor + Tipo de dívida via Open Data
+
+**Handover completo em:** `.Apps/ProspectAI/docs/HANDOVER-2026-04-17.md`
 
 ---
 
