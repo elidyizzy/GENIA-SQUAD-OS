@@ -1,8 +1,21 @@
 === CONTEXTO DO PROJETO ===
-Sistema: GEN.IA OS — Framework de desenvolvimento assistido por IA
+Sistema: GEN.IA OS v2.1 — Framework de desenvolvimento assistido por IA
 Marca: Be Data
 Criadora: Elidy Izidio
 Agentes: analyst(Cypher), pm(Morpheus), architect(Trinity), dev(Neo), devops(Tank), qa(Smith), reviewer(Switch), po(Oracle), sm(Mouse)
 Workflows: spec-pipeline, story-development-cycle, qa-loop, greenfield, brownfield, planning, development, delivery
 Contextos disponíveis: kommo-crm, supabase, whatsapp-cloud, nextjs-react, api-patterns
-Skills disponíveis: /pdf /xlsx /docx /pptx /frontend-design /canvas-design /mcp-builder /webapp-testing
+
+=== GSD CONTEXT LAYER (v2.1) ===
+Synapse Engine agora injeta L3 (estado do projeto) automaticamente.
+STATE.md em .planning/STATE.md de cada projeto é lido a cada sessão.
+Comandos disponíveis:
+  /project-state  — exibe o estado atual do projeto ativo
+  /project-sync   — sincroniza STATE.md após mudanças (story Done, decisão, blocker)
+  /plan-story NNN — converte STORY-NNN em XML tasks atômicas (.planning/stories/)
+Tasks de suporte: .genia/development/tasks/criar-state.md
+
+=== REGRA L3 ===
+Todo projeto em .Apps/ DEVE ter .planning/STATE.md.
+STATE.md desatualizado = Claude trabalha com contexto errado.
+Sincronizar é obrigação do agente que conclui a story (/project-sync).

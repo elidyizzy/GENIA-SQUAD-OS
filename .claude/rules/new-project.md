@@ -51,6 +51,9 @@ Após briefing aprovado, criar dentro de `.Apps/` **com instalação completa do
     ├── .genia/                  ← GEN.IA OS — framework core
     ├── .synapse/                ← GEN.IA OS — runtime
     ├── .business/               ← contexto de negócio do projeto
+    ├── .planning/               ← GSD Context Layer (Synapse L3) ← NOVO
+    │   ├── STATE.md             ← estado cross-session (injetado automaticamente)
+    │   └── stories/             ← planos XML e resumos por story
     ├── docs/
     │   ├── BRIEFING.md          ← @analyst preenche
     │   ├── PRD.md               ← @pm preenche
@@ -71,7 +74,13 @@ cp -r temp-genia-os/.claude .claude
 cp -r temp-genia-os/.genia .genia
 cp -r temp-genia-os/.synapse .synapse
 rm -rf temp-genia-os
-mkdir -p docs/stories src tests
+mkdir -p docs/stories src tests .planning/stories
+```
+
+**Após instalação, criar `.planning/STATE.md` via task `criar-state`:**
+```bash
+# @architect ou @sm preenche o STATE.md inicial com stack e contexto do projeto
+# Usar template em .genia/development/tasks/criar-state.md
 ```
 
 **Verificação obrigatória após instalação:**
@@ -87,19 +96,23 @@ Se não retornar resultado — PARAR. Refazer antes de continuar.
 Nenhum código é escrito antes desta sequência estar completa:
 
 ```
-@analyst  → BRIEFING.md    (entendimento do problema)
+@analyst  → BRIEFING.md        (entendimento do problema)
     ↓
-@pm       → PRD.md         (requisitos e escopo)
+@pm       → PRD.md             (requisitos e escopo)
     ↓
-@architect → SPEC-TECNICO.md (arquitetura e stack)
+@architect → SPEC-TECNICO.md   (arquitetura e stack)
     ↓
-@analyst + @pm → PITCH.md  (documento comercial)
+@architect → .planning/STATE.md (estado inicial do projeto ← NOVO)
     ↓
-@sm       → STORY-001.md   (primeira story)
+@analyst + @pm → PITCH.md      (documento comercial)
     ↓
-@po       → validação       (aprova antes do @dev codar)
+@sm       → STORY-001.md       (primeira story)
     ↓
-@dev      → src/            (só aqui começa o código)
+@po       → validação           (aprova antes do @dev codar)
+    ↓
+@dev      → src/                (só aqui começa o código)
+    ↓
+@dev/@sm  → /project-sync      (atualiza STATE.md a cada story Done ← NOVO)
 ```
 
 ---
@@ -134,6 +147,7 @@ Ao criar projeto novo, adicionar em `.business/PRIORIDADES.md`:
 - ❌ Pular o `PITCH.md` — ele é obrigatório mesmo para automações internas
 - ❌ Criar projeto fora da pasta `.Apps/`
 - ❌ Começar sem saber a qual empresa/negócio o projeto pertence
+- ❌ Iniciar desenvolvimento sem `.planning/STATE.md` criado
 
 ---
 

@@ -17,11 +17,11 @@
 
 Você usa Claude Code. Ele é inteligente. Mas toda sessão começa do zero.
 
-Ele não sabe quem você é. Não sabe o que seu produto faz. Não tem regras que se mantêm entre prompts. Faz push quando não devia. Inventa contexto. Esquece decisões importantes.
+Ele não sabe quem você é. Não sabe o que seu produto faz. Não sabe o que já foi implementado no projeto. Não tem regras que se mantêm entre prompts. Faz push quando não devia. Inventa contexto. Esquece decisões importantes. Responde de forma genérica mesmo em projetos que têm histórico.
 
 **Resultado:** você repete o mesmo contexto toda sessão, corrige os mesmos erros, e perde horas que deveria estar construindo.
 
-O GEN.IA OS resolve isso de forma definitiva.
+O GEN.IA OS resolve isso de forma definitiva — em dois níveis: quem você é (OS-level) e o que o projeto já fez (project-level).
 
 ---
 
@@ -72,7 +72,7 @@ rm -rf temp-genia-os
 
 ## Como funciona
 
-### O Synapse Engine — o coração do sistema
+### O Synapse Engine v2.1 — o coração do sistema
 
 Cada vez que você digita um prompt, um hook JavaScript (`synapse-engine.cjs`) roda automaticamente em **menos de 100ms** e injeta o contexto certo antes da IA processar sua mensagem.
 
@@ -80,29 +80,33 @@ Cada vez que você digita um prompt, um hook JavaScript (`synapse-engine.cjs`) r
 Você digita: "@dev implemente o login"
                     │
                     ▼
-        Synapse Engine detecta "@dev"
+        Synapse Engine v2.1 detecta "@dev" + projeto
                     │
                     ▼
-    Injeta 3 camadas de contexto:
+    Injeta 4 camadas de contexto:
 
-    L0 — Constituição  (SEMPRE)
+    L0 — Constituição         (SEMPRE)
          "Artigo II: @dev não pode fazer push..."
 
-    L1 — Global + Contexto  (SEMPRE)
-         Quem é você, qual projeto, quais prioridades
+    L1 — Global + Contexto    (SEMPRE)
+         Quem é você, idioma, regras gerais
 
-    L2 — Agente @dev  (quando detectado)
+    L2 — Agente @dev          (quando detectado)
          Regras específicas do Neo, o que ele pode e não pode
 
-    L2x — Agente Xquad  (quando detectado)
+    L2x — Agente Xquad        (quando detectado)
          Contexto de negócio + MEMORY.md do agente
+
+    L3 — STATE.md do projeto  (NOVO v2.3.0)
+         Stack, stories por estado, decisões arquiteturais,
+         blockers, contexto técnico — tudo injetado automaticamente
                     │
                     ▼
-    Claude recebe: seu prompt + contexto completo
-    e responde como Neo, com as regras certas
+    Claude sabe: quem você é, quais as regras, E o que
+    o projeto já fez — sem você repetir nada.
 ```
 
-**Resultado:** o Claude nunca esquece quem é, quem é você, ou quais são as regras — em nenhum prompt.
+**Resultado:** o Claude nunca esquece quem é, quem é você, ou o que o projeto já construiu — em nenhuma sessão.
 
 ---
 
@@ -380,6 +384,49 @@ GENIA-SQUAD-OS/
 
 ---
 
+## GSD Context Layer — Synapse L3 (v2.3.0)
+
+Inspirado no [GSD (get-shit-done)](https://github.com/gsd-build/get-shit-done), o Layer 3 resolve o problema do "Claude genérico em projetos com histórico": a cada sessão, o estado real do projeto é injetado automaticamente via `.planning/STATE.md`.
+
+### Como funciona
+
+1. Todo projeto em `.Apps/` tem um `.planning/STATE.md` com stack, stories e decisões
+2. O Synapse Engine detecta o projeto pelo `cwd` da sessão (ou pelo nome no prompt)
+3. O conteúdo é injetado como L3 — Claude já sabe o contexto sem você repetir
+
+### Slash commands incluídos
+
+| Comando | O que faz |
+|---------|-----------|
+| `/project-state` | Exibe painel de estado do projeto ativo |
+| `/project-sync` | Sincroniza STATE.md após story Done, decisão ou blocker |
+| `/plan-story NNN` | Converte STORY-NNN em XML tasks atômicas |
+
+### XML Tasks — execução sem ambiguidade
+
+```xml
+<tasks>
+  <task type="auto">
+    <name>Criar endpoint de leads</name>
+    <files>src/routes/leads.ts</files>
+    <action>POST /leads com validação Zod, retorna 201</action>
+    <verify>npm test -- leads.test</verify>
+    <done>Todos os testes de leads passando</done>
+  </task>
+</tasks>
+```
+
+### Workflow com L3
+
+```
+@architect → STATE.md inicial (.planning/)
+@dev implementa story
+@dev ou @sm → /project-sync → STATE.md atualizado
+próxima sessão → Claude já sabe o estado real do projeto
+```
+
+---
+
 ## Por que o GEN.IA OS é diferente de um CLAUDE.md normal
 
 A maioria das pessoas cria um `CLAUDE.md` com instruções. O Claude lê uma vez e vai esquecendo conforme a sessão avança.
@@ -395,6 +442,8 @@ O GEN.IA OS funciona diferente:
 **4. Separação de responsabilidades real** — não é convenção, é enforcement. @dev fisicamente não consegue fazer push. @sm é o único que cria stories. Sem exceções.
 
 **5. Dois sistemas de agentes** — o SQUAD de dev e os Xquads de negócio coexistem com regras claras: Xquads recomendam, SQUAD executa.
+
+**6. Estado do projeto injetado automaticamente (GSD Context Layer)** — o `.planning/STATE.md` de cada projeto é lido e injetado a cada sessão. Claude sabe stack, stories, decisões e blockers sem você repetir nada.
 
 ---
 
@@ -442,7 +491,8 @@ O Cypher vai fazer 5 perguntas, entregar um BRIEFING.md e acionar o Morpheus par
 | v1.0 | 9 agentes + Synapse Engine + 5 hooks de governança |
 | v1.1 | Memória persistente por agente + session digests |
 | v2.0 | Constituição formal + regras de instalação invioláveis |
-| **v2.1** | **Squads Xquads + docs/ profissional obrigatório em todo projeto** |
+| v2.1 | Squads Xquads + docs/ profissional obrigatório em todo projeto |
+| **v2.3** | **GSD Context Layer — Synapse L3, STATE.md, /project-state, /project-sync, /plan-story** |
 
 ---
 

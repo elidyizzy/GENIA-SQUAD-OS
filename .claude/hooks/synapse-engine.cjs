@@ -1,21 +1,27 @@
 #!/usr/bin/env node
 /**
- * GEN.IA OS — Synapse Engine v2.0
+ * GEN.IA OS — Synapse Engine v2.1
  * Trigger: UserPromptSubmit
  *
- * Pipeline de 3 camadas de injeção de contexto em cada prompt:
+ * Pipeline de 4 camadas de injeção de contexto em cada prompt:
  *   L0: Constituição (sempre ativa, não-negociável)
  *   L1: Global + Contexto (sempre ativa)
  *   L2: Agente específico (quando @agente detectado no prompt)
  *   L2x: Agente Xquad (quando @xquad detectado — injeta contexto de negócio)
+ *   L3: Projeto ativo (STATE.md do .planning/ — elimina trabalho genérico) ← NOVO v2.1
  *
  * Detecções adicionais:
  *   Session Start: injeta aviso de skill session-start no primeiro prompt
  *   Session End:   injeta aviso de skill session-end ao detectar palavras-chave
  *   Xquads: detecta agentes de negócio, injeta .business/ + MEMORY.md
  *
+ * L3 — Project Layer (v2.1):
+ *   1. Se cwd contem .planning/STATE.md -> injeta diretamente
+ *   2. Se cwd e o OS root -> escaneia .Apps/[projeto]/.planning/STATE.md
+ *      e injeta o projeto cujo nome aparece no prompt
+ *
  * Timeout: 100ms — NUNCA bloqueia o usuário
- * Inspirado no AIOS Synapse Engine (MIT License, SynkraAI)
+ * Inspirado no GSD (get-shit-done, MIT License) e AIOS Synapse Engine (MIT License, SynkraAI)
  * Adaptado e reescrito para GEN.IA OS — GEN.IA SQUAD — Elidy Izidio
  */
 
@@ -28,6 +34,8 @@ const readline = require('readline');
 const TIMEOUT_MS = 100;
 const SYNAPSE_DIR = '.synapse';
 const SESSION_FLAG = path.join('.genia', 'session', 'session-active');
+const OS_ROOT = 'C:/Users/Dell/GENIA-SQUAD-OS';
+const APPS_DIR = path.join(OS_ROOT, '.Apps');
 
 // Palavras-chave que indicam encerramento de sessão
 const SESSION_END_KEYWORDS = [
@@ -50,7 +58,6 @@ const AGENT_DOMAINS = {
 };
 
 // Agentes Xquads — recebem contexto de negócio injetado
-// Estes são agentes de estratégia/negócio que RECOMENDAM (não executam código)
 const XQUAD_AGENTS = new Set([
   '@ray-dalio', '@charlie-munger', '@naval-ravikant',
   '@david-ogilvy', '@dan-kennedy', '@gary-halbert',
@@ -125,7 +132,6 @@ function detectXquadAgent(prompt) {
   const lower = prompt.toLowerCase();
   for (const mention of XQUAD_AGENTS) {
     if (lower.includes(mention)) {
-      // Retorna o slug sem o '@'
       return mention.slice(1);
     }
   }
@@ -135,24 +141,19 @@ function detectXquadAgent(prompt) {
 function buildXquadContext(cwd, agentSlug) {
   const contextParts = [];
 
-  // 1. Contexto da fundadora
   const owner = readFile(path.join(cwd, '.business', 'OWNER.md'));
   if (owner) contextParts.push(`## Contexto da Fundadora\n${owner}`);
 
-  // 2. Prioridades atuais
   const prioridades = readFile(path.join(cwd, '.business', 'PRIORIDADES.md'));
   if (prioridades) contextParts.push(`## Prioridades Atuais\n${prioridades}`);
 
-  // 3. Contexto da empresa GEN.IA (tenta dois nomes possíveis de arquivo)
   const empresa = readFile(path.join(cwd, '.business', 'GEN-IA-SQUAD', 'GEN-IA-SQUAD-EMPRESA.md'))
     || readFile(path.join(cwd, '.business', 'GEN-IA-SQUAD', 'EMPRESA.md'));
   if (empresa) contextParts.push(`## Empresa\n${empresa}`);
 
-  // 4. MEMORY.md do agente Xquad (se existir)
   const memory = readFile(path.join(cwd, '.claude', 'agent-memory', 'squads', agentSlug, 'MEMORY.md'));
   if (memory) contextParts.push(`## Memória do Agente @${agentSlug}\n${memory}`);
 
-  // 5. Regra de coexistência — sempre injetada
   contextParts.push(
     `## Regra Xquads — INVIOLÁVEL\n` +
     `Você é @${agentSlug}, um agente de estratégia/negócio.\n` +
@@ -163,6 +164,62 @@ function buildXquadContext(cwd, agentSlug) {
 
   return contextParts.join('\n\n');
 }
+
+// =============================================================================
+// L3 — Project Layer (v2.1)
+// Injeta STATE.md do projeto ativo para eliminar trabalho genérico
+// =============================================================================
+
+/**
+ * Tenta encontrar STATE.md diretamente no cwd informado.
+ * Retorna o conteúdo se encontrado.
+ */
+function readProjectStateFromCwd(sessionCwd) {
+  if (!sessionCwd) return null;
+  const statePath = path.join(sessionCwd, '.planning', 'STATE.md');
+  return readFile(statePath);
+}
+
+/**
+ * Escaneia .Apps/ em busca de um projeto cujo nome aparece no prompt.
+ * Retorna { projectName, stateContent } ou null.
+ */
+function detectProjectFromPrompt(prompt) {
+  if (!prompt) return null;
+  try {
+    if (!fs.existsSync(APPS_DIR)) return null;
+    const projects = fs.readdirSync(APPS_DIR, { withFileTypes: true })
+      .filter((d) => d.isDirectory())
+      .map((d) => d.name);
+
+    const lowerPrompt = prompt.toLowerCase();
+    for (const project of projects) {
+      // Normaliza o nome do projeto para comparação (ex: "ProspectAI" → "prospectai")
+      if (lowerPrompt.includes(project.toLowerCase())) {
+        const statePath = path.join(APPS_DIR, project, '.planning', 'STATE.md');
+        const content = readFile(statePath);
+        if (content) return { projectName: project, stateContent: content };
+      }
+    }
+  } catch (_) {
+    // Falha silenciosa
+  }
+  return null;
+}
+
+/**
+ * Constrói o bloco L3 com o STATE.md do projeto.
+ */
+function buildProjectContext(projectName, stateContent) {
+  return (
+    `## [L3] Projeto Ativo: ${projectName}\n` +
+    `> Estado cross-session injetado automaticamente pelo Synapse Engine.\n` +
+    `> Leia isto antes de qualquer resposta sobre este projeto.\n\n` +
+    stateContent
+  );
+}
+
+// =============================================================================
 
 async function run() {
   let inputData = '';
@@ -187,29 +244,43 @@ async function run() {
   const layers = [];
 
   // L0 — Constituição (sempre)
-  const constitution = readDomain(cwd, 'constitution');
+  const constitution = readDomain(OS_ROOT, 'constitution');
   if (constitution) layers.push(constitution);
 
   // L1 — Global (sempre)
-  const global = readDomain(cwd, 'global');
+  const global = readDomain(OS_ROOT, 'global');
   if (global) layers.push(global);
 
   // L1 — Contexto (sempre)
-  const context = readDomain(cwd, 'context');
+  const context = readDomain(OS_ROOT, 'context');
   if (context) layers.push(context);
 
   // L2 — Agente específico do SQUAD (se detectado)
   const agentDomain = detectActiveAgent(prompt);
   if (agentDomain) {
-    const agentRules = readDomain(cwd, agentDomain);
+    const agentRules = readDomain(OS_ROOT, agentDomain);
     if (agentRules) layers.push(agentRules);
   }
 
-  // L2x — Agente Xquad (se detectado — injeta contexto de negócio)
+  // L2x — Agente Xquad (se detectado)
   const xquadSlug = detectXquadAgent(prompt);
   if (xquadSlug) {
-    const xquadContext = buildXquadContext(cwd, xquadSlug);
+    const xquadContext = buildXquadContext(OS_ROOT, xquadSlug);
     if (xquadContext) layers.push(xquadContext);
+  }
+
+  // L3 — Projeto ativo (STATE.md) — v2.1
+  // Prioridade 1: cwd da sessão contém .planning/STATE.md (projeto aberto diretamente)
+  const directState = readProjectStateFromCwd(cwd);
+  if (directState) {
+    const projectName = path.basename(cwd);
+    layers.push(buildProjectContext(projectName, directState));
+  } else {
+    // Prioridade 2: detectar projeto pelo nome no prompt (trabalhando do OS root)
+    const detected = detectProjectFromPrompt(prompt);
+    if (detected) {
+      layers.push(buildProjectContext(detected.projectName, detected.stateContent));
+    }
   }
 
   // Session End — detectar antes do Start para prioridade correta
@@ -239,7 +310,6 @@ async function run() {
 }
 
 async function main() {
-  // Timer de segurança — garante timeout de 100ms
   const timeoutPromise = new Promise((resolve) =>
     setTimeout(() => resolve(''), TIMEOUT_MS)
   );

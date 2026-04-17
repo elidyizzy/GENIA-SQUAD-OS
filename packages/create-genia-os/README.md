@@ -9,7 +9,7 @@
 </p>
 
 > **Transforma o Claude Code em um time completo de especialistas.**
-> 9 agentes de desenvolvimento + Squads de negócio, Synapse Engine, governança automática e documentação profissional — tudo em 30 segundos.
+> 9 agentes de desenvolvimento + Squads de negócio, Synapse Engine com 4 camadas de contexto, governança automática e documentação profissional — tudo em 30 segundos.
 
 ---
 
@@ -68,24 +68,61 @@ Consultores de alto nível disponíveis a qualquer momento. Recomendam — o SQU
 
 ---
 
-## Como funciona — o Synapse Engine
+## Como funciona — o Synapse Engine v2.1
 
-A cada prompt que você digita, um hook JavaScript (`synapse-engine.cjs`) roda em **menos de 100ms** e injeta o contexto certo automaticamente:
+A cada prompt que você digita, um hook JavaScript (`synapse-engine.cjs`) roda em **menos de 100ms** e injeta o contexto certo automaticamente em **4 camadas**:
 
 ```
 Você digita: "@dev implemente o login"
                     │
                     ▼
-        Synapse Engine detecta "@dev"
+        Synapse Engine v2.1 detecta "@dev" + projeto
                     │
                     ▼
-    L0 — Constituição  (SEMPRE)
-    L1 — Global + Contexto do projeto  (SEMPRE)
-    L2 — Regras específicas do @dev  (detectado)
+    L0 — Constituição          (SEMPRE — regras invioláveis)
+    L1 — Global + Contexto     (SEMPRE — quem é você, regras gerais)
+    L2 — Regras do @dev        (detectado pelo @ no prompt)
+    L3 — STATE.md do projeto   (NOVO — elimina trabalho genérico)
                     │
                     ▼
-    Claude recebe prompt + contexto completo
-    e responde como Neo, com as regras certas
+    Claude sabe: stack, stories, decisões arquiteturais,
+    blockers, próximos passos — sem você repetir nada.
+```
+
+### L3 — GSD Context Layer (v2.3.0)
+
+Inspirado no [GSD (get-shit-done)](https://github.com/gsd-build/get-shit-done), o Layer 3 resolve o problema do "Claude genérico": a cada sessão, o estado real do projeto é injetado automaticamente.
+
+O arquivo `.planning/STATE.md` registra:
+- Stack confirmada
+- Stories por estado (Done / InProgress / Ready / Draft)
+- Decisões arquiteturais tomadas
+- Blockers ativos
+- Contexto técnico crítico
+- Próximos passos
+
+**Resultado:** Claude nunca começa do zero em projetos que já têm histórico.
+
+#### Slash commands incluídos
+
+| Comando | O que faz |
+|---------|-----------|
+| `/project-state` | Exibe o estado atual do projeto ativo |
+| `/project-sync` | Sincroniza o STATE.md após mudanças |
+| `/plan-story NNN` | Converte STORY-NNN em XML tasks atômicas |
+
+#### XML Tasks — execução sem ambiguidade
+
+```xml
+<tasks>
+  <task type="auto">
+    <name>Criar endpoint de leads</name>
+    <files>src/routes/leads.ts</files>
+    <action>POST /leads com validação Zod, retorna 201 com o lead criado</action>
+    <verify>npm test -- leads.test</verify>
+    <done>Todos os testes de leads passando</done>
+  </task>
+</tasks>
 ```
 
 Para agentes Xquads, o engine injeta também:
@@ -100,11 +137,42 @@ Para agentes Xquads, o engine injeta também:
 
 | Hook | Quando ativa | O que faz |
 |------|-------------|-----------|
-| `synapse-engine.cjs` | Todo prompt | Injeta contexto em camadas |
+| `synapse-engine.cjs` | Todo prompt | Injeta contexto L0→L1→L2→L3 |
 | `enforce-git-push-authority.py` | Antes de Bash | **Bloqueia** push fora do @devops |
 | `sql-governance.py` | Antes de Bash | **Bloqueia** DDL perigoso |
 | `write-path-validation.py` | Antes de Write | Valida paths de arquivo |
 | `precompact-session-digest.cjs` | Antes de compactar | Salva memória da sessão |
+
+---
+
+## Estrutura criada pelo wizard
+
+```
+meu-projeto/
+├── .claude/
+│   ├── CLAUDE.md          ← instruções dos 9 agentes
+│   ├── hooks/             ← 5 hooks de governança
+│   ├── rules/             ← regras do sistema
+│   ├── agent-memory/      ← MEMORY.md por agente
+│   └── commands/          ← slash commands (/project-state, /project-sync, /plan-story)
+│
+├── .genia/                ← framework core
+├── .synapse/              ← runtime do Synapse Engine
+├── .business/             ← contexto de negócio
+│
+├── .planning/             ← GSD Context Layer (NOVO v2.3.0)
+│   ├── STATE.md           ← estado cross-session injetado automaticamente
+│   └── stories/           ← STORY-NNN-PLAN.md com XML tasks
+│
+├── docs/
+│   ├── produto/           ← PRD.md, ROADMAP.md, CHANGELOG.md
+│   ├── tecnico/           ← ARQUITETURA.md, STACK.md, SETUP.md, API.md, adr/
+│   ├── comercial/         ← PITCH.md, PROPOSTA.md, ONBOARDING.md
+│   ├── stories/           ← STORY-NNN criadas pelo @sm
+│   └── handover/          ← atualizado pelo @devops a cada sessão
+│
+└── squads/                ← Xquads de negócio
+```
 
 ---
 
@@ -135,6 +203,24 @@ docs/
 
 ---
 
+## Workflow completo
+
+```
+PLANNING                              DEVELOPMENT                    QA / DELIVERY
+@analyst → @pm → @architect → @po → @sm → @dev → @qa → @reviewer → @devops
+[Briefing] [PRD]  [SPEC+STATE]  [Val] [Story] [Código] [Teste] [Review]  [Push/PR]
+                       ↑
+                  STATE.md inicial
+                  (injetado em L3)
+```
+
+Após cada story Done:
+```
+@dev ou @sm → /project-sync → STATE.md atualizado → próxima sessão já tem contexto
+```
+
+---
+
 ## Requisitos
 
 - **Node.js** ≥ 18.0.0
@@ -145,10 +231,30 @@ docs/
 
 ---
 
+## Changelog
+
+### v2.3.0 — GSD Context Layer
+- Synapse Engine v2.1 com camada L3 (injeção do estado do projeto)
+- `.planning/STATE.md` criado automaticamente no scaffold
+- 3 novos slash commands: `/project-state`, `/project-sync`, `/plan-story`
+- XML task format no template de stories
+- Inspirado no [GSD (get-shit-done)](https://github.com/gsd-build/get-shit-done)
+
+### v2.2.0
+- Squads Xquads completos (Advisory, Copy, Hormozi, Brand, C-Level, Data)
+- Synapse Engine com L2x para agentes de negócio
+
+### v2.1.0
+- Synapse Engine com L0/L1/L2
+- 5 hooks de governança
+- Protocolo de novo projeto obrigatório
+
+---
+
 ## Documentação completa
 
 [github.com/elidyizzy/GENIA-SQUAD-OS](https://github.com/elidyizzy/GENIA-SQUAD-OS)
 
 ---
 
-*GEN.IA OS v2.1 · Criado por **Elidy Izidio** · Founder, GEN.IA SQUAD · 2026*
+*GEN.IA OS v2.3.0 · Criado por **Elidy Izidio** · Founder, GEN.IA SQUAD · 2026*

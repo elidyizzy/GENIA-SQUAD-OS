@@ -156,6 +156,21 @@ Esta story NÃO inclui:
 - Padrões a seguir: [referência ao SPEC-TECNICO]
 - APIs envolvidas: [se houver]
 
+## Plano de Execução (XML Tasks)
+<!-- Preenchido por @dev ao iniciar a story. Use /plan-story NNN para gerar. -->
+<!-- Cada task deve ter action verificável e done mensurável. -->
+<!--
+<tasks>
+  <task type="auto">
+    <name>Nome da task</name>
+    <files>src/path/arquivo.ts</files>
+    <action>O que implementar, com detalhes suficientes para não re-derivar</action>
+    <verify>npm test -- nome.test | curl localhost:3000/endpoint | lint</verify>
+    <done>Critério binário de sucesso</done>
+  </task>
+</tasks>
+-->
+
 ## Definition of Done
 - [ ] Código implementado e funcionando localmente
 - [ ] Testes unitários escritos (coverage >= 80%)
