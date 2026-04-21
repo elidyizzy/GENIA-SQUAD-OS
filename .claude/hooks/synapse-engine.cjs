@@ -132,14 +132,16 @@ function removeSessionFlag(cwd) {
 function detectActiveAgent(prompt) {
   if (!prompt) return null;
   const lower = prompt.toLowerCase();
-  // Prioridade 1: slash commands explícitos (/dev, /pm, etc.)
-  for (const [slash, domain] of Object.entries(SLASH_COMMAND_DOMAINS)) {
+  // Prioridade 1: slash commands — ordenados por comprimento desc para evitar /dev matchear /devops
+  const slashEntries = Object.entries(SLASH_COMMAND_DOMAINS).sort((a, b) => b[0].length - a[0].length);
+  for (const [slash, domain] of slashEntries) {
     if (lower.startsWith(slash) || lower.includes(` ${slash}`) || lower.includes(`\n${slash}`)) {
       return domain;
     }
   }
-  // Prioridade 2: @mentions no texto
-  for (const [mention, domain] of Object.entries(AGENT_DOMAINS)) {
+  // Prioridade 2: @mentions — ordenados por comprimento desc para evitar @dev matchear @devops
+  const mentionEntries = Object.entries(AGENT_DOMAINS).sort((a, b) => b[0].length - a[0].length);
+  for (const [mention, domain] of mentionEntries) {
     if (lower.includes(mention)) {
       return domain;
     }
