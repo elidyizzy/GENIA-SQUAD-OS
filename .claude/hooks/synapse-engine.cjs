@@ -57,6 +57,19 @@ const AGENT_DOMAINS = {
   '@sm': 'agent-sm',
 };
 
+// Mapeamento de slash commands → domínio synapse
+const SLASH_COMMAND_DOMAINS = {
+  '/analyst': 'agent-analyst',
+  '/pm': 'agent-pm',
+  '/architect': 'agent-architect',
+  '/dev': 'agent-dev',
+  '/devops': 'agent-devops',
+  '/qa': 'agent-qa',
+  '/reviewer': 'agent-reviewer',
+  '/po': 'agent-po',
+  '/sm': 'agent-sm',
+};
+
 // Agentes Xquads — recebem contexto de negócio injetado
 const XQUAD_AGENTS = new Set([
   '@ray-dalio', '@charlie-munger', '@naval-ravikant',
@@ -119,6 +132,13 @@ function removeSessionFlag(cwd) {
 function detectActiveAgent(prompt) {
   if (!prompt) return null;
   const lower = prompt.toLowerCase();
+  // Prioridade 1: slash commands explícitos (/dev, /pm, etc.)
+  for (const [slash, domain] of Object.entries(SLASH_COMMAND_DOMAINS)) {
+    if (lower.startsWith(slash) || lower.includes(` ${slash}`) || lower.includes(`\n${slash}`)) {
+      return domain;
+    }
+  }
+  // Prioridade 2: @mentions no texto
   for (const [mention, domain] of Object.entries(AGENT_DOMAINS)) {
     if (lower.includes(mention)) {
       return domain;
