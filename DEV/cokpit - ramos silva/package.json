@@ -1,0 +1,17 @@
+{
+  "name": "cockpit-ramos-silva",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "scripts/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=apps/web",
+    "build": "npm run build --workspace=apps/web",
+    "lint": "npm run lint --workspace=apps/web"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

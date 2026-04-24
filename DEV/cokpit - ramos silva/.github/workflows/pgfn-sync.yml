@@ -1,0 +1,28 @@
+name: PGFN Sync
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'   # toda segunda-feira às 06h UTC (03h BRT)
+  workflow_dispatch:       # execução manual pelo GitHub UI
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360   # até 6h — suficiente para qualquer CSV da PGFN
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci --workspace=scripts/pgfn-sync
+
+      - name: Run PGFN sync
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          PGFN_DIVIDA_MINIMA: ${{ secrets.PGFN_DIVIDA_MINIMA || '1000000' }}
+        run: npm run sync --workspace=scripts/pgfn-sync
