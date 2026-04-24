@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  * { margin: 0; box-sizing: border-box; }
+  body { background: var(--color-bg); padding: 24px 32px; font-family: var(--font-body); color: var(--color-fg); display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-start; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  label { font-size: 12px; font-weight: 600; color: var(--color-fg-muted); letter-spacing: 0.02em; }
+  input, textarea, select { font-family: var(--font-body); font-size: 14px; padding: 10px 14px; border: 1.5px solid var(--color-border); border-radius: var(--radius-md); background: white; color: var(--color-fg); outline: none; transition: border-color var(--duration-fast) ease; }
+  input:focus, textarea:focus, select:focus { border-color: var(--color-primary-500); box-shadow: 0 0 0 3px var(--color-primary-100); }
+  input::placeholder, textarea::placeholder { color: var(--color-fg-subtle); }
+  input { width: 200px; }
+  textarea { width: 200px; height: 72px; resize: vertical; }
+  select { width: 200px; }
+</style></head><body>
+<div class="field">
+  <label>Nome</label>
+  <input type="text" placeholder="Seu nome">
+</div>
+<div class="field">
+  <label>E-mail</label>
+  <input type="email" placeholder="email@exemplo.com">
+</div>
+<div class="field">
+  <label>Tipo de planta</label>
+  <select><option>Samambaia</option><option>Jiboia</option><option>Suculenta</option></select>
+</div>
+<div class="field">
+  <label>Mensagem</label>
+  <textarea placeholder="Conte sobre sua encomenda..."></textarea>
+</div>
+</body></html>

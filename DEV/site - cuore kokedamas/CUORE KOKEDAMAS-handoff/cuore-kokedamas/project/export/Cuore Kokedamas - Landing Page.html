@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../../colors_and_type.css">
+<meta name="ext-resource-dependency" content="../../assets/logo-principal.jpeg" data-resource-id="logoImg" />
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+  * { margin: 0; box-sizing: border-box; }
+  body { background: var(--color-bg); font-family: var(--font-body); color: var(--color-fg); }
+</style>
+</head><body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState } = React;
+
+/* ── Shared Styles ── */
+const headerStyles = {
+  header: { background: 'white', borderBottom: '1px solid var(--color-border-light)', padding: '16px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 10 },
+  logo: { display: 'flex', alignItems: 'center', gap: 12 },
+  logoImg: { width: 40, height: 40, borderRadius: 8 },
+  logoText: { fontFamily: 'var(--font-display)', fontSize: '1.25rem', fontWeight: 600 },
+  nav: { display: 'flex', gap: 24, fontSize: '0.875rem', color: 'var(--color-fg-muted)' },
+  navLink: { textDecoration: 'none', color: 'inherit', cursor: 'pointer', transition: 'color 0.2s' },
+};
+
+const Header = () => (
+  <header style={headerStyles.header}>
+    <div style={headerStyles.logo}>
+      <img src={window.__resources?.logoImg || '../../assets/logo-principal.jpeg'} style={headerStyles.logoImg} alt="Logo" />
+      <span style={headerStyles.logoText}>Cuore Kokedamas</span>
+    </div>
+    <nav style={headerStyles.nav}>
+      <a style={headerStyles.navLink}>Início</a>
+      <a style={headerStyles.navLink}>Kokedamas</a>
+      <a style={headerStyles.navLink}>Sobre</a>
+      <a style={headerStyles.navLink}>Contato</a>
+    </nav>
+  </header>
+);
+
+const heroStyles = {
+  section: { background: 'var(--color-primary-800)', color: 'white', padding: '80px 48px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 64 },
+  content: { maxWidth: 480 },
+  tag: { fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--color-primary-200)', marginBottom: 16 },
+  title: { fontFamily: 'var(--font-display)', fontSize: '3rem', fontWeight: 400, lineHeight: 1.15, marginBottom: 16 },
+  desc: { fontSize: '1rem', lineHeight: 1.7, color: 'var(--color-primary-200)', marginBottom: 32 },
+  btn: { background: 'white', color: 'var(--color-primary-800)', border: 'none', padding: '14px 32px', borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--font-body)' },
+  imgBox: { width: 320, height: 320, borderRadius: 16, background: 'var(--color-primary-700)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-primary-400)', fontSize: 14, flexShrink: 0 },
+};
+
+const Hero = () => (
+  <section style={heroStyles.section}>
+    <div style={heroStyles.content}>
+      <div style={heroStyles.tag}>Feito à mão</div>
+      <h1 style={heroStyles.title}>Natureza que cabe na palma da mão</h1>
+      <p style={heroStyles.desc}>Kokedamas artesanais feitas com carinho e musgos selecionados. Cada peça é única — um pequeno jardim para a sua casa.</p>
+      <button style={heroStyles.btn}>Ver kokedamas</button>
+    </div>
+    <div style={heroStyles.imgBox}>[ foto hero ]</div>
+  </section>
+);
+
+const productCardStyles = {
+  card: { background: 'white', borderRadius: 12, boxShadow: '0 1px 3px rgba(44,37,32,0.06)', overflow: 'hidden', width: 240, cursor: 'pointer', transition: 'all 0.25s cubic-bezier(0.22,1,0.36,1)' },
+  img: { width: '100%', height: 200, background: 'var(--color-primary-50)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-primary-300)', fontSize: 13 },
+  body: { padding: 16 },
+  name: { fontFamily: 'var(--font-display)', fontSize: '1.125rem', fontWeight: 600, marginBottom: 4 },
+  desc: { fontSize: 13, color: 'var(--color-fg-muted)', lineHeight: 1.5, marginBottom: 12 },
+  footer: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
+  price: { fontWeight: 700, color: 'var(--color-primary-700)' },
+  tag: { fontSize: 10, background: 'var(--color-primary-50)', color: 'var(--color-primary-700)', padding: '3px 8px', borderRadius: 999 },
+};
+
+const products = [
+  { name: 'Samambaia Mini', desc: 'Compacta, perfeita para mesas.', price: 'R$ 65', tag: 'Indoor' },
+  { name: 'Jiboia Suspensa', desc: 'Crescimento pendente e elegante.', price: 'R$ 89', tag: 'Meia-sombra' },
+  { name: 'Suculenta Duo', desc: 'Par de suculentas em musgo.', price: 'R$ 75', tag: 'Fácil cuidado' },
+  { name: 'Lírio da Paz', desc: 'Flores brancas, purifica o ar.', price: 'R$ 110', tag: 'Premium' },
+];
+
+const ProductCard = ({ p }) => {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <div style={{ ...productCardStyles.card, ...(hovered ? { boxShadow: '0 8px 24px rgba(44,37,32,0.10)', transform: 'translateY(-3px)' } : {}) }}
+      onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
+      <div style={productCardStyles.img}>[ foto ]</div>
+      <div style={productCardStyles.body}>
+        <div style={productCardStyles.name}>{p.name}</div>
+        <div style={productCardStyles.desc}>{p.desc}</div>
+        <div style={productCardStyles.footer}>
+          <span style={productCardStyles.price}>{p.price}</span>
+          <span style={productCardStyles.tag}>{p.tag}</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const gridStyles = {
+  section: { padding: '64px 48px' },
+  title: { fontFamily: 'var(--font-display)', fontSize: '2rem', fontWeight: 500, textAlign: 'center', marginBottom: 8 },
+  sub: { fontSize: 14, color: 'var(--color-fg-muted)', textAlign: 'center', marginBottom: 40 },
+  grid: { display: 'flex', gap: 20, justifyContent: 'center', flexWrap: 'wrap' },
+};
+
+const ProductGrid = () => (
+  <section style={gridStyles.section}>
+    <h2 style={gridStyles.title}>Nossas Kokedamas</h2>
+    <p style={gridStyles.sub}>Cada peça é feita à mão com musgos selecionados</p>
+    <div style={gridStyles.grid}>
+      {products.map((p, i) => <ProductCard key={i} p={p} />)}
+    </div>
+  </section>
+);
+
+const ctaStyles = {
+  section: { background: 'var(--color-secondary-50)', padding: '56px 48px', textAlign: 'center' },
+  title: { fontFamily: 'var(--font-display)', fontSize: '1.75rem', fontWeight: 500, marginBottom: 12 },
+  desc: { fontSize: 14, color: 'var(--color-fg-muted)', maxWidth: 440, margin: '0 auto 28px' },
+  btn: { background: 'var(--color-secondary-500)', color: 'white', border: 'none', padding: '14px 32px', borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--font-body)' },
+};
+
+const CTA = () => (
+  <section style={ctaStyles.section}>
+    <h2 style={ctaStyles.title}>Encomende a sua</h2>
+    <p style={ctaStyles.desc}>Quer uma kokedama personalizada? Escolha a planta e o tamanho — fazemos sob medida, com o mesmo carinho de sempre.</p>
+    <button style={ctaStyles.btn}>Fale no WhatsApp</button>
+  </section>
+);
+
+const footerStyles = {
+  footer: { background: 'var(--color-neutral-900)', color: 'var(--color-neutral-300)', padding: '40px 48px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 13 },
+  brand: { fontFamily: 'var(--font-display)', fontSize: '1.125rem', color: 'white', fontWeight: 500 },
+};
+
+const Footer = () => (
+  <footer style={footerStyles.footer}>
+    <span style={footerStyles.brand}>Cuore Kokedamas</span>
+    <span>Feito à mão, com amor e musgo</span>
+  </footer>
+);
+
+const App = () => (
+  <div>
+    <Header />
+    <Hero />
+    <ProductGrid />
+    <CTA />
+    <Footer />
+  </div>
+);
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+<template id="__bundler_thumbnail" data-bg-color="#2B4A22">
+<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+<rect width="400" height="300" fill="#2B4A22"/>
+<circle cx="200" cy="160" r="50" fill="none" stroke="#C2D8B5" stroke-width="3"/>
+<path d="M200 60 C200 60,188 82,200 98 C212 82,200 60,200 60Z" fill="#C2D8B5"/>
+<path d="M180 75 C180 75,168 95,182 105 C190 91,180 75,180 75Z" fill="#C2D8B5"/>
+<path d="M220 75 C220 75,232 95,218 105 C210 91,220 75,220 75Z" fill="#C2D8B5"/>
+<text x="200" y="250" text-anchor="middle" font-family="Georgia,serif" font-size="20" fill="#C2D8B5">Cuore Kokedamas</text>
+</svg>
+</template>
+</body></html>

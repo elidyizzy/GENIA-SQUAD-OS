@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cuore Kokedamas | Jardim Artesanal</title>
+  <meta name="description" content="Kokedamas artesanais feitas com carinho e musgos selecionados. Cada peça é única — um pequeno jardim para a sua casa.">
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
+  <link href="https://unpkg.com/lucide-static@latest/font/lucide.css" rel="stylesheet">
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="logo-container" onclick="window.scrollTo(0,0)">
+      <img src="assets/logo.jpeg" alt="Cuore Kokedamas Logo" class="logo-img">
+      <span class="logo-text">Cuore Kokedamas</span>
+    </div>
+    <nav class="nav-links">
+      <a href="#inicio">Início</a>
+      <a href="#kokedamas">Kokedamas</a>
+      <a href="#encomendar">Encomendar</a>
+    </nav>
+  </header>
+
+  <!-- HERO -->
+  <section id="inicio" class="hero">
+    <div class="hero-content animate-on-scroll">
+      <span class="hero-tag">Feito à mão</span>
+      <h1 class="hero-title">Natureza que cabe na palma da mão</h1>
+      <p class="hero-desc">Kokedamas artesanais feitas com carinho e musgos selecionados. Cada peça é única — um pequeno jardim luxuoso para a sua casa.</p>
+      <a href="#kokedamas" class="btn-primary">
+        Ver kokedamas <i data-lucide="arrow-right"></i>
+      </a>
+    </div>
+    <div class="hero-img-box animate-on-scroll" style="transition-delay: 200ms;">
+      <img src="assets/hero_kokedama.png" alt="Kokedama suspensa em ambiente luxuoso">
+    </div>
+  </section>
+
+  <!-- PRODUCT GRID -->
+  <section id="kokedamas" class="products-section">
+    <h2 class="section-title animate-on-scroll">Nossas Kokedamas</h2>
+    <p class="section-sub animate-on-scroll">Cada peça é feita à mão com musgos selecionados</p>
+    
+    <div class="product-grid">
+      <!-- Produto 1 -->
+      <div class="product-card animate-on-scroll">
+        <div class="product-img">
+          <img src="assets/samambaia_mini.png" alt="Samambaia Mini">
+        </div>
+        <div class="product-body">
+          <h3 class="product-name">Samambaia Mini</h3>
+          <p class="product-desc">Compacta, perfeita para mesas. Folhagem densa e vibrante que traz vida a qualquer ambiente interno.</p>
+          <div class="product-footer">
+            <span class="product-price">R$ 65</span>
+            <span class="product-tag">Indoor</span>
+          </div>
+          <button class="buy-btn">
+            <i data-lucide="shopping-bag"></i> Eu Quero
+          </button>
+        </div>
+      </div>
+
+      <!-- Produto 2 -->
+      <div class="product-card animate-on-scroll">
+        <div class="product-img">
+          <img src="assets/jiboia_suspensa.png" alt="Jiboia Suspensa">
+        </div>
+        <div class="product-body">
+          <h3 class="product-name">Jiboia Suspensa</h3>
+          <p class="product-desc">Crescimento pendente e elegante. Muito rústica, adapta-se bem a diferentes condições de luz e adiciona um charme botânico incrível.</p>
+          <div class="product-footer">
+            <span class="product-price">R$ 89</span>
+            <span class="product-tag">Meia-sombra</span>
+          </div>
+          <button class="buy-btn">
+            <i data-lucide="shopping-bag"></i> Eu Quero
+          </button>
+        </div>
+      </div>
+
+      <!-- Produto 3 -->
+      <div class="product-card animate-on-scroll">
+        <div class="product-img">
+          <img src="assets/suculenta_duo.png" alt="Suculenta Duo">
+        </div>
+        <div class="product-body">
+          <h3 class="product-name">Suculenta Duo</h3>
+          <p class="product-desc">Um charmoso par de suculentas cultivado em musgo. Muito resistente e de baixíssima manutenção, ideal para iniciantes.</p>
+          <div class="product-footer">
+            <span class="product-price">R$ 75</span>
+            <span class="product-tag">Fácil cuidado</span>
+          </div>
+          <button class="buy-btn">
+            <i data-lucide="shopping-bag"></i> Eu Quero
+          </button>
+        </div>
+      </div>
+
+      <!-- Produto 4 -->
+      <div class="product-card animate-on-scroll">
+        <div class="product-img">
+          <img src="assets/lirio_paz.png" alt="Lírio da Paz">
+        </div>
+        <div class="product-body">
+          <h3 class="product-name">Lírio da Paz</h3>
+          <p class="product-desc">Elegância e sofisticação. Produz flores brancas delicadas e é conhecida por suas propriedades de purificar o ar do ambiente.</p>
+          <div class="product-footer">
+            <span class="product-price">R$ 110</span>
+            <span class="product-tag">Premium</span>
+          </div>
+          <button class="buy-btn">
+            <i data-lucide="shopping-bag"></i> Eu Quero
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section id="encomendar" class="cta-section animate-on-scroll">
+    <h2 class="cta-title">Encomende a sua</h2>
+    <p class="cta-desc">Quer uma kokedama personalizada? Escolha a planta e o tamanho — fazemos sob medida, com o mesmo carinho de sempre.</p>
+    <button class="btn-secondary">
+      <i data-lucide="message-circle"></i> Fale no WhatsApp
+    </button>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-brand">Cuore Kokedamas</div>
+    <div>Feito à mão, com amor e musgo</div>
+    <div class="footer-links">
+      <a href="https://www.instagram.com/cuorekokedamas/" target="_blank"><i data-lucide="instagram"></i> Instagram</a>
+    </div>
+  </footer>
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>lucide.createIcons();</script>
+  <script src="script.js"></script>
+</body>
+</html>

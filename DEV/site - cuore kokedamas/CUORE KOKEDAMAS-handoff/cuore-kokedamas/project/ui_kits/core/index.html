@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../../colors_and_type.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; box-sizing: border-box; }
+  body { background: #FDFBF8; font-family: 'DM Sans', sans-serif; color: #2C2520; }
+  ::selection { background: #C2D8B5; color: #1E3317; }
+</style>
+</head><body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+/* ═══════════════════════════════════════════
+   CUORE KOKEDAMAS — Garden Premium Landing
+   ═══════════════════════════════════════════ */
+
+const c = {
+  forest: '#1E3317', moss: '#2B4A22', green7: '#3B5A2B', green6: '#4A6F36',
+  green5: '#5A8544', green3: '#9DBE87', green1: '#E2EDDB', green0: '#F2F7EF',
+  terra6: '#A84B26', terra5: '#C45D33', terra3: '#E0A088', terra1: '#F6E4DB', terra0: '#FBF2ED',
+  sand9: '#2C2520', sand7: '#5C4E41', sand5: '#8E7D6C', sand3: '#C2B5A6', sand1: '#EDE8E2', sand0: '#F7F5F2',
+  gold5: '#B8963E', gold3: '#DCC47E', gold1: '#F6EED4',
+  bg: '#FDFBF8', white: '#fff',
+};
+
+/* ── Header ── */
+const Header = () => {
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const h = () => setScrolled(window.scrollY > 40);
+    window.addEventListener('scroll', h);
+    return () => window.removeEventListener('scroll', h);
+  }, []);
+  return (
+    <header style={{
+      position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
+      padding: scrolled ? '14px 48px' : '20px 48px',
+      background: scrolled ? 'rgba(253,251,248,0.92)' : 'transparent',
+      backdropFilter: scrolled ? 'blur(16px)' : 'none',
+      borderBottom: scrolled ? '1px solid rgba(217,208,197,0.5)' : 'none',
+      transition: 'all 0.4s cubic-bezier(0.22,1,0.36,1)',
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+        <img src="../../assets/logo-verde-musgo.png" style={{ width: 36, height: 36 }} alt="" />
+        <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.35rem', fontWeight: 500, color: c.green7, letterSpacing: '-0.01em' }}>Cuore Kokedamas</span>
+      </div>
+      <nav style={{ display: 'flex', gap: 32, fontSize: '0.8125rem', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+        {['Coleção', 'Ateliê', 'Cuidados', 'Contato'].map(t => (
+          <a key={t} style={{ color: c.sand7, textDecoration: 'none', cursor: 'pointer', transition: 'color 0.2s' }}
+            onMouseEnter={e => e.target.style.color = c.green7}
+            onMouseLeave={e => e.target.style.color = c.sand7}>{t}</a>
+        ))}
+      </nav>
+    </header>
+  );
+};
+
+/* ── Hero ── */
+const Hero = () => (
+  <section style={{
+    minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
+    background: `linear-gradient(165deg, ${c.green0} 0%, ${c.bg} 40%, ${c.terra0} 100%)`,
+    padding: '120px 48px 80px', position: 'relative', overflow: 'hidden',
+  }}>
+    {/* Decorative circle */}
+    <div style={{
+      position: 'absolute', top: -120, right: -120, width: 500, height: 500,
+      borderRadius: '50%', border: `1px solid ${c.green1}`, opacity: 0.6,
+    }}></div>
+    <div style={{
+      position: 'absolute', bottom: -80, left: -80, width: 300, height: 300,
+      borderRadius: '50%', border: `1px solid ${c.terra1}`, opacity: 0.5,
+    }}></div>
+
+    <div style={{ maxWidth: 1100, display: 'flex', alignItems: 'center', gap: 80, position: 'relative' }}>
+      <div style={{ flex: 1 }}>
+        <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.2em', color: c.gold5, marginBottom: 24, fontWeight: 500 }}>
+          ✦ Arte Botânica Artesanal
+        </div>
+        <h1 style={{
+          fontFamily: "'Cormorant Garamond', serif", fontSize: '4rem', fontWeight: 300,
+          lineHeight: 1.1, color: c.forest, marginBottom: 24, letterSpacing: '-0.02em',
+        }}>
+          Jardins suspensos,<br />
+          <em style={{ fontWeight: 400, fontStyle: 'italic', color: c.green7 }}>feitos com alma</em>
+        </h1>
+        <p style={{ fontSize: '1.0625rem', lineHeight: 1.8, color: c.sand5, maxWidth: 420, marginBottom: 40 }}>
+          Cada kokedama nasce das nossas mãos — musgos selecionados, plantas que respiram vida. Um pedaço de natureza para chamar de seu.
+        </p>
+        <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+          <button style={{
+            background: c.green7, color: c.white, border: 'none', padding: '16px 36px',
+            borderRadius: 4, fontSize: 13, fontWeight: 600, cursor: 'pointer',
+            fontFamily: "'DM Sans', sans-serif", letterSpacing: '0.06em', textTransform: 'uppercase',
+            transition: 'all 0.3s ease',
+          }}
+            onMouseEnter={e => { e.target.style.background = c.forest; e.target.style.transform = 'translateY(-1px)'; }}
+            onMouseLeave={e => { e.target.style.background = c.green7; e.target.style.transform = 'none'; }}
+          >Ver coleção</button>
+          <span style={{ fontSize: 13, color: c.sand5, cursor: 'pointer' }}>Conheça o ateliê →</span>
+        </div>
+      </div>
+
+      {/* Hero image placeholder */}
+      <div style={{
+        width: 420, height: 520, borderRadius: 200, flexShrink: 0,
+        background: `linear-gradient(180deg, ${c.green1} 0%, ${c.sand1} 100%)`,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        position: 'relative',
+      }}>
+        <div style={{
+          width: 380, height: 480, borderRadius: 180,
+          border: `1px solid ${c.sand3}`, display: 'flex', alignItems: 'center',
+          justifyContent: 'center', color: c.sand5, fontSize: 14,
+          fontStyle: 'italic', fontFamily: "'Cormorant Garamond', serif",
+        }}>[ fotografia kokedama ]</div>
+        {/* Gold accent line */}
+        <div style={{
+          position: 'absolute', bottom: 40, left: -20, width: 80, height: 1,
+          background: c.gold5,
+        }}></div>
+      </div>
+    </div>
+  </section>
+);
+
+/* ── Divider ── */
+const Divider = ({ text }) => (
+  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 20, padding: '16px 48px' }}>
+    <div style={{ flex: 1, maxWidth: 120, height: 1, background: c.sand1 }}></div>
+    <span style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.2em', color: c.sand3, fontWeight: 500 }}>{text}</span>
+    <div style={{ flex: 1, maxWidth: 120, height: 1, background: c.sand1 }}></div>
+  </div>
+);
+
+/* ── Collection Grid ── */
+const collectionItems = [
+  { name: 'Samambaia Real', subtitle: 'Nephrolepis exaltata', price: 'R$ 145', badge: null },
+  { name: 'Jiboia Imperial', subtitle: 'Epipremnum aureum', price: 'R$ 189', badge: 'Novo' },
+  { name: 'Suculenta Rosette', subtitle: 'Echeveria elegans', price: 'R$ 95', badge: null },
+  { name: 'Lírio da Paz', subtitle: 'Spathiphyllum wallisii', price: 'R$ 210', badge: 'Premium' },
+];
+
+const CollectionCard = ({ item }) => {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <div style={{
+      width: 250, cursor: 'pointer', transition: 'all 0.4s cubic-bezier(0.22,1,0.36,1)',
+      transform: hovered ? 'translateY(-6px)' : 'none',
+    }} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
+      <div style={{
+        width: '100%', height: 320, borderRadius: 4, marginBottom: 20,
+        background: hovered
+          ? `linear-gradient(180deg, ${c.green0} 0%, ${c.sand0} 100%)`
+          : c.sand0,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        position: 'relative', overflow: 'hidden', transition: 'background 0.4s ease',
+      }}>
+        <span style={{ color: c.sand3, fontSize: 13, fontStyle: 'italic', fontFamily: "'Cormorant Garamond', serif" }}>[ foto ]</span>
+        {item.badge && (
+          <span style={{
+            position: 'absolute', top: 16, left: 16, fontSize: 9,
+            textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 600,
+            color: item.badge === 'Premium' ? c.gold5 : c.green7,
+            background: item.badge === 'Premium' ? c.gold1 : c.green0,
+            padding: '4px 10px', borderRadius: 2,
+          }}>{item.badge}</span>
+        )}
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div>
+          <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.125rem', fontWeight: 500, marginBottom: 2 }}>{item.name}</div>
+          <div style={{ fontSize: 12, color: c.sand5, fontStyle: 'italic' }}>{item.subtitle}</div>
+        </div>
+        <div style={{ fontSize: '0.9375rem', fontWeight: 600, color: c.green7 }}>{item.price}</div>
+      </div>
+    </div>
+  );
+};
+
+const Collection = () => (
+  <section style={{ padding: '80px 48px' }}>
+    <div style={{ textAlign: 'center', marginBottom: 56 }}>
+      <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.2em', color: c.gold5, marginBottom: 16, fontWeight: 500 }}>Coleção</div>
+      <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '2.5rem', fontWeight: 300, color: c.forest, letterSpacing: '-0.01em' }}>Peças únicas</h2>
+    </div>
+    <div style={{ display: 'flex', gap: 28, justifyContent: 'center', flexWrap: 'wrap' }}>
+      {collectionItems.map((item, i) => <CollectionCard key={i} item={item} />)}
+    </div>
+  </section>
+);
+
+/* ── Story Section ── */
+const Story = () => (
+  <section style={{
+    padding: '100px 48px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 80,
+    background: c.forest, color: c.white, position: 'relative', overflow: 'hidden',
+  }}>
+    {/* Subtle texture overlay */}
+    <div style={{
+      position: 'absolute', inset: 0, opacity: 0.04,
+      background: 'radial-gradient(circle at 20% 50%, rgba(255,255,255,0.3) 0%, transparent 60%)',
+    }}></div>
+    <div style={{
+      width: 360, height: 400, borderRadius: 4, flexShrink: 0,
+      border: `1px solid rgba(255,255,255,0.1)`, display: 'flex',
+      alignItems: 'center', justifyContent: 'center', position: 'relative',
+    }}>
+      <span style={{ color: 'rgba(255,255,255,0.25)', fontSize: 14, fontStyle: 'italic', fontFamily: "'Cormorant Garamond', serif" }}>[ foto ateliê ]</span>
+    </div>
+    <div style={{ maxWidth: 440, position: 'relative' }}>
+      <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.2em', color: c.gold3, marginBottom: 24, fontWeight: 500 }}>Nosso ateliê</div>
+      <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '2.25rem', fontWeight: 300, lineHeight: 1.25, marginBottom: 24 }}>
+        Onde cada detalhe<br /><em style={{ fontStyle: 'italic', color: c.green3 }}>é um ato de cuidado</em>
+      </h2>
+      <p style={{ fontSize: '0.9375rem', lineHeight: 1.9, color: 'rgba(255,255,255,0.6)', marginBottom: 16 }}>
+        No coração do nosso ateliê, musgos são selecionados à mão, raízes são envolvidas com delicadeza, e cada kokedama ganha forma como uma pequena escultura viva.
+      </p>
+      <p style={{ fontSize: '0.9375rem', lineHeight: 1.9, color: 'rgba(255,255,255,0.6)', marginBottom: 32 }}>
+        Não é produção em massa — é o tempo lento do jardim, onde a paciência é o ingrediente principal.
+      </p>
+      <div style={{ width: 40, height: 1, background: c.gold5 }}></div>
+    </div>
+  </section>
+);
+
+/* ── Care Tips ── */
+const tips = [
+  { num: '01', title: 'Luz indireta', desc: 'Posicione próximo a janelas, mas sem sol direto sobre as folhas.' },
+  { num: '02', title: 'Imersão quinzenal', desc: 'Mergulhe a base em água por 10 minutos a cada 15 dias.' },
+  { num: '03', title: 'Borrifar com carinho', desc: 'Borrife levemente 2 a 3 vezes por semana para manter o musgo hidratado.' },
+];
+
+const Care = () => (
+  <section style={{ padding: '80px 48px', background: c.sand0 }}>
+    <div style={{ textAlign: 'center', marginBottom: 56 }}>
+      <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.2em', color: c.gold5, marginBottom: 16, fontWeight: 500 }}>Cuidados</div>
+      <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '2.25rem', fontWeight: 300, color: c.forest }}>Simples como a natureza</h2>
+    </div>
+    <div style={{ display: 'flex', gap: 48, justifyContent: 'center', maxWidth: 900, margin: '0 auto' }}>
+      {tips.map(t => (
+        <div key={t.num} style={{ flex: 1, maxWidth: 260 }}>
+          <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '2rem', fontWeight: 300, color: c.green3, marginBottom: 12 }}>{t.num}</div>
+          <div style={{ fontSize: '1rem', fontWeight: 600, marginBottom: 8 }}>{t.title}</div>
+          <p style={{ fontSize: 14, lineHeight: 1.7, color: c.sand5 }}>{t.desc}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+);
+
+/* ── CTA ── */
+const CTA = () => (
+  <section style={{
+    padding: '80px 48px', textAlign: 'center',
+    background: `linear-gradient(180deg, ${c.bg} 0%, ${c.terra0} 100%)`,
+  }}>
+    <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.2em', color: c.gold5, marginBottom: 16, fontWeight: 500 }}>Encomendas</div>
+    <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '2.5rem', fontWeight: 300, color: c.forest, marginBottom: 16 }}>
+      Sua kokedama, <em style={{ fontStyle: 'italic' }}>sob medida</em>
+    </h2>
+    <p style={{ fontSize: 15, color: c.sand5, maxWidth: 440, margin: '0 auto 36px', lineHeight: 1.7 }}>
+      Escolha a planta, o tamanho e deixe o restante conosco. Cada peça é criada especialmente para você.
+    </p>
+    <button style={{
+      background: c.terra6, color: c.white, border: 'none', padding: '16px 40px',
+      borderRadius: 4, fontSize: 13, fontWeight: 600, cursor: 'pointer',
+      fontFamily: "'DM Sans', sans-serif", letterSpacing: '0.06em', textTransform: 'uppercase',
+      transition: 'all 0.3s ease',
+    }}
+      onMouseEnter={e => { e.target.style.background = c.terra5; e.target.style.transform = 'translateY(-1px)'; }}
+      onMouseLeave={e => { e.target.style.background = c.terra6; e.target.style.transform = 'none'; }}
+    >Fale no WhatsApp</button>
+  </section>
+);
+
+/* ── Footer ── */
+const Footer = () => (
+  <footer style={{
+    background: c.forest, padding: '48px', display: 'flex',
+    justifyContent: 'space-between', alignItems: 'center',
+  }}>
+    <div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+        <img src="../../assets/logo-branco.png" style={{ width: 28, height: 28 }} alt="" />
+        <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.125rem', color: c.white, fontWeight: 400 }}>Cuore Kokedamas</span>
+      </div>
+      <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>Feito à mão, com amor e musgo</div>
+    </div>
+    <div style={{ display: 'flex', gap: 28, fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>
+      <span>Instagram</span><span>WhatsApp</span><span>E-mail</span>
+    </div>
+  </footer>
+);
+
+/* ── App ── */
+const App = () => (
+  <div>
+    <Header />
+    <Hero />
+    <Divider text="✦" />
+    <Collection />
+    <Story />
+    <Care />
+    <CTA />
+    <Footer />
+  </div>
+);
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body></html>
