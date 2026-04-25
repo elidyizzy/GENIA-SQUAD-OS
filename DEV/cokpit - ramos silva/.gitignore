@@ -33,7 +33,8 @@ Thumbs.db
 out/
 
 # Vercel
-.vercel
+.vercel/output
+.vercel/cache
 
 # Next.js local env
 apps/web/.env.local
