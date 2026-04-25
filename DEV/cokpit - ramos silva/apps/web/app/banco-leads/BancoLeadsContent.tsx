@@ -7,6 +7,7 @@ import { useLeads, useLeadFilters } from '@/hooks/useLeads'
 import { formatMoeda, formatCNPJ, formatData } from '@/lib/formatters'
 import { cn } from '@/lib/utils'
 import { Download, Filter, MoreVertical, TrendingUp, AlertTriangle, PieChart, ChevronLeft, ChevronRight } from 'lucide-react'
+import { PgfnDetailModal } from '@/components/leads/PgfnDetailModal'
 
 interface Lead {
   id: string
@@ -27,6 +28,7 @@ export function BancoLeadsContent() {
   const queryClient = useQueryClient()
   const [toasts, setToasts] = useState<ToastMsg[]>([])
   const toastCounter = useRef(0)
+  const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null)
 
   const addToast = useCallback((message: string, type: 'success' | 'error' = 'success') => {
     const id = ++toastCounter.current
@@ -178,14 +180,17 @@ export function BancoLeadsContent() {
                   className="hover:bg-blue-50/40 transition-colors group"
                 >
                   <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="h-9 w-9 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center font-bold text-[10px] uppercase group-hover:bg-blue-100 group-hover:text-blue-700 transition-colors shadow-inner flex-shrink-0">
+                    <button
+                      onClick={() => setSelectedLeadId(lead.id)}
+                      className="flex items-center gap-3 text-left group/cell"
+                    >
+                      <div className="h-9 w-9 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center font-bold text-[10px] uppercase group-hover:bg-blue-100 group-hover:text-blue-700 group-hover/cell:bg-blue-100 group-hover/cell:text-blue-700 transition-colors shadow-inner flex-shrink-0">
                         {lead.nome_empresa.split(' ').map((n) => n[0]).join('').substring(0, 2)}
                       </div>
-                      <div className="font-bold text-sm text-slate-900 truncate max-w-[180px]" title={lead.nome_empresa}>
+                      <div className="font-bold text-sm text-slate-900 truncate max-w-[180px] hover:text-blue-700 transition-colors" title={lead.nome_empresa}>
                         {lead.nome_empresa}
                       </div>
-                    </div>
+                    </button>
                   </td>
                   <td className="px-6 py-4 text-sm text-slate-600 font-mono tracking-tight">{formatCNPJ(lead.cnpj)}</td>
                   <td className="px-6 py-4 font-bold text-sm text-slate-900">{formatMoeda(lead.valor_divida)}</td>
@@ -218,7 +223,11 @@ export function BancoLeadsContent() {
                     {lead.data_entrada ? formatData(lead.data_entrada) : '—'}
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <ActionMenu lead={lead} onMoverPipeline={() => handleMoverPipeline(lead.id)} />
+                    <ActionMenu
+                      lead={lead}
+                      onMoverPipeline={() => handleMoverPipeline(lead.id)}
+                      onVerDetalhes={() => setSelectedLeadId(lead.id)}
+                    />
                   </td>
                 </motion.tr>
               ))}
@@ -311,6 +320,19 @@ export function BancoLeadsContent() {
         </div>
       </div>
 
+      {/* PGFN Detail Modal */}
+      <AnimatePresence>
+        {selectedLeadId && (
+          <PgfnDetailModal
+            leadId={selectedLeadId}
+            onClose={() => setSelectedLeadId(null)}
+            onMoverPipeline={async (id) => {
+              await handleMoverPipeline(id)
+            }}
+          />
+        )}
+      </AnimatePresence>
+
       {/* Toasts */}
       <div className="fixed bottom-8 right-8 z-50 flex flex-col gap-2">
         <AnimatePresence>
@@ -334,7 +356,7 @@ export function BancoLeadsContent() {
   )
 }
 
-function ActionMenu({ lead, onMoverPipeline }: { lead: Lead; onMoverPipeline: () => void }) {
+function ActionMenu({ lead, onMoverPipeline, onVerDetalhes }: { lead: Lead; onMoverPipeline: () => void; onVerDetalhes: () => void }) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
@@ -372,7 +394,7 @@ function ActionMenu({ lead, onMoverPipeline }: { lead: Lead; onMoverPipeline: ()
               </button>
             )}
             <button
-              onClick={() => setOpen(false)}
+              onClick={() => { onVerDetalhes(); setOpen(false) }}
               className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 font-medium transition-colors"
             >
               Ver detalhes
