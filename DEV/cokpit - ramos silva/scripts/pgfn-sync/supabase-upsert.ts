@@ -1,9 +1,16 @@
 import { Pool } from 'pg'
-import { LeadRow } from './csv-parser.js'
+import { Categoria } from './pgfn-downloader.js'
 
 export interface UpsertResult {
   novos: number
   atualizados: number
+}
+
+export interface AccumulatedLead {
+  cnpj: string
+  nome_empresa: string
+  uf: string | null
+  categorias: Partial<Record<Categoria, number>>
 }
 
 let _pool: Pool | null = null
@@ -17,47 +24,67 @@ function getPool(): Pool {
   return _pool
 }
 
-export async function upsertBatch(rows: LeadRow[]): Promise<UpsertResult> {
-  const pool = getPool()
+function classificar(valor: number): 'A' | 'B' | 'C' {
+  if (valor >= 3_000_000) return 'A'
+  if (valor >= 1_000_000) return 'B'
+  return 'C'
+}
 
-  // Deduplica por CNPJ somando dívidas
-  const porCnpj = new Map<string, typeof rows[0]>()
-  for (const r of rows) {
-    const existing = porCnpj.get(r.cnpj)
-    if (!existing) porCnpj.set(r.cnpj, { ...r })
-    else existing.valor_divida += r.valor_divida
-  }
-  const reclassificar = (v: number): 'A' | 'B' | 'C' => v >= 3_000_000 ? 'A' : v >= 1_000_000 ? 'B' : 'C'
-  const deduplicated = Array.from(porCnpj.values()).map((r) => ({ ...r, classificacao: reclassificar(r.valor_divida) }))
+export async function upsertAcumulado(
+  acumulador: Map<string, AccumulatedLead>,
+  batchSize = 200
+): Promise<UpsertResult> {
+  const pool = getPool()
+  const leads = Array.from(acumulador.values())
+
+  if (leads.length === 0) return { novos: 0, atualizados: 0 }
 
   // Conta novos vs existentes
-  const cnpjs = deduplicated.map((r) => r.cnpj)
+  const cnpjs = leads.map((r) => r.cnpj)
   const existentesRes = await pool.query<{ cnpj: string }>(
-    'SELECT cnpj FROM leads WHERE cnpj = ANY($1)', [cnpjs]
+    'SELECT cnpj FROM leads WHERE cnpj = ANY($1)',
+    [cnpjs]
   )
   const cnpjsExistentes = new Set(existentesRes.rows.map((r) => r.cnpj))
-  const novos = deduplicated.filter((r) => !cnpjsExistentes.has(r.cnpj)).length
-  const atualizados = deduplicated.length - novos
+  let totalNovos = leads.filter((r) => !cnpjsExistentes.has(r.cnpj)).length
+  const totalAtualizados = leads.length - totalNovos
 
-  // Upsert com retry
-  const values = deduplicated.map((r) =>
-    `('${r.cnpj}','${r.nome_empresa.replace(/'/g, "''")}',${r.valor_divida},'${r.uf ?? ''}','${r.classificacao}',NOW())`
-  ).join(',')
+  // Upsert em batches
+  for (let i = 0; i < leads.length; i += batchSize) {
+    const batch = leads.slice(i, i + batchSize)
+    await upsertBatch(pool, batch)
+    process.stdout.write(`\r  → ${Math.min(i + batchSize, leads.length)} / ${leads.length} upsertados`)
+  }
+  console.log()
+
+  return { novos: totalNovos, atualizados: totalAtualizados }
+}
+
+async function upsertBatch(pool: Pool, rows: AccumulatedLead[]): Promise<void> {
+  const values = rows.map((r) => {
+    const valorTotal = Object.values(r.categorias).reduce((s, v) => s + (v ?? 0), 0)
+    const pgfnRaw = JSON.stringify(r.categorias)
+    const classificacao = classificar(valorTotal)
+    const nomeEscapado = r.nome_empresa.replace(/'/g, "''")
+    const uf = r.uf ? `'${r.uf}'` : 'NULL'
+    return `('${r.cnpj}','${nomeEscapado}',${valorTotal},'${classificacao}',${uf},'${pgfnRaw}'::jsonb,NOW())`
+  }).join(',')
 
   let lastError: Error | null = null
   for (let attempt = 1; attempt <= 3; attempt++) {
     try {
       await pool.query(`
-        INSERT INTO leads (cnpj, nome_empresa, valor_divida, uf, classificacao, updated_at)
+        INSERT INTO leads (cnpj, nome_empresa, valor_divida, classificacao, uf, pgfn_raw, updated_at)
         VALUES ${values}
         ON CONFLICT (cnpj) DO UPDATE SET
-          nome_empresa = EXCLUDED.nome_empresa,
-          valor_divida = EXCLUDED.valor_divida,
-          uf = EXCLUDED.uf,
-          classificacao = EXCLUDED.classificacao,
-          updated_at = EXCLUDED.updated_at
+          nome_empresa   = EXCLUDED.nome_empresa,
+          valor_divida   = EXCLUDED.valor_divida,
+          classificacao  = EXCLUDED.classificacao,
+          uf             = EXCLUDED.uf,
+          pgfn_raw       = EXCLUDED.pgfn_raw,
+          updated_at     = EXCLUDED.updated_at
       `)
-      return { novos, atualizados }
+      return
     } catch (err) {
       lastError = err instanceof Error ? err : new Error(String(err))
       if (attempt < 3) await new Promise((r) => setTimeout(r, attempt * 2000))

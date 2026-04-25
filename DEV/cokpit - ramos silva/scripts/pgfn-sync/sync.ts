@@ -1,13 +1,13 @@
-import { listarArquivosPgfn, downloadStream } from './pgfn-downloader.js'
-import { parseCsvStream } from './csv-parser.js'
+import { listarArquivosPgfn, downloadStream, Categoria } from './pgfn-downloader.js'
+import { parseCsvStream, LeadRow } from './csv-parser.js'
 import {
-  upsertBatch,
+  upsertAcumulado,
   criarSyncLog,
   atualizarSyncLog,
-  UpsertResult,
+  AccumulatedLead,
 } from './supabase-upsert.js'
 import unzipper from 'unzipper'
-import { createWriteStream, createReadStream, unlink } from 'fs'
+import { createWriteStream, unlink } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
 import { pipeline } from 'stream/promises'
@@ -29,23 +29,35 @@ async function downloadToTemp(url: string, nome: string): Promise<string> {
   return tmpPath
 }
 
+function acumularRow(acumulador: Map<string, AccumulatedLead>, row: LeadRow): void {
+  const existing = acumulador.get(row.cnpj)
+  if (!existing) {
+    acumulador.set(row.cnpj, {
+      cnpj: row.cnpj,
+      nome_empresa: row.nome_empresa,
+      uf: row.uf,
+      categorias: { [row.categoria]: row.valor_divida },
+    })
+  } else {
+    existing.nome_empresa = row.nome_empresa
+    if (existing.uf === null) existing.uf = row.uf
+    existing.categorias[row.categoria] =
+      (existing.categorias[row.categoria] ?? 0) + row.valor_divida
+  }
+}
+
 async function processarArquivo(
   url: string,
-  nome: string
-): Promise<{ processados: number; ignorados: number; novos: number; atualizados: number }> {
-  console.log(`\n[PGFN] Processando: ${nome}`)
+  nome: string,
+  categoria: Categoria,
+  acumulador: Map<string, AccumulatedLead>
+): Promise<{ processados: number; ignorados: number }> {
+  console.log(`\n[PGFN] Processando: ${nome} (${categoria})`)
   const isZip = nome.toLowerCase().endsWith('.zip')
 
-  let totalNovos = 0
-  let totalAtualizados = 0
-
-  const onBatch = async (batch: Parameters<typeof upsertBatch>[0]) => {
-    const resultado: UpsertResult = await upsertBatch(batch)
-    totalNovos += resultado.novos
-    totalAtualizados += resultado.atualizados
-    process.stdout.write(
-      `\r  → ${totalNovos + totalAtualizados} processados (${totalNovos} novos, ${totalAtualizados} atualizados)`
-    )
+  const onBatch = async (batch: LeadRow[]) => {
+    for (const row of batch) acumularRow(acumulador, row)
+    process.stdout.write(`\r  → ${acumulador.size} CNPJs acumulados`)
   }
 
   let processados: number
@@ -53,9 +65,8 @@ async function processarArquivo(
 
   if (!isZip) {
     const rawStream = await downloadStream(url)
-    ;({ processados, ignorados } = await parseCsvStream(rawStream, DIVIDA_MINIMA, onBatch))
+    ;({ processados, ignorados } = await parseCsvStream(rawStream, DIVIDA_MINIMA, categoria, onBatch))
   } else {
-    // Baixa o ZIP para temp, depois extrai e parseia todos os CSVs
     const tmpPath = await downloadToTemp(url, nome)
     processados = 0
     ignorados = 0
@@ -66,7 +77,7 @@ async function processarArquivo(
       console.log(`  ${csvEntries.length} arquivo(s) CSV no ZIP`)
       for (const csvEntry of csvEntries) {
         console.log(`\n  Parseando: ${csvEntry.path} (${Math.round(csvEntry.uncompressedSize / 1024 / 1024)}MB)`)
-        const result = await parseCsvStream(csvEntry.stream(), DIVIDA_MINIMA, onBatch)
+        const result = await parseCsvStream(csvEntry.stream(), DIVIDA_MINIMA, categoria, onBatch)
         processados += result.processados
         ignorados += result.ignorados
       }
@@ -76,10 +87,10 @@ async function processarArquivo(
   }
 
   console.log(
-    `\n[PGFN] ${nome} concluído: ${processados} processados, ${ignorados} ignorados (abaixo do mínimo R$${DIVIDA_MINIMA.toLocaleString('pt-BR')})`
+    `\n[PGFN] ${nome} concluído: ${processados} processados, ${ignorados} ignorados (abaixo de R$${DIVIDA_MINIMA.toLocaleString('pt-BR')})`
   )
 
-  return { processados, ignorados, novos: totalNovos, atualizados: totalAtualizados }
+  return { processados, ignorados }
 }
 
 async function main() {
@@ -92,7 +103,8 @@ async function main() {
   let arquivos
   try {
     arquivos = await listarArquivosPgfn()
-    console.log(`[PGFN Sync] ${arquivos.length} arquivo(s) encontrado(s) na página PGFN`)
+    console.log(`[PGFN Sync] ${arquivos.length} arquivo(s) encontrado(s)`)
+    for (const a of arquivos) console.log(`  • ${a.nome} → categoria: ${a.categoria}`)
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
     console.error(`[PGFN Sync] Falha ao listar arquivos: ${msg}`)
@@ -100,27 +112,42 @@ async function main() {
     process.exit(1)
   }
 
-  let totalNovos = 0
-  let totalAtualizados = 0
+  // Acumulador global: um registro por CNPJ com todas as categorias
+  const acumulador = new Map<string, AccumulatedLead>()
+
+  let totalProcessados = 0
   let totalIgnorados = 0
   const erros: string[] = []
 
   for (const arquivo of arquivos) {
     try {
-      const resultado = await processarArquivo(arquivo.url, arquivo.nome)
-      totalNovos += resultado.novos
-      totalAtualizados += resultado.atualizados
+      const resultado = await processarArquivo(arquivo.url, arquivo.nome, arquivo.categoria, acumulador)
+      totalProcessados += resultado.processados
       totalIgnorados += resultado.ignorados
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
-      const erroFormatado = `${arquivo.nome}: ${msg}`
       console.error(`\n[PGFN Sync] ERRO em ${arquivo.nome}: ${msg}`)
-      erros.push(erroFormatado)
-      // Continua para o próximo arquivo — falha isolada
+      erros.push(`${arquivo.nome}: ${msg}`)
     }
   }
 
-  const status = erros.length === arquivos.length ? 'falha' : 'sucesso'
+  console.log(`\n[PGFN Sync] Acumulador: ${acumulador.size} CNPJs únicos com dívida >= R$${DIVIDA_MINIMA.toLocaleString('pt-BR')}`)
+  console.log('[PGFN Sync] Executando upsert final no banco...')
+
+  let totalNovos = 0
+  let totalAtualizados = 0
+
+  try {
+    const resultado = await upsertAcumulado(acumulador)
+    totalNovos = resultado.novos
+    totalAtualizados = resultado.atualizados
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error(`[PGFN Sync] ERRO no upsert final: ${msg}`)
+    erros.push(`upsert_final: ${msg}`)
+  }
+
+  const status = erros.length > 0 && totalNovos + totalAtualizados === 0 ? 'falha' : 'sucesso'
   const erroTexto = erros.length > 0 ? erros.join('\n') : undefined
 
   await atualizarSyncLog(
@@ -135,7 +162,7 @@ async function main() {
   console.log(`  Novos: ${totalNovos}`)
   console.log(`  Atualizados: ${totalAtualizados}`)
   console.log(`  Ignorados: ${totalIgnorados}`)
-  if (erros.length > 0) console.log(`  Erros: ${erros.length} arquivo(s)`)
+  if (erros.length > 0) console.log(`  Erros: ${erros.length}`)
 
   process.exit(status === 'falha' ? 1 : 0)
 }

@@ -1,6 +1,7 @@
 import csvParser from 'csv-parser'
 import iconv from 'iconv-lite'
 import { Readable } from 'stream'
+import { Categoria } from './pgfn-downloader.js'
 
 export interface LeadRow {
   cnpj: string
@@ -8,6 +9,7 @@ export interface LeadRow {
   valor_divida: number
   uf: string | null
   classificacao: 'A' | 'B' | 'C'
+  categoria: Categoria
 }
 
 function classificar(valor: number): 'A' | 'B' | 'C' {
@@ -44,6 +46,7 @@ function encontrarColuna(row: Record<string, string>, candidatos: string[]): str
 export async function parseCsvStream(
   stream: Readable,
   dividaMinima: number,
+  categoria: Categoria,
   onBatch: (rows: LeadRow[]) => Promise<void>,
   batchSize = 100
 ): Promise<{ processados: number; ignorados: number }> {
@@ -99,6 +102,7 @@ export async function parseCsvStream(
         valor_divida: valor,
         uf: colUf ? (row[colUf] ?? '').trim().substring(0, 2) || null : null,
         classificacao: classificar(valor),
+        categoria,
       })
 
       if (batch.length >= batchSize) {

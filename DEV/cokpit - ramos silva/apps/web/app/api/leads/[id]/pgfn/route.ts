@@ -10,6 +10,7 @@ interface LeadRow {
   classificacao: string
   status: string
   data_entrada: string
+  pgfn_raw: Record<string, number> | null
 }
 
 export async function GET(
@@ -19,7 +20,7 @@ export async function GET(
   const { id } = await params
 
   const lead = await queryOne<LeadRow>(
-    'SELECT id, cnpj, nome_empresa, valor_divida, uf, classificacao, status, data_entrada FROM leads WHERE id = $1',
+    'SELECT id, cnpj, nome_empresa, valor_divida, uf, classificacao, status, data_entrada, pgfn_raw FROM leads WHERE id = $1',
     [id]
   )
   if (!lead) return NextResponse.json({ error: 'Lead não encontrado' }, { status: 404 })

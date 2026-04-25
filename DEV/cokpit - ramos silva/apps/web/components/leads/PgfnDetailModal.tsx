@@ -15,7 +15,17 @@ interface Lead {
   classificacao: string
   status: string
   data_entrada: string
+  pgfn_raw: Record<string, number> | null
 }
+
+const CATEGORIA_LABEL: Record<string, string> = {
+  nao_previdenciario: 'Tributário — Demais Débitos',
+  previdenciario: 'Tributário — Previdenciário',
+  fgts: 'FGTS',
+  nao_tributario: 'Não Tributário — Demais Débitos',
+}
+
+const CATEGORIA_ORDER = ['nao_previdenciario', 'previdenciario', 'fgts', 'nao_tributario']
 
 interface Props {
   leadId: string
@@ -132,6 +142,38 @@ export function PgfnDetailModal({ leadId, onClose, onMoverPipeline }: Props) {
                     </div>
                   </div>
                 </div>
+
+                {/* Breakdown por categoria */}
+                {lead.pgfn_raw && Object.keys(lead.pgfn_raw).length > 0 && (
+                  <div className="border-b border-slate-100">
+                    <div className="px-5 py-3 bg-slate-50 border-b border-slate-100">
+                      <p className="text-xs font-black text-slate-500 uppercase tracking-wider">Composição da Dívida</p>
+                    </div>
+                    {CATEGORIA_ORDER
+                      .filter((cat) => lead.pgfn_raw![cat])
+                      .map((cat) => {
+                        const valor = lead.pgfn_raw![cat]
+                        const pct = lead.valor_divida > 0 ? (valor / lead.valor_divida) * 100 : 0
+                        return (
+                          <div key={cat} className="grid grid-cols-[1fr_auto] items-center px-5 py-3 border-b border-slate-50 last:border-0 gap-3">
+                            <div>
+                              <p className="text-xs font-bold text-slate-700">{CATEGORIA_LABEL[cat] ?? cat}</p>
+                              <div className="mt-1.5 h-1 bg-slate-100 rounded-full overflow-hidden w-full">
+                                <div
+                                  className="h-full bg-blue-500 rounded-full"
+                                  style={{ width: `${Math.min(pct, 100).toFixed(1)}%` }}
+                                />
+                              </div>
+                            </div>
+                            <span className="text-sm font-bold text-slate-900 whitespace-nowrap tabular-nums">
+                              {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(valor)}
+                            </span>
+                          </div>
+                        )
+                      })
+                    }
+                  </div>
+                )}
 
                 {/* PGFN Portal Link */}
                 <div className="px-6 py-5 space-y-4">

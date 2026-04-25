@@ -6,9 +6,20 @@ const PGFN_PAGE_URL =
 
 const BASE_GOV_URL = 'https://www.gov.br'
 
+export type Categoria = 'nao_previdenciario' | 'previdenciario' | 'fgts' | 'nao_tributario'
+
+function detectarCategoria(nome: string): Categoria {
+  const n = nome.toLowerCase()
+  if (n.includes('fgts')) return 'fgts'
+  if (n.includes('previd')) return 'previdenciario'
+  if (n.includes('nao_tribut') || n.includes('nao-tribut') || n.includes('naotribut') || n.includes('multa')) return 'nao_tributario'
+  return 'nao_previdenciario'
+}
+
 export interface PgfnFile {
   url: string
   nome: string
+  categoria: Categoria
 }
 
 function extrairTrimestre(url: string): { ano: number; trim: number } | null {
@@ -60,10 +71,10 @@ export async function listarArquivosPgfn(): Promise<PgfnFile[]> {
     resultado = [...resultado, ...doUltimoTrim]
   }
 
-  return resultado.map((url) => ({
-    url,
-    nome: url.split('/').pop() ?? url,
-  }))
+  return resultado.map((url) => {
+    const nome = url.split('/').pop() ?? url
+    return { url, nome, categoria: detectarCategoria(nome) }
+  })
 }
 
 export async function downloadStream(url: string): Promise<Readable> {
