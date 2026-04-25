@@ -28,6 +28,22 @@ interface MapsData {
   maps_url?: string
 }
 
+interface TRFData {
+  disponivel: boolean
+  trf: string
+  processos: Array<{ numero: string; tipo: string; tribunal: string; data: string }>
+  risco: 'baixo' | 'medio' | 'alto' | null
+}
+
+interface DecisoresData {
+  decisores: Array<{
+    name: string
+    title?: string
+    email?: string
+    linkedin_url?: string
+  }>
+}
+
 function CadastralDados({ d }: { d: CadastralData }) {
   const qsa = d.qsa ?? []
   const situacao = d.situacao_cadastral ?? ''
@@ -106,11 +122,93 @@ function MapsDados({ d }: { d: MapsData }) {
   )
 }
 
+function TRFDados({ d }: { d: TRFData }) {
+  if (!d.disponivel) {
+    return (
+      <div className="mt-2">
+        <span className="text-xs px-2 py-0.5 rounded-full bg-zinc-100 text-zinc-500 font-medium">
+          Indisponível — {d.trf}
+        </span>
+      </div>
+    )
+  }
+
+  const riscoColor = {
+    baixo: 'bg-green-100 text-green-700',
+    medio: 'bg-amber-100 text-amber-700',
+    alto: 'bg-red-100 text-red-600',
+  }[d.risco ?? 'baixo']
+
+  return (
+    <div className="mt-2 space-y-2 text-sm">
+      <div className="flex items-center gap-2">
+        <span className="text-xs text-zinc-400">{d.trf}</span>
+        {d.risco && (
+          <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${riscoColor}`}>
+            Risco {d.risco.charAt(0).toUpperCase() + d.risco.slice(1)} — {d.processos.length} processo(s)
+          </span>
+        )}
+      </div>
+      {d.processos.length > 0 && (
+        <ul className="space-y-1">
+          {d.processos.slice(0, 10).map((p, i) => (
+            <li key={i} className="text-xs text-zinc-600 flex gap-2">
+              <span className="font-mono text-zinc-400 shrink-0">{p.numero}</span>
+              <span className="text-zinc-500">{p.tipo.replace('_', ' ')}</span>
+              <span className="text-zinc-400">{p.data}</span>
+            </li>
+          ))}
+          {d.processos.length > 10 && (
+            <li className="text-xs text-zinc-400 italic">+{d.processos.length - 10} mais processos</li>
+          )}
+        </ul>
+      )}
+      {d.processos.length === 0 && (
+        <p className="text-xs text-zinc-400">Nenhum processo encontrado.</p>
+      )}
+    </div>
+  )
+}
+
+function DecisoresDados({ d }: { d: DecisoresData }) {
+  if (!d.decisores || d.decisores.length === 0) {
+    return <p className="mt-2 text-xs text-zinc-400">Nenhum decisor encontrado via Apollo.</p>
+  }
+
+  return (
+    <div className="mt-2 space-y-2">
+      {d.decisores.map((dec, i) => (
+        <div key={i} className="bg-zinc-50 rounded-md p-2 text-xs">
+          <p className="font-semibold text-zinc-800">{dec.name}</p>
+          {dec.title && <p className="text-zinc-500">{dec.title}</p>}
+          <div className="flex gap-3 mt-1">
+            {dec.email && (
+              <a href={`mailto:${dec.email}`} className="text-blue-600 hover:underline">
+                {dec.email}
+              </a>
+            )}
+            {dec.linkedin_url && (
+              <a
+                href={dec.linkedin_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:underline"
+              >
+                LinkedIn →
+              </a>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 export function EnrichSection({ tipo, label, icon, enrichment, pipelineLeadId, onSuccess }: Props) {
   const [isLoading, setIsLoading] = useState(false)
   const [confirmOpen, setConfirmOpen] = useState(false)
 
-  const canEnrich = tipo === 'cadastral' || tipo === 'maps'
+  const canEnrich = true
   const status = enrichment?.status ?? 'pendente'
   const alreadyDone = status === 'sucesso'
 
@@ -175,7 +273,7 @@ export function EnrichSection({ tipo, label, icon, enrichment, pipelineLeadId, o
         <p className="mt-1.5 text-xs text-red-500">{enrichment.erro}</p>
       )}
 
-      {status === 'sucesso' && enrichment?.dados && (
+      {(status === 'sucesso' || (tipo === 'trf' && status === 'erro')) && enrichment?.dados && (
         <>
           {tipo === 'cadastral' && (
             <CadastralDados d={enrichment.dados as CadastralData} />
@@ -183,13 +281,13 @@ export function EnrichSection({ tipo, label, icon, enrichment, pipelineLeadId, o
           {tipo === 'maps' && (
             <MapsDados d={enrichment.dados as MapsData} />
           )}
+          {tipo === 'trf' && (
+            <TRFDados d={enrichment.dados as unknown as TRFData} />
+          )}
+          {tipo === 'decisores' && (
+            <DecisoresDados d={enrichment.dados as unknown as DecisoresData} />
+          )}
         </>
-      )}
-
-      {!canEnrich && status === 'pendente' && (
-        <p className="mt-1.5 text-xs text-zinc-400 italic">
-          Disponível em breve (Story 3.4)
-        </p>
       )}
     </div>
   )
