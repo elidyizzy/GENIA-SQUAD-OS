@@ -1,10 +1,10 @@
+import { Suspense } from 'react'
+import { DashboardContent } from './DashboardContent'
+
 export default function DashboardPage() {
   return (
-    <div>
-      <h1 className="text-2xl font-bold text-zinc-900">Dashboard Executivo</h1>
-      <p className="mt-2 text-zinc-500">
-        KPIs e gráficos do pipeline — Story 4.1 em breve.
-      </p>
-    </div>
+    <Suspense fallback={<div className="text-zinc-400 mt-8">Carregando dashboard...</div>}>
+      <DashboardContent />
+    </Suspense>
   )
 }
