@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { createServerClient } from '@/lib/supabase'
+import { queryOne, query } from '@/lib/db'
 import { buscarProcessosTRF, calcularRisco } from '@/lib/services/trf'
 
 export const maxDuration = 60
@@ -9,56 +9,30 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params
-  const supabase = createServerClient()
 
-  const { data: pl } = await supabase
-    .from('pipeline_leads')
-    .select('leads(cnpj, uf)')
-    .eq('id', id)
-    .single()
+  try {
+    const pl = await queryOne<{ cnpj: string; uf: string | null }>(
+      'SELECT l.cnpj, l.uf FROM pipeline_leads pl JOIN leads l ON l.id = pl.lead_id WHERE pl.id = $1',
+      [id]
+    )
+    if (!pl) return NextResponse.json({ error: 'Pipeline lead não encontrado' }, { status: 404 })
+    if (!pl.uf) return NextResponse.json({ error: 'UF do lead não disponível' }, { status: 422 })
 
-  if (!pl) {
-    return NextResponse.json({ error: 'Pipeline lead não encontrado' }, { status: 404 })
-  }
+    const resultado = await buscarProcessosTRF(pl.uf, pl.cnpj)
+    const risco = resultado.disponivel ? calcularRisco(resultado.processos.length) : null
+    const dados = { disponivel: resultado.disponivel, trf: resultado.trf, processos: resultado.processos, risco, uf: pl.uf }
+    const enrichStatus = resultado.disponivel ? 'sucesso' : 'erro'
+    const erro = resultado.disponivel ? null : `${resultado.trf} indisponível no momento`
 
-  const leads = (pl as unknown as { leads: Array<{ cnpj: string; uf: string | null }> }).leads
-  const lead = Array.isArray(leads) ? leads[0] : leads
-
-  if (!lead?.uf) {
-    return NextResponse.json({ error: 'UF do lead não disponível' }, { status: 422 })
-  }
-
-  const resultado = await buscarProcessosTRF(lead.uf, lead.cnpj)
-  const risco = resultado.disponivel ? calcularRisco(resultado.processos.length) : null
-
-  const dados = {
-    disponivel: resultado.disponivel,
-    trf: resultado.trf,
-    processos: resultado.processos,
-    risco,
-    uf: lead.uf,
-  }
-
-  const enrichStatus = resultado.disponivel ? 'sucesso' : 'erro'
-  const erro = resultado.disponivel ? null : `${resultado.trf} indisponível no momento`
-
-  const { error: upsertError } = await supabase
-    .from('enrichments')
-    .upsert(
-      {
-        pipeline_lead_id: id,
-        tipo: 'trf',
-        status: enrichStatus,
-        dados,
-        erro,
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: 'pipeline_lead_id,tipo' }
+    await query(
+      `INSERT INTO enrichments (pipeline_lead_id, tipo, status, dados, erro, updated_at)
+       VALUES ($1, 'trf', $2, $3, $4, NOW())
+       ON CONFLICT (pipeline_lead_id, tipo) DO UPDATE SET status = $2, dados = $3, erro = $4, updated_at = NOW()`,
+      [id, enrichStatus, JSON.stringify(dados), erro]
     )
 
-  if (upsertError) {
-    return NextResponse.json({ error: upsertError.message }, { status: 500 })
+    return NextResponse.json({ ok: true, dados })
+  } catch (err) {
+    return NextResponse.json({ error: err instanceof Error ? err.message : 'Erro interno' }, { status: 500 })
   }
-
-  return NextResponse.json({ ok: true, dados })
 }

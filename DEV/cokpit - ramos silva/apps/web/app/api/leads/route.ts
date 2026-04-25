@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { createServerClient } from '@/lib/supabase'
+import { query } from '@/lib/db'
 import { normalizarCnpj } from '@/lib/formatters'
 
 export async function GET(request: Request) {
@@ -10,29 +10,33 @@ export async function GET(request: Request) {
   const classificacao = searchParams.get('classificacao')
   const status = searchParams.get('status')
   const q = searchParams.get('q')?.trim()
-  const order = searchParams.get('order') === 'asc' ? 'asc' : 'desc'
+  const order = searchParams.get('order') === 'asc' ? 'ASC' : 'DESC'
   const offset = (page - 1) * limit
 
   try {
-    const supabase = createServerClient()
-    let query = supabase.from('leads').select('*', { count: 'exact' })
+    const conditions: string[] = []
+    const params: unknown[] = []
+    let i = 1
 
-    if (uf) query = query.eq('uf', uf)
-    if (classificacao) query = query.eq('classificacao', classificacao)
-    if (status) query = query.eq('status', status)
+    if (uf) { conditions.push(`uf = $${i++}`); params.push(uf) }
+    if (classificacao) { conditions.push(`classificacao = $${i++}`); params.push(classificacao) }
+    if (status) { conditions.push(`status = $${i++}`); params.push(status) }
     if (q) {
       const cnpjLimpo = normalizarCnpj(q)
-      query = query.or(`nome_empresa.ilike.%${q}%,cnpj.ilike.%${cnpjLimpo}%`)
+      conditions.push(`(nome_empresa ILIKE $${i} OR cnpj ILIKE $${i + 1})`)
+      params.push(`%${q}%`, `%${cnpjLimpo}%`)
+      i += 2
     }
 
-    query = query
-      .order('valor_divida', { ascending: order === 'asc' })
-      .range(offset, offset + limit - 1)
+    const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : ''
+    const rows = await query(
+      `SELECT *, COUNT(*) OVER() AS total_count FROM leads ${where} ORDER BY valor_divida ${order} LIMIT $${i} OFFSET $${i + 1}`,
+      [...params, limit, offset]
+    )
 
-    const { data, count, error } = await query
-    if (error) throw error
-
-    return NextResponse.json({ data: data ?? [], total: count ?? 0, page })
+    const total = rows.length > 0 ? parseInt(String(rows[0].total_count), 10) : 0
+    const data = rows.map(({ total_count: _, ...r }) => r)
+    return NextResponse.json({ data, total, page })
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Erro interno'
     return NextResponse.json({ error: msg }, { status: 500 })

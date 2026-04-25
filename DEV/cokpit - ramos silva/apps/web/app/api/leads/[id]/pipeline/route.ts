@@ -1,59 +1,42 @@
 import { NextResponse } from 'next/server'
-import { createServerClient } from '@/lib/supabase'
+import { queryOne, query } from '@/lib/db'
 
 export async function POST(
   _req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params
-  const supabase = createServerClient()
 
-  const { data: lead, error: fetchError } = await supabase
-    .from('leads')
-    .select('id, status')
-    .eq('id', id)
-    .single()
-
-  if (fetchError || !lead) {
-    return NextResponse.json({ error: 'Lead não encontrado' }, { status: 404 })
-  }
-
-  if (lead.status !== 'novo') {
-    return NextResponse.json(
-      { error: 'Lead já está no pipeline ou foi descartado' },
-      { status: 409 }
+  try {
+    const lead = await queryOne<{ id: string; status: string }>(
+      'SELECT id, status FROM leads WHERE id = $1', [id]
     )
-  }
-
-  const { data: newPl, error: pipelineError } = await supabase
-    .from('pipeline_leads')
-    .insert({ lead_id: id, estagio: 'lead_bruto' })
-    .select('id')
-    .single()
-
-  if (pipelineError) {
-    if (pipelineError.code === '23505') {
-      return NextResponse.json({ error: 'Lead já está no pipeline' }, { status: 409 })
+    if (!lead) return NextResponse.json({ error: 'Lead não encontrado' }, { status: 404 })
+    if (lead.status !== 'novo') {
+      return NextResponse.json({ error: 'Lead já está no pipeline ou foi descartado' }, { status: 409 })
     }
-    return NextResponse.json({ error: pipelineError.message }, { status: 500 })
+
+    let newPlId: string
+    try {
+      const rows = await query<{ id: string }>(
+        'INSERT INTO pipeline_leads (lead_id, estagio) VALUES ($1, $2) RETURNING id',
+        [id, 'lead_bruto']
+      )
+      newPlId = rows[0].id
+    } catch (err: unknown) {
+      const e = err as { code?: string }
+      if (e.code === '23505') return NextResponse.json({ error: 'Lead já está no pipeline' }, { status: 409 })
+      throw err
+    }
+
+    await query('UPDATE leads SET status = $2 WHERE id = $1', [id, 'pipeline'])
+    await query(
+      'INSERT INTO estagio_historico (pipeline_lead_id, estagio_anterior, estagio_novo) VALUES ($1, $2, $3)',
+      [newPlId, null, 'lead_bruto']
+    )
+
+    return NextResponse.json({ ok: true })
+  } catch (err) {
+    return NextResponse.json({ error: err instanceof Error ? err.message : 'Erro interno' }, { status: 500 })
   }
-
-  const { error: updateError } = await supabase
-    .from('leads')
-    .update({ status: 'pipeline' })
-    .eq('id', id)
-
-  if (updateError) {
-    return NextResponse.json({ error: updateError.message }, { status: 500 })
-  }
-
-  if (newPl) {
-    await supabase.from('estagio_historico').insert({
-      pipeline_lead_id: newPl.id,
-      estagio_anterior: null,
-      estagio_novo: 'lead_bruto',
-    })
-  }
-
-  return NextResponse.json({ ok: true })
 }

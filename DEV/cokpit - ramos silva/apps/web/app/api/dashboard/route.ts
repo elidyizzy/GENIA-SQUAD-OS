@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { createServerClient } from '@/lib/supabase'
+import { query, queryCount, queryOne } from '@/lib/db'
 
 function getStartDate(periodo: string): string | null {
   if (periodo === 'all') return null
@@ -23,104 +23,63 @@ export async function GET(request: Request) {
   const periodo = searchParams.get('periodo') ?? '30'
   const startDate = getStartDate(periodo)
 
-  const supabase = createServerClient()
-
   const [
-    totalLeadsResult,
-    leadsNovosResult,
-    porEstagioResult,
-    porClassifResult,
-    ganhadosResult,
-    top10Result,
-    leadsPorSemanaResult,
+    totalLeads,
+    leadsNovos,
+    porEstagioRows,
+    porClassifRows,
+    leadsGanhos,
+    top10Rows,
+    semanaRows,
   ] = await Promise.all([
-    // Total leads na base
-    supabase.from('leads').select('*', { count: 'exact', head: true }),
-
-    // Leads novos no período
-    startDate
-      ? supabase.from('leads').select('*', { count: 'exact', head: true }).gte('data_entrada', startDate)
-      : supabase.from('leads').select('*', { count: 'exact', head: true }),
-
-    // Leads por estágio no pipeline
-    supabase
-      .from('pipeline_leads')
-      .select('estagio, leads(valor_divida)')
-      .neq('estagio', 'fechado'),
-
-    // Leads por classificação (ativos no pipeline)
-    supabase
-      .from('pipeline_leads')
-      .select('leads(classificacao)')
-      .neq('estagio', 'fechado'),
-
-    // Leads ganhos no período
-    startDate
-      ? supabase
-          .from('pipeline_leads')
-          .select('*', { count: 'exact', head: true })
-          .eq('estagio', 'fechado')
-          .eq('resultado', 'ganho')
-          .gte('updated_at', startDate)
-      : supabase
-          .from('pipeline_leads')
-          .select('*', { count: 'exact', head: true })
-          .eq('estagio', 'fechado')
-          .eq('resultado', 'ganho'),
-
-    // Top 10 leads por valor de dívida no pipeline
-    supabase
-      .from('pipeline_leads')
-      .select('id, estagio, leads(id, nome_empresa, cnpj, valor_divida, classificacao)')
-      .order('leads(valor_divida)', { ascending: false })
-      .limit(10),
-
-    // Leads novos por semana (últimas 12 semanas)
-    supabase
-      .from('leads')
-      .select('data_entrada')
-      .gte('data_entrada', (() => { const d = new Date(); d.setDate(d.getDate() - 84); return d.toISOString() })())
-      .order('data_entrada', { ascending: true }),
+    queryCount('SELECT COUNT(*) FROM leads'),
+    queryCount(
+      startDate ? 'SELECT COUNT(*) FROM leads WHERE data_entrada >= $1' : 'SELECT COUNT(*) FROM leads',
+      startDate ? [startDate] : []
+    ),
+    query<{ estagio: string; valor_divida: string }>(
+      "SELECT pl.estagio, l.valor_divida FROM pipeline_leads pl JOIN leads l ON l.id = pl.lead_id WHERE pl.estagio != 'fechado'"
+    ),
+    query<{ classificacao: string }>(
+      "SELECT l.classificacao FROM pipeline_leads pl JOIN leads l ON l.id = pl.lead_id WHERE pl.estagio != 'fechado'"
+    ),
+    queryCount(
+      startDate
+        ? "SELECT COUNT(*) FROM pipeline_leads WHERE estagio = 'fechado' AND resultado = 'ganho' AND updated_at >= $1"
+        : "SELECT COUNT(*) FROM pipeline_leads WHERE estagio = 'fechado' AND resultado = 'ganho'",
+      startDate ? [startDate] : []
+    ),
+    query<{ id: string; estagio: string; lead_id: string; nome_empresa: string; cnpj: string; valor_divida: string; classificacao: string }>(
+      'SELECT pl.id, pl.estagio, l.id AS lead_id, l.nome_empresa, l.cnpj, l.valor_divida, l.classificacao FROM pipeline_leads pl JOIN leads l ON l.id = pl.lead_id ORDER BY l.valor_divida DESC LIMIT 10'
+    ),
+    query<{ data_entrada: string }>(
+      'SELECT data_entrada FROM leads WHERE data_entrada >= $1 ORDER BY data_entrada ASC',
+      [(() => { const d = new Date(); d.setDate(d.getDate() - 84); return d.toISOString() })()]
+    ),
   ])
 
-  // Aggregar leads por estágio
   const ESTAGIOS = ['lead_bruto', 'enriquecido', 'qualificado', 'contato', 'diagnostico', 'proposta']
   const porEstagioMap: Record<string, { count: number; volume: number }> = Object.fromEntries(
     ESTAGIOS.map((s) => [s, { count: 0, volume: 0 }])
   )
-  for (const item of porEstagioResult.data ?? []) {
-    const estagio = item.estagio as string
-    if (porEstagioMap[estagio]) {
-      porEstagioMap[estagio].count++
-      const leads = Array.isArray(item.leads) ? item.leads[0] : item.leads
-      porEstagioMap[estagio].volume += (leads as { valor_divida?: number })?.valor_divida ?? 0
+  for (const item of porEstagioRows) {
+    if (porEstagioMap[item.estagio]) {
+      porEstagioMap[item.estagio].count++
+      porEstagioMap[item.estagio].volume += parseFloat(item.valor_divida) || 0
     }
   }
-  const porEstagio = ESTAGIOS.map((s) => ({
-    estagio: s,
-    count: porEstagioMap[s].count,
-    volume: porEstagioMap[s].volume,
-  }))
+  const porEstagio = ESTAGIOS.map((s) => ({ estagio: s, count: porEstagioMap[s].count, volume: porEstagioMap[s].volume }))
 
-  // Agregação por classificação
   const classifMap: Record<string, number> = { A: 0, B: 0, C: 0 }
-  for (const item of porClassifResult.data ?? []) {
-    const leads = Array.isArray(item.leads) ? item.leads[0] : item.leads
-    const classif = (leads as { classificacao?: string })?.classificacao
-    if (classif && classifMap[classif] !== undefined) classifMap[classif]++
+  for (const item of porClassifRows) {
+    if (item.classificacao && classifMap[item.classificacao] !== undefined) classifMap[item.classificacao]++
   }
   const porClassificacao = Object.entries(classifMap).map(([name, value]) => ({ name, value }))
 
-  // Volume total em prospecção
   const volumeTotal = Object.values(porEstagioMap).reduce((sum, v) => sum + v.volume, 0)
   const totalNosPipeline = Object.values(porEstagioMap).reduce((sum, v) => sum + v.count, 0)
+  const taxaConversao = totalLeads > 0 ? (leadsGanhos / totalLeads) * 100 : 0
 
-  // Taxa de conversão
-  const totalLeadsBrutos = totalLeadsResult.count ?? 0
-  const leadsGanhos = ganhadosResult.count ?? 0
-  const taxaConversao = totalLeadsBrutos > 0 ? (leadsGanhos / totalLeadsBrutos) * 100 : 0
-
-  // Leads por semana (últimas 12 semanas)
   const semanaMap: Record<string, number> = {}
   const now = new Date()
   for (let w = 11; w >= 0; w--) {
@@ -128,26 +87,26 @@ export async function GET(request: Request) {
     d.setDate(d.getDate() - w * 7)
     semanaMap[getISOWeek(d)] = 0
   }
-  for (const item of leadsPorSemanaResult.data ?? []) {
+  for (const item of semanaRows) {
     const semana = getISOWeek(new Date(item.data_entrada))
     if (semanaMap[semana] !== undefined) semanaMap[semana]++
   }
   const leadsPorSemana = Object.entries(semanaMap).map(([semana, total]) => ({ semana, total }))
 
-  // Top 10
-  const top10 = (top10Result.data ?? []).map((item) => {
-    const leads = Array.isArray(item.leads) ? item.leads[0] : item.leads
-    return {
-      pipeline_lead_id: item.id,
-      estagio: item.estagio,
-      ...(leads as { id: string; nome_empresa: string; cnpj: string; valor_divida: number; classificacao: string }),
-    }
-  })
+  const top10 = top10Rows.map((r) => ({
+    pipeline_lead_id: r.id,
+    estagio: r.estagio,
+    id: r.lead_id,
+    nome_empresa: r.nome_empresa,
+    cnpj: r.cnpj,
+    valor_divida: parseFloat(r.valor_divida),
+    classificacao: r.classificacao,
+  }))
 
   return NextResponse.json({
     kpis: {
-      totalLeads: totalLeadsBrutos,
-      leadsNovos: leadsNovosResult.count ?? 0,
+      totalLeads,
+      leadsNovos,
       totalNosPipeline,
       volumeTotal,
       leadsGanhos,
