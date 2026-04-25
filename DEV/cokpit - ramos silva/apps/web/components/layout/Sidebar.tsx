@@ -1,8 +1,9 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { Database, Kanban, LayoutDashboard, Settings, HelpCircle } from 'lucide-react'
+import { Kanban, LayoutDashboard, Settings, HelpCircle, Database } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const mainItems = [
@@ -36,8 +37,8 @@ export function Sidebar() {
       <div className="px-6 relative z-10">
         {/* Logo */}
         <div className="mb-10 flex items-center gap-3">
-          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-600/20">
-            <Database size={16} className="text-white" />
+          <div className="w-9 h-9 flex-shrink-0 flex items-center justify-center">
+            <Image src="/logo-genia.png" alt="GENIA SQUAD" width={36} height={36} className="object-contain" />
           </div>
           <div>
             <span className="text-base font-black tracking-tight text-white leading-none block">LEADFLOWAI</span>
@@ -106,7 +107,7 @@ export function Sidebar() {
             RS
           </div>
           <div className="flex flex-col overflow-hidden">
-            <span className="text-xs font-bold text-white truncate">Ramos Silva</span>
+            <span className="text-sm font-black text-white truncate leading-tight">Ramos Silva Advogados</span>
             <span className="text-[10px] text-slate-400 truncate tracking-wide">Admin</span>
           </div>
         </div>
