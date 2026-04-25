@@ -45,7 +45,7 @@ export async function parseCsvStream(
   stream: Readable,
   dividaMinima: number,
   onBatch: (rows: LeadRow[]) => Promise<void>,
-  batchSize = 500
+  batchSize = 100
 ): Promise<{ processados: number; ignorados: number }> {
   let processados = 0
   let ignorados = 0

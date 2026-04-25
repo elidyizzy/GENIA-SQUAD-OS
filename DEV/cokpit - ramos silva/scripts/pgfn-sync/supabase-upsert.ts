@@ -58,13 +58,16 @@ export async function upsertBatch(rows: LeadRow[]): Promise<UpsertResult> {
     updated_at: new Date().toISOString(),
   }))
 
-  const { error } = await supabase
-    .from('leads')
-    .upsert(payload, { onConflict: 'cnpj' })
-
-  if (error) throw new Error(`Falha no upsert: ${error.message}`)
-
-  return { novos, atualizados }
+  let lastError: Error | null = null
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    const { error } = await supabase
+      .from('leads')
+      .upsert(payload, { onConflict: 'cnpj' })
+    if (!error) return { novos, atualizados }
+    lastError = new Error(`Falha no upsert: ${error.message}`)
+    if (attempt < 3) await new Promise((r) => setTimeout(r, attempt * 2000))
+  }
+  throw lastError!
 }
 
 export async function criarSyncLog(): Promise<string> {
