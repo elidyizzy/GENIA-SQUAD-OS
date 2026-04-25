@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Geist } from 'next/font/google'
 import { Sidebar } from '@/components/layout/Sidebar'
+import { QueryProvider } from '@/components/layout/QueryProvider'
 import './globals.css'
 
 const geist = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
@@ -15,7 +16,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="pt-BR" className={`${geist.variable} h-full antialiased`}>
       <body className="h-full flex bg-zinc-50">
         <Sidebar />
-        <main className="flex-1 overflow-auto p-8">{children}</main>
+        <QueryProvider>
+          <main className="flex-1 overflow-auto p-8">{children}</main>
+        </QueryProvider>
       </body>
     </html>
   )
