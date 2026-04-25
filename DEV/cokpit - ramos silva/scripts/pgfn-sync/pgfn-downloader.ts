@@ -11,13 +11,18 @@ export interface PgfnFile {
   nome: string
 }
 
+function extrairTrimestre(url: string): { ano: number; trim: number } | null {
+  const m = url.match(/(\d{4})_trimestre_0?(\d)/)
+  if (!m) return null
+  return { ano: parseInt(m[1]), trim: parseInt(m[2]) }
+}
+
 export async function listarArquivosPgfn(): Promise<PgfnFile[]> {
   const { data: html } = await axios.get<string>(PGFN_PAGE_URL, {
     timeout: 30_000,
     headers: { 'User-Agent': 'CockpitRamosSilva/1.0 (sync@cockpit.local)' },
   })
 
-  // Extrai todos os hrefs que apontam para arquivos CSV ou ZIP da PGFN
   const hrefRegex = /href="([^"]+\.(?:csv|zip)[^"]*)"/gi
   const found = new Set<string>()
   let match: RegExpExecArray | null
@@ -34,7 +39,28 @@ export async function listarArquivosPgfn(): Promise<PgfnFile[]> {
     throw new Error('Nenhum arquivo CSV/ZIP encontrado na página PGFN. A estrutura da página pode ter mudado.')
   }
 
-  return Array.from(found).map((url) => ({
+  // Filtra apenas o trimestre mais recente para evitar reprocessar histórico
+  const urls = Array.from(found)
+  const comTrimestre = urls.filter((u) => extrairTrimestre(u) !== null)
+  const semTrimestre = urls.filter((u) => extrairTrimestre(u) === null)
+
+  let resultado = semTrimestre
+
+  if (comTrimestre.length > 0) {
+    const maisRecente = comTrimestre.reduce((best, u) => {
+      const a = extrairTrimestre(best)!
+      const b = extrairTrimestre(u)!
+      return b.ano > a.ano || (b.ano === a.ano && b.trim > a.trim) ? u : best
+    })
+    const ref = extrairTrimestre(maisRecente)!
+    const doUltimoTrim = comTrimestre.filter((u) => {
+      const t = extrairTrimestre(u)!
+      return t.ano === ref.ano && t.trim === ref.trim
+    })
+    resultado = [...resultado, ...doUltimoTrim]
+  }
+
+  return resultado.map((url) => ({
     url,
     nome: url.split('/').pop() ?? url,
   }))
@@ -43,7 +69,9 @@ export async function listarArquivosPgfn(): Promise<PgfnFile[]> {
 export async function downloadStream(url: string): Promise<Readable> {
   const response = await axios.get(url, {
     responseType: 'stream',
-    timeout: 30_000,
+    timeout: 120_000,
+    maxContentLength: Infinity,
+    maxBodyLength: Infinity,
     headers: { 'User-Agent': 'CockpitRamosSilva/1.0 (sync@cockpit.local)' },
   })
   return response.data as Readable

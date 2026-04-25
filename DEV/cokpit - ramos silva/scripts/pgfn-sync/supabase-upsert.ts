@@ -32,7 +32,24 @@ export async function upsertBatch(rows: LeadRow[]): Promise<UpsertResult> {
   const novos = rows.filter((r) => !cnpjsExistentes.has(r.cnpj)).length
   const atualizados = rows.length - novos
 
-  const payload = rows.map((r) => ({
+  // Deduplica por CNPJ: uma empresa pode ter múltiplas inscrições no CSV; somamos as dívidas
+  const porCnpj = new Map<string, typeof rows[0]>()
+  for (const r of rows) {
+    const existing = porCnpj.get(r.cnpj)
+    if (!existing) {
+      porCnpj.set(r.cnpj, { ...r })
+    } else {
+      existing.valor_divida += r.valor_divida
+    }
+  }
+  // Reclassifica após somar
+  const reclassificar = (v: number) => v >= 3_000_000 ? 'A' as const : v >= 1_000_000 ? 'B' as const : 'C' as const
+  const deduplicated = Array.from(porCnpj.values()).map((r) => ({
+    ...r,
+    classificacao: reclassificar(r.valor_divida),
+  }))
+
+  const payload = deduplicated.map((r) => ({
     cnpj: r.cnpj,
     nome_empresa: r.nome_empresa,
     valor_divida: r.valor_divida,

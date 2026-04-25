@@ -59,61 +59,75 @@ export async function parseCsvStream(
   const decodedStream = stream.pipe(iconv.decodeStream('latin1'))
 
   return new Promise((resolve, reject) => {
-    decodedStream
-      .pipe(csvParser({ separator: ';', skipLines: 0 }))
-      .on('data', async (row: Record<string, string>) => {
-        if (!cabecalhoMapeado) {
-          colCnpj = encontrarColuna(row, COLUNA_CNPJ)
-          colNome = encontrarColuna(row, COLUNA_NOME)
-          colValor = encontrarColuna(row, COLUNA_VALOR)
-          colUf = encontrarColuna(row, COLUNA_UF)
-          cabecalhoMapeado = true
+    const csvStream = decodedStream.pipe(csvParser({ separator: ';', skipLines: 0 }))
 
-          if (!colCnpj || !colNome || !colValor) {
-            reject(
-              new Error(
-                `Colunas obrigatórias não encontradas. Colunas disponíveis: ${Object.keys(row).join(', ')}`
-              )
+    const processRow = (row: Record<string, string>) => {
+      if (!cabecalhoMapeado) {
+        colCnpj = encontrarColuna(row, COLUNA_CNPJ)
+        colNome = encontrarColuna(row, COLUNA_NOME)
+        colValor = encontrarColuna(row, COLUNA_VALOR)
+        colUf = encontrarColuna(row, COLUNA_UF)
+        cabecalhoMapeado = true
+
+        if (!colCnpj || !colNome || !colValor) {
+          reject(
+            new Error(
+              `Colunas obrigatórias não encontradas. Colunas disponíveis: ${Object.keys(row).join(', ')}`
             )
-            return
-          }
-        }
-
-        const valorRaw = row[colValor!] ?? '0'
-        const valor = parseMoeda(valorRaw)
-
-        if (valor < dividaMinima) {
-          ignorados++
+          )
           return
         }
+      }
 
-        const cnpj = normalizarCnpj(row[colCnpj!] ?? '')
-        if (cnpj.length !== 14) {
-          ignorados++
-          return
-        }
+      const valorRaw = row[colValor!] ?? '0'
+      const valor = parseMoeda(valorRaw)
 
-        batch.push({
-          cnpj,
-          nome_empresa: (row[colNome!] ?? '').trim().substring(0, 500),
-          valor_divida: valor,
-          uf: colUf ? (row[colUf] ?? '').trim().substring(0, 2) || null : null,
-          classificacao: classificar(valor),
-        })
+      if (valor < dividaMinima) {
+        ignorados++
+        return
+      }
 
-        if (batch.length >= batchSize) {
-          const currentBatch = batch
-          batch = []
-          await onBatch(currentBatch)
-          processados += currentBatch.length
-        }
+      const cnpj = normalizarCnpj(row[colCnpj!] ?? '')
+      if (cnpj.length !== 14) {
+        ignorados++
+        return
+      }
+
+      batch.push({
+        cnpj,
+        nome_empresa: (row[colNome!] ?? '').trim().substring(0, 500),
+        valor_divida: valor,
+        uf: colUf ? (row[colUf] ?? '').trim().substring(0, 2) || null : null,
+        classificacao: classificar(valor),
       })
-      .on('end', async () => {
+
+      if (batch.length >= batchSize) {
+        const currentBatch = batch
+        batch = []
+        // Pausa o stream para evitar acúmulo de memória durante o upsert
+        csvStream.pause()
+        onBatch(currentBatch)
+          .then(() => {
+            processados += currentBatch.length
+            csvStream.resume()
+          })
+          .catch(reject)
+      }
+    }
+
+    csvStream
+      .on('data', processRow)
+      .on('end', () => {
         if (batch.length > 0) {
-          await onBatch(batch)
-          processados += batch.length
+          onBatch(batch)
+            .then(() => {
+              processados += batch.length
+              resolve({ processados, ignorados })
+            })
+            .catch(reject)
+        } else {
+          resolve({ processados, ignorados })
         }
-        resolve({ processados, ignorados })
       })
       .on('error', reject)
   })

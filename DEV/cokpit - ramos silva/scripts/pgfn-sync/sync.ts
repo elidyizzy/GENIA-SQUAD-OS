@@ -6,31 +6,74 @@ import {
   atualizarSyncLog,
   UpsertResult,
 } from './supabase-upsert.js'
+import unzipper from 'unzipper'
+import { createWriteStream, createReadStream, unlink } from 'fs'
+import { tmpdir } from 'os'
+import { join } from 'path'
+import { pipeline } from 'stream/promises'
 
 const DIVIDA_MINIMA = parseInt(process.env.PGFN_DIVIDA_MINIMA ?? '1000000', 10)
+
+async function downloadToTemp(url: string, nome: string): Promise<string> {
+  const tmpPath = join(tmpdir(), `pgfn-${Date.now()}-${nome}`)
+  console.log(`  Salvando em ${tmpPath}...`)
+  const stream = await downloadStream(url)
+  const file = createWriteStream(tmpPath)
+  let downloaded = 0
+  stream.on('data', (chunk: Buffer) => {
+    downloaded += chunk.length
+    process.stdout.write(`\r  Baixado: ${Math.round(downloaded / 1024 / 1024)}MB`)
+  })
+  await pipeline(stream, file)
+  console.log(`\n  Download completo: ${Math.round(downloaded / 1024 / 1024)}MB`)
+  return tmpPath
+}
 
 async function processarArquivo(
   url: string,
   nome: string
 ): Promise<{ processados: number; ignorados: number; novos: number; atualizados: number }> {
-  console.log(`\n[PGFN] Baixando: ${nome}`)
-  const stream = await downloadStream(url)
+  console.log(`\n[PGFN] Processando: ${nome}`)
+  const isZip = nome.toLowerCase().endsWith('.zip')
 
   let totalNovos = 0
   let totalAtualizados = 0
 
-  const { processados, ignorados } = await parseCsvStream(
-    stream,
-    DIVIDA_MINIMA,
-    async (batch) => {
-      const resultado: UpsertResult = await upsertBatch(batch)
-      totalNovos += resultado.novos
-      totalAtualizados += resultado.atualizados
-      process.stdout.write(
-        `\r  → upsert batch: ${batch.length} registros (${totalNovos} novos, ${totalAtualizados} atualizados)`
-      )
+  const onBatch = async (batch: Parameters<typeof upsertBatch>[0]) => {
+    const resultado: UpsertResult = await upsertBatch(batch)
+    totalNovos += resultado.novos
+    totalAtualizados += resultado.atualizados
+    process.stdout.write(
+      `\r  → ${totalNovos + totalAtualizados} processados (${totalNovos} novos, ${totalAtualizados} atualizados)`
+    )
+  }
+
+  let processados: number
+  let ignorados: number
+
+  if (!isZip) {
+    const rawStream = await downloadStream(url)
+    ;({ processados, ignorados } = await parseCsvStream(rawStream, DIVIDA_MINIMA, onBatch))
+  } else {
+    // Baixa o ZIP para temp, depois extrai e parseia todos os CSVs
+    const tmpPath = await downloadToTemp(url, nome)
+    processados = 0
+    ignorados = 0
+    try {
+      const directory = await unzipper.Open.file(tmpPath)
+      const csvEntries = directory.files.filter((f) => f.path.toLowerCase().endsWith('.csv'))
+      if (csvEntries.length === 0) throw new Error('Nenhum CSV encontrado dentro do ZIP')
+      console.log(`  ${csvEntries.length} arquivo(s) CSV no ZIP`)
+      for (const csvEntry of csvEntries) {
+        console.log(`\n  Parseando: ${csvEntry.path} (${Math.round(csvEntry.uncompressedSize / 1024 / 1024)}MB)`)
+        const result = await parseCsvStream(csvEntry.stream(), DIVIDA_MINIMA, onBatch)
+        processados += result.processados
+        ignorados += result.ignorados
+      }
+    } finally {
+      unlink(tmpPath, () => {})
     }
-  )
+  }
 
   console.log(
     `\n[PGFN] ${nome} concluído: ${processados} processados, ${ignorados} ignorados (abaixo do mínimo R$${DIVIDA_MINIMA.toLocaleString('pt-BR')})`
