@@ -42,7 +42,7 @@ export function Sidebar() {
           </div>
           <div>
             <span className="text-base font-black tracking-tight text-white leading-none block">LEADFLOWAI</span>
-            <span className="text-[9px] text-blue-400 font-bold tracking-widest uppercase mt-0.5 block">BRY · GENIA SQUAD</span>
+            <span className="text-[9px] text-blue-400 font-bold tracking-widest uppercase mt-0.5 block">BY GEN.IA SQUAD</span>
           </div>
         </div>
 
