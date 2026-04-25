@@ -26,7 +26,7 @@ export async function PUT(
 
   const { data: pl, error: fetchError } = await supabase
     .from('pipeline_leads')
-    .select('lead_id')
+    .select('lead_id, estagio')
     .eq('id', id)
     .single()
 
@@ -34,8 +34,10 @@ export async function PUT(
     return NextResponse.json({ error: 'Pipeline lead não encontrado' }, { status: 404 })
   }
 
+  const previousEstagio = pl.estagio as string
   const updates: Record<string, string> = { estagio }
   if (resultado) updates.resultado = resultado
+  if (motivo) updates.motivo_fechamento = motivo
 
   const { error: updateError } = await supabase
     .from('pipeline_leads')
@@ -47,9 +49,9 @@ export async function PUT(
   }
 
   await supabase.from('estagio_historico').insert({
-    lead_id: pl.lead_id,
-    estagio,
-    observacao: motivo ?? `Movido para ${estagio}${resultado ? ` (${resultado})` : ''}`,
+    pipeline_lead_id: id,
+    estagio_anterior: previousEstagio,
+    estagio_novo: estagio,
   })
 
   return NextResponse.json({ ok: true })

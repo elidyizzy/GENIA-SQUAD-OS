@@ -25,9 +25,11 @@ export async function POST(
     )
   }
 
-  const { error: pipelineError } = await supabase
+  const { data: newPl, error: pipelineError } = await supabase
     .from('pipeline_leads')
     .insert({ lead_id: id, estagio: 'lead_bruto' })
+    .select('id')
+    .single()
 
   if (pipelineError) {
     if (pipelineError.code === '23505') {
@@ -45,9 +47,13 @@ export async function POST(
     return NextResponse.json({ error: updateError.message }, { status: 500 })
   }
 
-  await supabase
-    .from('estagio_historico')
-    .insert({ lead_id: id, estagio: 'lead_bruto', observacao: 'Adicionado ao pipeline' })
+  if (newPl) {
+    await supabase.from('estagio_historico').insert({
+      pipeline_lead_id: newPl.id,
+      estagio_anterior: null,
+      estagio_novo: 'lead_bruto',
+    })
+  }
 
   return NextResponse.json({ ok: true })
 }

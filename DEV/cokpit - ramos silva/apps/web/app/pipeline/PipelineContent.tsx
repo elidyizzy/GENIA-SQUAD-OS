@@ -3,10 +3,11 @@
 import { useState } from 'react'
 import { usePipeline, type PipelineLead } from '@/hooks/usePipeline'
 import { KanbanBoard } from '@/components/pipeline/KanbanBoard'
+import { LeadModal } from '@/components/pipeline/LeadModal'
 
 export function PipelineContent() {
   const { data, isLoading, isError } = usePipeline()
-  const [_selectedLead, setSelectedLead] = useState<PipelineLead | null>(null)
+  const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null)
 
   if (isLoading) {
     return (
@@ -44,10 +45,13 @@ export function PipelineContent() {
 
       <KanbanBoard
         data={data ?? {}}
-        onCardClick={(lead) => setSelectedLead(lead)}
+        onCardClick={(lead: PipelineLead) => setSelectedLeadId(lead.id)}
       />
 
-      {/* LeadModal placeholder — implementado em Story 3.2 */}
+      <LeadModal
+        pipelineLeadId={selectedLeadId}
+        onClose={() => setSelectedLeadId(null)}
+      />
     </div>
   )
 }
