@@ -15,6 +15,8 @@ node_modules
 dist/
 build/
 *.log
+# Keep app/api route directories named "logs"
+!/apps/web/app/api/**/logs/
 logs/
 
 # IDE & OS (AIOX)
