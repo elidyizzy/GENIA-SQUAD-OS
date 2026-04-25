@@ -3,12 +3,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select'
 import { ClassificacaoBadge } from '@/components/leads/ClassificacaoBadge'
 import { DialogFechamento } from './DialogFechamento'
+import { EnrichSection } from './EnrichSection'
 import { usePipelineLead } from '@/hooks/usePipelineLead'
 import { ESTAGIOS } from '@/hooks/usePipeline'
 import { formatCNPJ, formatMoeda, formatData } from '@/lib/formatters'
@@ -202,39 +202,20 @@ export function LeadModal({ pipelineLeadId, onClose }: Props) {
                   Enriquecimento
                 </h4>
                 <div className="space-y-2">
-                  {ENRICHMENT_SECTIONS.map(({ tipo, label, icon }) => {
-                    const enrich = data.enrichments.find((e) => e.tipo === tipo)
-                    const status = enrich?.status ?? 'pendente'
-                    return (
-                      <div key={tipo} className="rounded-lg border border-zinc-200 p-3">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <span className="text-base">{icon}</span>
-                            <span className="text-sm font-medium text-zinc-700">{label}</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                              status === 'sucesso'
-                                ? 'bg-green-100 text-green-700'
-                                : status === 'erro'
-                                ? 'bg-red-100 text-red-600'
-                                : 'bg-zinc-100 text-zinc-500'
-                            }`}>
-                              {status === 'sucesso' ? 'Feito' : status === 'erro' ? 'Erro' : 'Pendente'}
-                            </span>
-                            {status !== 'sucesso' && (
-                              <Button size="sm" variant="outline" disabled className="h-7 text-xs">
-                                Enriquecer
-                              </Button>
-                            )}
-                          </div>
-                        </div>
-                        {status === 'erro' && enrich?.erro && (
-                          <p className="mt-1.5 text-xs text-red-500">{enrich.erro}</p>
-                        )}
-                      </div>
-                    )
-                  })}
+                  {ENRICHMENT_SECTIONS.map(({ tipo, label, icon }) => (
+                    <EnrichSection
+                      key={tipo}
+                      tipo={tipo as 'cadastral' | 'maps' | 'trf' | 'decisores'}
+                      label={label}
+                      icon={icon}
+                      enrichment={data.enrichments.find((e) => e.tipo === tipo)}
+                      pipelineLeadId={data.id}
+                      onSuccess={() => {
+                        queryClient.invalidateQueries({ queryKey: ['pipeline-lead', pipelineLeadId] })
+                        queryClient.invalidateQueries({ queryKey: ['pipeline'] })
+                      }}
+                    />
+                  ))}
                 </div>
               </section>
 
