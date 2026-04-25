@@ -1,23 +1,24 @@
 import type { Metadata } from 'next'
-import { Geist } from 'next/font/google'
 import { Sidebar } from '@/components/layout/Sidebar'
+import { Header } from '@/components/layout/Header'
 import { QueryProvider } from '@/components/layout/QueryProvider'
 import './globals.css'
 
-const geist = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
-
 export const metadata: Metadata = {
-  title: 'Cockpit Ramos Silva',
-  description: 'Prospecção de empresas com dívida PGFN',
+  title: 'LEADFLOWAI — BRY · GENIA SQUAD',
+  description: 'Cockpit de prospecção automatizado para Ramos Silva Advogados',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR" className={`${geist.variable} h-full antialiased`}>
-      <body className="h-full flex bg-zinc-50">
+    <html lang="pt-BR" className="h-full">
+      <body className="h-full" style={{ backgroundColor: '#f4f7f9' }}>
         <Sidebar />
+        <Header />
         <QueryProvider>
-          <main className="flex-1 overflow-auto p-8">{children}</main>
+          <main className="ml-[260px] pt-16">
+            {children}
+          </main>
         </QueryProvider>
       </body>
     </html>
