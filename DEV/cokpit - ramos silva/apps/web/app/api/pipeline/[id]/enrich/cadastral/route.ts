@@ -42,16 +42,34 @@ export async function POST(
         enrichStatus = 'erro'; erro = `Receita Federal indisponível (status ${res.status})`
       } else {
         const raw = await res.json()
+        // CNPJ.ws tem estrutura aninhada (estabelecimento, socios); BrasilAPI é flat
+        const isCnpjWs = !!raw.estabelecimento
+        const est = raw.estabelecimento ?? {}
+        const logradouro = est.logradouro ?? raw.logradouro ?? ''
+        const numero = est.numero ?? raw.numero ?? ''
+        const complemento = est.complemento ?? raw.complemento ?? ''
+        const bairro = est.bairro ?? raw.bairro ?? ''
+        const municipio = est.municipio?.nome ?? raw.municipio ?? ''
+        const uf = est.estado?.sigla ?? raw.uf ?? ''
+        const cep = est.cep ?? raw.cep ?? ''
+        const situacao = est.situacao_cadastral
+          ?? raw.situacao_cadastral?.descricao
+          ?? raw.descricao_situacao_cadastral
+          ?? String(raw.situacao_cadastral ?? '')
+        const qsa = isCnpjWs
+          ? (raw.socios ?? []).map((s: { nome?: string; qualificacao?: { descricao?: string } }) => ({
+              nome_socio: s.nome, qualificacao_socio: s.qualificacao?.descricao ?? '',
+            }))
+          : (raw.qsa ?? [])
         dados = {
           razao_social: raw.razao_social,
-          situacao_cadastral: raw.descricao_situacao_cadastral ?? raw.situacao_cadastral,
-          cnae_fiscal: raw.cnae_fiscal,
-          cnae_fiscal_descricao: raw.cnae_fiscal_descricao,
+          situacao_cadastral: situacao,
+          cnae_fiscal: raw.cnae_fiscal_principal?.id ?? raw.cnae_fiscal ?? '',
+          cnae_fiscal_descricao: raw.cnae_fiscal_principal?.descricao ?? raw.cnae_fiscal_descricao ?? '',
           capital_social: raw.capital_social,
-          qsa: raw.qsa ?? [],
-          logradouro: raw.logradouro, numero: raw.numero, complemento: raw.complemento,
-          bairro: raw.bairro, municipio: raw.municipio, uf: raw.uf, cep: raw.cep,
-          endereco_completo: [raw.logradouro, raw.numero, raw.complemento, raw.bairro, raw.municipio, raw.uf].filter(Boolean).join(', '),
+          qsa,
+          logradouro, numero, complemento, bairro, municipio, uf, cep,
+          endereco_completo: [logradouro, numero, complemento, bairro, municipio, uf].filter(Boolean).join(', '),
         }
       }
     } catch (e) {
