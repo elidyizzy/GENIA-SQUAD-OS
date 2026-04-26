@@ -41,6 +41,7 @@ interface DecisoresData {
     title?: string
     email?: string
     linkedin_url?: string
+    source?: 'apollo' | 'qsa'
   }>
 }
 
@@ -179,7 +180,14 @@ function DecisoresDados({ d }: { d: DecisoresData }) {
     <div className="mt-2 space-y-2">
       {d.decisores.map((dec, i) => (
         <div key={i} className="bg-zinc-50 rounded-md p-2 text-xs">
-          <p className="font-semibold text-zinc-800">{dec.name}</p>
+          <div className="flex items-center justify-between gap-2 mb-0.5">
+            <p className="font-semibold text-zinc-800">{dec.name}</p>
+            {dec.source === 'qsa' && (
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-zinc-200 text-zinc-500 font-medium shrink-0">
+                Quadro Societário
+              </span>
+            )}
+          </div>
           {dec.title && <p className="text-zinc-500">{dec.title}</p>}
           <div className="flex gap-3 mt-1">
             {dec.email && (

@@ -4,6 +4,7 @@ import { queryOne, query } from '@/lib/db'
 interface ApolloPersonResult {
   id: string; name: string; title?: string; email?: string
   linkedin_url?: string; organization?: { name: string }
+  source?: 'apollo' | 'qsa'
 }
 
 export async function POST(
@@ -46,14 +47,22 @@ export async function POST(
         })
         if (res.ok) {
           const data = await res.json() as { person?: ApolloPersonResult }
-          if (data.person?.id) decisores.push({ id: data.person.id, name: data.person.name ?? socio.nome_socio, title: data.person.title, email: data.person.email, linkedin_url: data.person.linkedin_url, organization: data.person.organization })
+          if (data.person?.id) decisores.push({ id: data.person.id, name: data.person.name ?? socio.nome_socio, title: data.person.title, email: data.person.email, linkedin_url: data.person.linkedin_url, organization: data.person.organization, source: 'apollo' })
         }
       } catch { /* skip failed lookups */ }
     }
 
+    // Fallback: se Apollo não encontrou ninguém, usa QSA do cadastral
+    if (decisores.length === 0) {
+      for (const socio of qsa.slice(0, 5)) {
+        if (!socio.nome_socio) continue
+        decisores.push({ id: `qsa-${socio.nome_socio}`, name: socio.nome_socio, title: socio.qualificacao_socio ?? undefined, source: 'qsa' })
+      }
+    }
+
     const dados = { decisores, empresa: pl.nome_empresa }
     const enrichStatus = decisores.length > 0 ? 'sucesso' : 'erro'
-    const erro = decisores.length === 0 ? 'Nenhum decisor encontrado no Apollo' : null
+    const erro = decisores.length === 0 ? 'Nenhum decisor encontrado (Apollo + QSA)' : null
 
     await query(
       `INSERT INTO enrichments (pipeline_lead_id, tipo, status, dados, erro, updated_at)
