@@ -33,7 +33,7 @@ export async function POST(
       return NextResponse.json({ error: 'Enriquecimento cadastral necessário. Faça o enriquecimento cadastral primeiro.' }, { status: 422 })
     }
 
-    const qsa = (pl.cadastral_dados.qsa as Array<{ nome_socio?: string }>) ?? []
+    const qsa = (pl.cadastral_dados.qsa as Array<{ nome_socio?: string; qualificacao_socio?: string }>) ?? []
     if (qsa.length === 0) return NextResponse.json({ error: 'QSA não disponível nos dados cadastrais' }, { status: 422 })
 
     const decisores: ApolloPersonResult[] = []
