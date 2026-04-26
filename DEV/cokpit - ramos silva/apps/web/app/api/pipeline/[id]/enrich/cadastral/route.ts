@@ -22,13 +22,24 @@ export async function POST(
     try {
       const controller = new AbortController()
       const timeout = setTimeout(() => controller.abort(), 10_000)
-      const res = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpj}`, { signal: controller.signal })
+
+      // CNPJ.ws aceita requests de datacenter; BrasilAPI bloqueia IPs de servidor
+      let res = await fetch(`https://publica.cnpj.ws/cnpj/${cnpj}`, {
+        signal: controller.signal,
+        headers: { 'Accept': 'application/json', 'User-Agent': 'CockpitRamosSilva/1.0' },
+      })
+      if (!res.ok) {
+        // fallback para BrasilAPI
+        res = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpj}`, {
+          headers: { 'Accept': 'application/json', 'User-Agent': 'CockpitRamosSilva/1.0' },
+        })
+      }
       clearTimeout(timeout)
 
       if (res.status === 404) {
         enrichStatus = 'erro'; erro = 'CNPJ não encontrado na Receita Federal'
       } else if (!res.ok) {
-        enrichStatus = 'erro'; erro = `BrasilAPI retornou status ${res.status}`
+        enrichStatus = 'erro'; erro = `Receita Federal indisponível (status ${res.status})`
       } else {
         const raw = await res.json()
         dados = {
