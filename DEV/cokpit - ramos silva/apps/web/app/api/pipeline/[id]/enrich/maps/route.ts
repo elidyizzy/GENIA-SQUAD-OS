@@ -1,16 +1,30 @@
 import { NextResponse } from 'next/server'
 import { queryOne, query } from '@/lib/db'
 
+interface GeoapifyFeature {
+  properties: {
+    formatted?: string
+    name?: string
+    lat?: number
+    lon?: number
+    result_type?: string
+  }
+}
+
+interface GeoapifyResponse {
+  features: GeoapifyFeature[]
+}
+
 export async function POST(
   _req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params
-  const mapsApiKey = process.env.GOOGLE_MAPS_API_KEY
+  const apiKey = process.env.GEOAPIFY_API_KEY
 
-  if (!mapsApiKey) {
+  if (!apiKey) {
     return NextResponse.json(
-      { error: 'Google Maps API key não configurada. Configure GOOGLE_MAPS_API_KEY nas variáveis de ambiente.' },
+      { error: 'Geoapify API key não configurada. Configure GEOAPIFY_API_KEY nas variáveis de ambiente.' },
       { status: 503 }
     )
   }
@@ -30,18 +44,19 @@ export async function POST(
     const municipio = (pl.cadastral_dados?.municipio as string) ?? ''
     const razaoSocial = (pl.cadastral_dados?.razao_social as string) ?? pl.nome_empresa
     const uf = (pl.cadastral_dados?.uf as string) ?? pl.uf ?? ''
-    const q = [razaoSocial, municipio, uf, 'Brasil'].filter(Boolean).join(' ')
+    const queryText = [razaoSocial, municipio, uf, 'Brasil'].filter(Boolean).join(' ')
 
     let enrichStatus: 'sucesso' | 'erro' = 'sucesso'
     let dados: Record<string, unknown> = {}
     let erro: string | null = null
 
     try {
-      const url = new URL('https://maps.googleapis.com/maps/api/place/textsearch/json')
-      url.searchParams.set('query', q)
-      url.searchParams.set('key', mapsApiKey)
-      url.searchParams.set('language', 'pt-BR')
-      url.searchParams.set('region', 'br')
+      const url = new URL('https://api.geoapify.com/v1/geocode/search')
+      url.searchParams.set('text', queryText)
+      url.searchParams.set('lang', 'pt')
+      url.searchParams.set('limit', '1')
+      url.searchParams.set('filter', 'countrycode:br')
+      url.searchParams.set('apiKey', apiKey)
 
       const controller = new AbortController()
       const timeout = setTimeout(() => controller.abort(), 10_000)
@@ -49,22 +64,28 @@ export async function POST(
       clearTimeout(timeout)
 
       if (!res.ok) {
-        enrichStatus = 'erro'; erro = `Google Maps API retornou status ${res.status}`
+        enrichStatus = 'erro'; erro = `Geoapify retornou status ${res.status}`
       } else {
-        const raw = await res.json() as { status: string; results: Array<{ name: string; formatted_address: string; place_id: string; business_status?: string }> }
-        if (raw.status !== 'OK' || raw.results.length === 0) {
-          enrichStatus = 'erro'; erro = 'Empresa não encontrada no Google Maps'
+        const raw = await res.json() as GeoapifyResponse
+        if (!raw.features || raw.features.length === 0) {
+          enrichStatus = 'erro'; erro = 'Empresa não encontrada via Geoapify'
         } else {
-          const place = raw.results[0]
+          const place = raw.features[0].properties
+          const lat = place.lat
+          const lon = place.lon
           dados = {
-            nome: place.name, endereco: place.formatted_address, place_id: place.place_id,
-            maps_url: `https://www.google.com/maps/place/?q=place_id:${place.place_id}`,
-            business_status: place.business_status ?? 'OPERATIONAL', query_usado: q,
+            nome: place.name ?? razaoSocial,
+            endereco: place.formatted ?? queryText,
+            maps_url: lat && lon
+              ? `https://www.google.com/maps?q=${lat},${lon}`
+              : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(queryText)}`,
+            business_status: 'OPERATIONAL',
+            query_usado: queryText,
           }
         }
       }
     } catch (e) {
-      enrichStatus = 'erro'; erro = e instanceof Error ? e.message : 'Erro ao consultar Google Maps'
+      enrichStatus = 'erro'; erro = e instanceof Error ? e.message : 'Erro ao consultar Geoapify'
     }
 
     await query(
