@@ -11,8 +11,10 @@ export type Categoria = 'nao_previdenciario' | 'previdenciario' | 'fgts' | 'nao_
 function detectarCategoria(nome: string): Categoria {
   const n = nome.toLowerCase()
   if (n.includes('fgts')) return 'fgts'
-  if (n.includes('previd')) return 'previdenciario'
   if (n.includes('nao_tribut') || n.includes('nao-tribut') || n.includes('naotribut') || n.includes('multa')) return 'nao_tributario'
+  // verifica nao_previdenciario ANTES de previdenciario (pois contém a mesma substring)
+  if (n.includes('nao') && n.includes('previd')) return 'nao_previdenciario'
+  if (n.includes('previd')) return 'previdenciario'
   return 'nao_previdenciario'
 }
 

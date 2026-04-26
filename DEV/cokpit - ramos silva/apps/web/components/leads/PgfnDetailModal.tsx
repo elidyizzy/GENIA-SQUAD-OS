@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { X, ArrowRightCircle, ExternalLink, Loader2, AlertCircle, Building2, FileText, Calendar, MapPin } from 'lucide-react'
+import { X, ArrowRightCircle, Loader2, AlertCircle, Building2, FileText, Calendar, MapPin, RefreshCw } from 'lucide-react'
 import { formatCNPJ, formatMoeda, formatData } from '@/lib/formatters'
 import { cn } from '@/lib/utils'
 
@@ -18,15 +18,6 @@ interface Lead {
   pgfn_raw: Record<string, number> | null
 }
 
-const CATEGORIA_LABEL: Record<string, string> = {
-  nao_previdenciario: 'Tributário — Demais Débitos',
-  previdenciario: 'Tributário — Previdenciário',
-  fgts: 'FGTS',
-  nao_tributario: 'Não Tributário — Demais Débitos',
-}
-
-const CATEGORIA_ORDER = ['nao_previdenciario', 'previdenciario', 'fgts', 'nao_tributario']
-
 interface Props {
   leadId: string
   onClose: () => void
@@ -38,6 +29,20 @@ const CLASS_COLOR: Record<string, string> = {
   A: 'bg-red-100 text-red-700 border-red-200',
   B: 'bg-amber-100 text-amber-700 border-amber-200',
   C: 'bg-slate-100 text-slate-600 border-slate-200',
+}
+
+const CATEGORIAS = [
+  { key: 'nao_previdenciario', label: 'TRIBUTÁRIO — DEMAIS DÉBITOS' },
+  { key: 'previdenciario',     label: 'TRIBUTÁRIO — PREVIDENCIÁRIO' },
+  { key: 'fgts',               label: 'FGTS' },
+  { key: 'nao_tributario',     label: 'NÃO TRIBUTÁRIOS — DEMAIS DÉBITOS' },
+]
+
+function formatCompact(valor: number): string {
+  if (valor >= 1_000_000_000) return `R$ ${(valor / 1_000_000_000).toFixed(1).replace('.', ',')}B`
+  if (valor >= 1_000_000) return `R$ ${(valor / 1_000_000).toFixed(1).replace('.', ',')}M`
+  if (valor >= 1_000) return `R$ ${(valor / 1_000).toFixed(0)}K`
+  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor)
 }
 
 export function PgfnDetailModal({ leadId, onClose, onMoverPipeline }: Props) {
@@ -62,10 +67,8 @@ export function PgfnDetailModal({ leadId, onClose, onMoverPipeline }: Props) {
     onClose()
   }
 
-  const isValidCnpj = lead ? /^\d{14}$/.test(lead.cnpj) : false
-  const pgfnUrl = isValidCnpj
-    ? `https://www.regularize.pgfn.gov.br/#/consultarDebito?cnpj=${lead!.cnpj}`
-    : 'https://www.regularize.pgfn.gov.br/'
+  const hasBreakdown = lead?.pgfn_raw && Object.keys(lead.pgfn_raw).length > 0
+  const categoriasComValor = CATEGORIAS.filter((c) => hasBreakdown && (lead!.pgfn_raw![c.key] ?? 0) > 0)
 
   return (
     <AnimatePresence>
@@ -115,9 +118,9 @@ export function PgfnDetailModal({ leadId, onClose, onMoverPipeline }: Props) {
                 <div className="border-b border-slate-100">
                   {[
                     { icon: Building2, label: 'Nome Empresarial', value: lead.nome_empresa },
-                    { icon: FileText, label: 'CNPJ', value: formatCNPJ(lead.cnpj), mono: true },
-                    { icon: MapPin, label: 'UF / Domicílio', value: lead.uf ?? '—' },
-                    { icon: Calendar, label: 'Data de entrada', value: formatData(lead.data_entrada) },
+                    { icon: FileText,   label: 'CNPJ',            value: formatCNPJ(lead.cnpj), mono: true },
+                    { icon: MapPin,     label: 'UF / Domicílio',  value: lead.uf ?? '—' },
+                    { icon: Calendar,   label: 'Data de entrada', value: formatData(lead.data_entrada) },
                   ].map(({ icon: Icon, label, value, mono }) => (
                     <div key={label} className="grid grid-cols-[200px_1fr] text-sm border-b border-slate-50 last:border-0">
                       <div className="flex items-center gap-2 bg-slate-50 px-5 py-3 font-bold text-slate-600 border-r border-slate-100">
@@ -128,7 +131,7 @@ export function PgfnDetailModal({ leadId, onClose, onMoverPipeline }: Props) {
                     </div>
                   ))}
 
-                  {/* Valor total — destaque */}
+                  {/* Valor total */}
                   <div className="grid grid-cols-[200px_1fr] text-sm">
                     <div className="flex items-center gap-2 bg-slate-50 px-5 py-3 font-bold text-slate-600 border-r border-slate-100">
                       <FileText size={13} className="text-slate-400 flex-shrink-0" />
@@ -143,67 +146,47 @@ export function PgfnDetailModal({ leadId, onClose, onMoverPipeline }: Props) {
                   </div>
                 </div>
 
-                {/* Breakdown por categoria */}
-                {lead.pgfn_raw && Object.keys(lead.pgfn_raw).length > 0 && (
-                  <div className="border-b border-slate-100">
-                    <div className="px-5 py-3 bg-slate-50 border-b border-slate-100">
-                      <p className="text-xs font-black text-slate-500 uppercase tracking-wider">Composição da Dívida</p>
-                    </div>
-                    {CATEGORIA_ORDER
-                      .filter((cat) => lead.pgfn_raw![cat])
-                      .map((cat) => {
-                        const valor = lead.pgfn_raw![cat]
-                        const pct = lead.valor_divida > 0 ? (valor / lead.valor_divida) * 100 : 0
-                        return (
-                          <div key={cat} className="grid grid-cols-[1fr_auto] items-center px-5 py-3 border-b border-slate-50 last:border-0 gap-3">
-                            <div>
-                              <p className="text-xs font-bold text-slate-700">{CATEGORIA_LABEL[cat] ?? cat}</p>
-                              <div className="mt-1.5 h-1 bg-slate-100 rounded-full overflow-hidden w-full">
-                                <div
+                {/* Cards de categoria */}
+                <div className="px-5 py-4 space-y-3">
+                  {hasBreakdown ? (
+                    categoriasComValor.map((cat) => {
+                      const valor = lead.pgfn_raw![cat.key]
+                      const pct = lead.valor_divida > 0 ? (valor / lead.valor_divida) * 100 : 0
+                      return (
+                        <div key={cat.key} className="rounded-xl border border-slate-200 overflow-hidden">
+                          <div className="flex items-center justify-between px-4 py-3 bg-slate-50 border-b border-slate-200">
+                            <span className="text-[11px] font-black text-slate-600 uppercase tracking-wider">{cat.label}</span>
+                          </div>
+                          <div className="px-4 py-3 flex items-center justify-between gap-4">
+                            <div className="flex-1">
+                              <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                                <motion.div
+                                  initial={{ width: 0 }}
+                                  animate={{ width: `${Math.min(pct, 100)}%` }}
+                                  transition={{ duration: 0.6, ease: 'easeOut' }}
                                   className="h-full bg-blue-500 rounded-full"
-                                  style={{ width: `${Math.min(pct, 100).toFixed(1)}%` }}
                                 />
                               </div>
+                              <p className="text-[10px] text-slate-400 mt-1">{pct.toFixed(1)}% do total</p>
                             </div>
-                            <span className="text-sm font-bold text-slate-900 whitespace-nowrap tabular-nums">
-                              {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(valor)}
-                            </span>
+                            <div className="text-right">
+                              <p className="text-xl font-black text-slate-900 tabular-nums">{formatCompact(valor)}</p>
+                              <p className="text-[10px] text-slate-400 tabular-nums">
+                                {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor)}
+                              </p>
+                            </div>
                           </div>
-                        )
-                      })
-                    }
-                  </div>
-                )}
-
-                {/* PGFN Portal Link */}
-                <div className="px-6 py-5 space-y-4">
-                  <div className="rounded-xl border border-blue-100 bg-blue-50 p-4 space-y-3">
-                    <div className="flex items-start gap-3">
-                      <div className="p-2 bg-blue-100 rounded-lg flex-shrink-0 mt-0.5">
-                        <FileText size={16} className="text-blue-600" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-bold text-blue-900">Inscrições individuais</p>
-                        <p className="text-xs text-blue-700 mt-1 leading-relaxed">
-                          O detalhamento por inscrição (número, data, ente conveniado) está disponível diretamente no portal oficial da PGFN Regularize.
-                        </p>
-                      </div>
-                    </div>
-                    <a
-                      href={pgfnUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-2 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-lg px-4 py-2.5 transition-colors"
-                    >
-                      <ExternalLink size={15} />
-                      Ver inscrições no Regularize PGFN
-                    </a>
-                  </div>
-
-                  {!isValidCnpj && (
-                    <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-700 flex items-start gap-2">
-                      <AlertCircle size={14} className="flex-shrink-0 mt-0.5" />
-                      <span>CNPJ mascarado — este registro pode corresponder a pessoa física (CPF). Consulte o portal para confirmar.</span>
+                        </div>
+                      )
+                    })
+                  ) : (
+                    <div className="rounded-xl border border-dashed border-slate-200 px-5 py-6 flex flex-col items-center gap-2 text-center">
+                      <RefreshCw size={20} className="text-slate-300" />
+                      <p className="text-sm font-bold text-slate-400">Breakdown por categoria</p>
+                      <p className="text-xs text-slate-400 leading-relaxed">
+                        Disponível após o próximo sync PGFN.<br />
+                        Os dados serão separados por Tributário, Previdenciário, FGTS e Não Tributário.
+                      </p>
                     </div>
                   )}
                 </div>
