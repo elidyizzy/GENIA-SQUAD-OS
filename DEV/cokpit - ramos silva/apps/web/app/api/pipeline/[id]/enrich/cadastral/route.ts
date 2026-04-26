@@ -42,30 +42,42 @@ export async function POST(
         enrichStatus = 'erro'; erro = `Receita Federal indisponível (status ${res.status})`
       } else {
         const raw = await res.json()
-        // CNPJ.ws tem estrutura aninhada (estabelecimento, socios); BrasilAPI é flat
+        // CNPJ.ws tem estrutura aninhada; BrasilAPI é flat
+        // Detecta CNPJ.ws pela presença de estabelecimento
         const isCnpjWs = !!raw.estabelecimento
         const est = raw.estabelecimento ?? {}
+
+        // Endereço
         const logradouro = est.logradouro ?? raw.logradouro ?? ''
         const numero = est.numero ?? raw.numero ?? ''
         const complemento = est.complemento ?? raw.complemento ?? ''
         const bairro = est.bairro ?? raw.bairro ?? ''
-        const municipio = est.municipio?.nome ?? raw.municipio ?? ''
+        // CNPJ.ws usa cidade.nome, BrasilAPI usa municipio (string)
+        const municipio = est.cidade?.nome ?? est.municipio?.nome ?? raw.municipio ?? ''
         const uf = est.estado?.sigla ?? raw.uf ?? ''
         const cep = est.cep ?? raw.cep ?? ''
-        const situacao = est.situacao_cadastral
-          ?? raw.situacao_cadastral?.descricao
+
+        // Situação: CNPJ.ws retorna string no root ("Ativa"), BrasilAPI retorna string em descricao_situacao_cadastral
+        const situacao = (typeof raw.situacao_cadastral === 'string' ? raw.situacao_cadastral : null)
           ?? raw.descricao_situacao_cadastral
           ?? String(raw.situacao_cadastral ?? '')
+
+        // CNAE: CNPJ.ws usa estabelecimento.atividade_principal, BrasilAPI usa cnae_fiscal/cnae_fiscal_descricao
+        const cnae_fiscal = est.atividade_principal?.id ?? raw.cnae_fiscal ?? ''
+        const cnae_fiscal_descricao = est.atividade_principal?.descricao ?? raw.cnae_fiscal_descricao ?? ''
+
+        // QSA: CNPJ.ws usa socios[].qualificacao_socio.descricao, BrasilAPI usa qsa[].nome_socio/qualificacao_socio
         const qsa = isCnpjWs
-          ? (raw.socios ?? []).map((s: { nome?: string; qualificacao?: { descricao?: string } }) => ({
-              nome_socio: s.nome, qualificacao_socio: s.qualificacao?.descricao ?? '',
+          ? (raw.socios ?? []).map((s: { nome?: string; qualificacao_socio?: { descricao?: string } }) => ({
+              nome_socio: s.nome ?? '',
+              qualificacao_socio: s.qualificacao_socio?.descricao ?? '',
             }))
           : (raw.qsa ?? [])
+
         dados = {
           razao_social: raw.razao_social,
           situacao_cadastral: situacao,
-          cnae_fiscal: raw.cnae_fiscal_principal?.id ?? raw.cnae_fiscal ?? '',
-          cnae_fiscal_descricao: raw.cnae_fiscal_principal?.descricao ?? raw.cnae_fiscal_descricao ?? '',
+          cnae_fiscal, cnae_fiscal_descricao,
           capital_social: raw.capital_social,
           qsa,
           logradouro, numero, complemento, bairro, municipio, uf, cep,
