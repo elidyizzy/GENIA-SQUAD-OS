@@ -103,7 +103,10 @@ async function buscarDataJud(trfId: string, cnpj: string): Promise<TRFResult> {
       15_000
     )
 
-    if (!res.ok) return { disponivel: false, processos: [], trf: tribunal }
+    if (!res.ok) {
+      const body = await res.text().catch(() => '')
+      return { disponivel: false, processos: [], trf: `${tribunal} [HTTP ${res.status}: ${body.slice(0, 120)}]` }
+    }
 
     const data = await res.json() as DataJudResponse
     const hits = data.hits?.hits ?? []
@@ -126,8 +129,9 @@ async function buscarDataJud(trfId: string, cnpj: string): Promise<TRFResult> {
       .filter((p) => p.numero.length > 0)
 
     return { disponivel: true, processos, trf: tribunal }
-  } catch {
-    return { disponivel: false, processos: [], trf: tribunal }
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e)
+    return { disponivel: false, processos: [], trf: `${tribunal} [catch: ${msg.slice(0, 120)}]` }
   }
 }
 
