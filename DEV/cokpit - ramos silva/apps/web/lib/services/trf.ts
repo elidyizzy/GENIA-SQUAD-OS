@@ -90,12 +90,7 @@ async function buscarDataJud(trfId: string, cnpj: string): Promise<TRFResult> {
           'Authorization': `APIKey ${DATAJUD_API_KEY}`,
         },
         body: JSON.stringify({
-          query: {
-            nested: {
-              path: 'partes',
-              query: { match: { 'partes.documento': cnpjLimpo } },
-            },
-          },
+          query: { match: { 'partes.documento': cnpjLimpo } },
           size: 20,
           _source: ['numeroProcesso', 'tribunal', 'dataAjuizamento', 'classe', 'assuntos'],
         }),
