@@ -1,5 +1,3 @@
-import * as cheerio from 'cheerio'
-
 export interface Processo {
   numero: string
   tipo: 'execucao_fiscal' | 'embargo' | 'mandado' | 'outro'
@@ -39,6 +37,22 @@ const TRF_NOME: Record<string, string> = {
   trf6: 'TRF 6ª Região',
 }
 
+const DATAJUD_API_KEY = 'cDZHYzlZa0JadVREZDJCendQbXY6SkJlTzNjLV9TRENyQk1RdnFKZGRQdw=='
+
+interface DataJudHit {
+  _source: {
+    numeroProcesso?: string
+    tribunal?: string
+    dataAjuizamento?: string
+    classe?: { nome?: string }
+    assuntos?: Array<{ nome?: string }>
+  }
+}
+
+interface DataJudResponse {
+  hits?: { hits?: DataJudHit[] }
+}
+
 export function getTRFPorUF(uf: string): string {
   return UF_TO_TRF[uf.toUpperCase()] ?? 'trf1'
 }
@@ -61,53 +75,55 @@ async function fetchComTimeout(url: string, options: RequestInit, timeoutMs: num
   }
 }
 
-async function buscarTRFPJe(trfId: string, cnpj: string): Promise<TRFResult> {
+async function buscarDataJud(trfId: string, cnpj: string): Promise<TRFResult> {
   const tribunal = TRF_NOME[trfId] ?? trfId.toUpperCase()
   const cnpjLimpo = cnpj.replace(/\D/g, '')
-  const baseUrl = `https://pje.${trfId}.jus.br/pje`
+  const endpoint = `https://api-publica.datajud.cnj.jus.br/api_publica_${trfId}/_search`
 
   try {
     const res = await fetchComTimeout(
-      `${baseUrl}/ConsultaPublica/listView.seam`,
+      endpoint,
       {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'User-Agent': 'Mozilla/5.0 (compatible; CockpitRamosSilva/1.0)',
+          'Content-Type': 'application/json',
+          'Authorization': `APIKey ${DATAJUD_API_KEY}`,
         },
-        body: new URLSearchParams({
-          'fPP:j_id150:nomeParte': '',
-          'fPP:j_id186:documentoParte': cnpjLimpo,
-          'fPP:searchProcessos': '',
-        }).toString(),
+        body: JSON.stringify({
+          query: {
+            nested: {
+              path: 'partes',
+              query: { match: { 'partes.documento': cnpjLimpo } },
+            },
+          },
+          size: 20,
+          _source: ['numeroProcesso', 'tribunal', 'dataAjuizamento', 'classe', 'assuntos'],
+        }),
       },
-      28_000
+      15_000
     )
 
     if (!res.ok) return { disponivel: false, processos: [], trf: tribunal }
 
-    const html = await res.text()
-    const $ = cheerio.load(html)
-    const processos: Processo[] = []
+    const data = await res.json() as DataJudResponse
+    const hits = data.hits?.hits ?? []
 
-    // Parse table rows — selector may vary by TRF portal version
-    $('table.rich-table tbody tr, .resultados-consulta tr').each((_, row) => {
-      const cells = $(row).find('td')
-      if (cells.length < 2) return
-
-      const numero = $(cells[0]).text().trim()
-      const assunto = $(cells[1]).text().trim()
-      const data = $(cells[cells.length - 1]).text().trim()
-
-      if (numero && numero.length > 5) {
-        processos.push({
-          numero,
-          tipo: detectarTipo(assunto),
-          tribunal,
-          data: data || new Date().toLocaleDateString('pt-BR'),
-        })
-      }
-    })
+    const processos: Processo[] = hits
+      .map((hit) => {
+        const src = hit._source
+        const classeNome = src.classe?.nome ?? ''
+        const dataRaw = src.dataAjuizamento ?? ''
+        const dataFormatada = dataRaw
+          ? new Date(dataRaw).toLocaleDateString('pt-BR')
+          : new Date().toLocaleDateString('pt-BR')
+        return {
+          numero: src.numeroProcesso ?? '',
+          tipo: detectarTipo(classeNome),
+          tribunal: src.tribunal ?? tribunal,
+          data: dataFormatada,
+        }
+      })
+      .filter((p) => p.numero.length > 0)
 
     return { disponivel: true, processos, trf: tribunal }
   } catch {
@@ -117,7 +133,7 @@ async function buscarTRFPJe(trfId: string, cnpj: string): Promise<TRFResult> {
 
 export async function buscarProcessosTRF(uf: string, cnpj: string): Promise<TRFResult> {
   const trfId = getTRFPorUF(uf)
-  return buscarTRFPJe(trfId, cnpj)
+  return buscarDataJud(trfId, cnpj)
 }
 
 export function calcularRisco(qtd: number): 'baixo' | 'medio' | 'alto' {
