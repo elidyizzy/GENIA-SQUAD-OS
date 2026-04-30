@@ -34,7 +34,7 @@ function bold(msg) { return `${c.bold}${msg}${c.reset}`; }
 function banner() {
   log('');
   log(`${c.cyan}${c.bold}╔═══════════════════════════════════════════╗${c.reset}`);
-  log(`${c.cyan}${c.bold}║       GEN.IA OS — Setup Wizard v1.1       ║${c.reset}`);
+  log(`${c.cyan}${c.bold}║       GEN.IA OS — Setup Wizard v3.0       ║${c.reset}`);
   log(`${c.cyan}${c.bold}║  Sistema operacional de dev com IA         ║${c.reset}`);
   log(`${c.cyan}${c.bold}╚═══════════════════════════════════════════╝${c.reset}`);
   log('');
@@ -186,11 +186,11 @@ async function main() {
     fs.writeFileSync(path.join(targetDir, ...parts, '.gitkeep'), '');
   }
 
-  // ── Criar .genia/session/ ──
-  fs.mkdirSync(path.join(targetDir, '.genia', 'session'), { recursive: true });
-  fs.mkdirSync(path.join(targetDir, '.genia', 'session-digests'), { recursive: true });
-  fs.writeFileSync(path.join(targetDir, '.genia', 'session', '.gitkeep'), '');
-  fs.writeFileSync(path.join(targetDir, '.genia', 'session-digests', '.gitkeep'), '');
+  // ── Criar .aiox-core/sessions/ ──
+  fs.mkdirSync(path.join(targetDir, '.aiox-core', 'sessions'), { recursive: true });
+  fs.mkdirSync(path.join(targetDir, '.aiox-core', 'session-digests'), { recursive: true });
+  fs.writeFileSync(path.join(targetDir, '.aiox-core', 'sessions', '.gitkeep'), '');
+  fs.writeFileSync(path.join(targetDir, '.aiox-core', 'session-digests', '.gitkeep'), '');
   ok('Estrutura docs/ profissional e squads/ criados');
 
   // ── Criar .claude/agent-memory/squads/ ──
@@ -296,7 +296,7 @@ async function main() {
       const { execSync } = require('child_process');
       execSync('git init', { cwd: targetDir, stdio: 'ignore' });
       execSync('git add .', { cwd: targetDir, stdio: 'ignore' });
-      execSync(`git commit -m "chore: GEN.IA OS v1.1 — setup inicial\n\nCo-Authored-By: GEN.IA OS <genia@bedata.com.br>"`, {
+      execSync(`git commit -m "chore: GEN.IA OS v3.0 — setup inicial\n\nCo-Authored-By: GEN.IA OS <genia@bedata.com.br>"`, {
         cwd: targetDir, stdio: 'ignore',
       });
       ok('Repositório git inicializado com commit inicial');

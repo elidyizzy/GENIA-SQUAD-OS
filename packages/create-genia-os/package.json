@@ -1,6 +1,6 @@
 {
   "name": "create-genia-os",
-  "version": "3.0.0",
+  "version": "3.0.2",
   "description": "GEN.IA OS — Transforma o Claude Code em um time completo de especialistas. 9 agentes (Cypher, Trinity, Neo, Tank, Morpheus, Oracle, Smith, Mouse) + Synapse Engine, governança automática e docs profissional.",
   "keywords": [
     "claude-code",
