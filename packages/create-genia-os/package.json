@@ -1,0 +1,42 @@
+{
+  "name": "create-genia-os",
+  "version": "3.0.0",
+  "description": "GEN.IA OS — Transforma o Claude Code em um time completo de especialistas. 9 agentes (Cypher, Trinity, Neo, Tank, Morpheus, Oracle, Smith, Mouse) + Synapse Engine, governança automática e docs profissional.",
+  "keywords": [
+    "claude-code",
+    "ai",
+    "artificial-intelligence",
+    "desenvolvimento",
+    "agentes",
+    "squads",
+    "xquads",
+    "genia",
+    "claude",
+    "anthropic",
+    "developer-tools",
+    "synapse-engine",
+    "governance",
+    "pt-br"
+  ],
+  "author": "Elidy Izidio <elidyizidio@gmail.com>",
+  "license": "MIT",
+  "homepage": "https://github.com/elidyizzy/GENIA-SQUAD-OS#readme",
+  "bugs": {
+    "url": "https://github.com/elidyizzy/GENIA-SQUAD-OS/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/elidyizzy/GENIA-SQUAD-OS.git",
+    "directory": "packages/create-genia-os"
+  },
+  "bin": {
+    "create-genia-os": "bin/index.js"
+  },
+  "files": [
+    "bin/",
+    "template/"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
