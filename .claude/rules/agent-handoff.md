@@ -1,71 +1,97 @@
-# Protocolo de Handoff — GEN.IA OS
+# Agent Handoff Protocol — Context Compaction
 
-## Quando Fazer Handoff
+## Purpose
 
-Handoff é obrigatório quando:
-- Tarefa requer autoridade de outro agente (Artigo II)
-- Fase do workflow mudou
-- Blocker identificado fora do escopo atual
-- Trabalho está completo e próxima etapa é de outro agente
+Prevent context window accumulation when switching between AIOX agents (`@agent` commands). Each agent switch compacts the previous agent's full persona into a structured handoff artifact (~379 tokens) instead of retaining the full definition (~3-5K tokens).
 
-## Formato de Handoff (≤ 400 tokens)
+## When This Applies
 
-```
-[@agente-atual → @próximo-agente]
+This protocol activates whenever:
+1. A user invokes a new agent via `@agent-name` or `/AIOX:agents:agent-name`
+2. The current session already has a different agent active
 
-📋 Contexto: [O que foi feito em 2-3 frases]
+## Handoff Protocol
 
-📌 Decisões tomadas:
-- [decisão 1]
-- [decisão 2]
+### On Agent Switch (outgoing agent)
 
-📁 Arquivos criados/modificados:
-- [path/arquivo.md]
+Before loading the new agent, mentally generate a handoff artifact with:
 
-⚠️  Pendências:
-- [o que precisa ser feito]
-
-🔗 Story atual: STORY-NNN (se aplicável)
-```
-
-## Regra de Token Budget
-
-- Handoff DEVE ser ≤ 400 tokens
-- Após 2+ trocas de agente, comprimir histórico ao essencial
-- Não repassar contexto completo — apenas decisões e pendências
-
-## Compressão de Contexto
-
-Quando o contexto estiver saturado (muitas trocas de agente):
-
-1. Criar `.genia/session/context-summary.md` com:
-   - Decisões arquiteturais tomadas
-   - Stories em andamento e seus estados
-   - Blockers conhecidos
-   - Stack tecnológica confirmada
-
-2. Referenciar o arquivo no próximo handoff:
-   ```
-   [Contexto comprimido em .genia/session/context-summary.md]
-   ```
-
-## Exemplos de Handoff
-
-**@dev → @devops (após implementação):**
-```
-[@dev → @devops]
-📋 Implementei STORY-003 (autenticação JWT). Commits feitos localmente.
-📌 Decisões: Usei jose library, tokens expiram em 1h, refresh em 7d.
-📁 Modificados: src/auth/jwt.ts, src/middleware/auth.ts, tests/auth.test.ts
-⚠️  Pendências: Push da branch feat/STORY-003-jwt-auth e criar PR para main.
-🔗 Story atual: STORY-003 (status: InReview)
+```yaml
+handoff:
+  from_agent: "{current_agent_id}"
+  to_agent: "{new_agent_id}"
+  story_context:
+    story_id: "{active story ID}"
+    story_path: "{active story path}"
+    story_status: "{current status}"
+    current_task: "{last task being worked on}"
+    branch: "{current git branch}"
+  decisions:
+    - "{key decision 1}"
+    - "{key decision 2}"
+  files_modified:
+    - "{file 1}"
+    - "{file 2}"
+  blockers:
+    - "{any active blockers}"
+  next_action: "{what the incoming agent should do}"
 ```
 
-**@analyst → @pm (após briefing):**
-```
-[@analyst → @pm]
-📋 Coletei requisitos completos do sistema de orçamentos BrasilUp.
-📌 Decisões: App web (não mobile), integração com Kommo CRM, 3 usuários simultâneos.
-📁 Criados: docs/brasilup/BRIEFING.md
-⚠️  Pendências: Criar PRD com base no briefing. Atenção ao requisito de relatórios PDF.
-```
+### On Agent Switch (incoming agent)
+
+The incoming agent receives:
+1. Its own **full agent profile** (persona, commands, dependencies)
+2. The **handoff artifact** from the previous agent (compact summary)
+3. **NOT** the previous agent's full persona/instructions/tool definitions
+
+### Compaction Limits
+
+| Limit | Value |
+|-------|-------|
+| Max handoff artifact size | 500 tokens |
+| Max retained agent summaries | 3 (oldest discarded on 4th switch) |
+| Max decisions in artifact | 5 |
+| Max files_modified entries | 10 |
+| Max blockers | 3 |
+
+### What to Preserve (ALWAYS include)
+
+- Active story ID and path
+- Current task being worked on
+- Git branch name
+- Key architectural decisions made
+- Files created or modified
+- Active blockers
+
+### What to Discard (NEVER carry forward)
+
+- Previous agent's full persona definition
+- Previous agent's command list
+- Previous agent's dependency list
+- Previous agent's tool configurations
+- Previous agent's CodeRabbit integration details
+- Previous agent's greeting templates
+
+## Storage
+
+Handoff artifacts are stored at `.aiox/handoffs/` (runtime, gitignored). Format: `handoff-{from}-to-{to}-{timestamp}.yaml`.
+
+## Template Reference
+
+Full template: `.aiox-core/development/templates/agent-handoff-tmpl.yaml`
+
+## Example
+
+Session flow: `@sm` creates story → `@dev` implements → `@qa` reviews
+
+After `@sm` → `@dev` switch:
+- `@sm` full persona (~3K tokens) is **discarded**
+- Handoff artifact (~379 tokens) is **retained**: story ID, decisions, files, next action
+- `@dev` full persona (~5K tokens) is **loaded**
+- **Total context: ~5.4K** instead of ~8K (33% reduction per switch)
+
+After `@dev` → `@qa` switch:
+- `@dev` full persona is **discarded**
+- `@dev` handoff artifact is **retained** alongside `@sm` handoff
+- `@qa` full persona is **loaded**
+- **Total context: ~5.2K** instead of ~12K (57% reduction after 2 switches)

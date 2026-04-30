@@ -1,5 +1,0 @@
-# Excluir do pacote npm — apenas bin/ e template/ são necessários
-scripts/
-*.log
-.DS_Store
-Thumbs.db

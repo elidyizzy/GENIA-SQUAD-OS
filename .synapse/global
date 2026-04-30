@@ -1,47 +1,24 @@
-=== REGRAS GLOBAIS GEN.IA OS v2.0 ===
+# SYNAPSE Global Domain (L1)
+# Universal rules applied to ALL prompts when GLOBAL_STATE=active
+# Source: .claude/CLAUDE.md, docs/framework/coding-standards.md
 
-IDIOMA: Sempre responder em Português do Brasil. Sem exceção.
-IDENTIDADE: GEN.IA SQUAD | Elidy Izidio (fundadora, chefe) | GEN.IA OS v2.0
+# Coding Standards
+GLOBAL_RULE_0=Use ES2022 syntax with CommonJS modules (require/module.exports)
+GLOBAL_RULE_1=2-space indentation, single quotes, semicolons required
+GLOBAL_RULE_2=Files use kebab-case naming, components use PascalCase, constants use SCREAMING_SNAKE_CASE
 
-=== INVOCAÇÃO DE AGENTES ===
-Slash commands disponíveis (use sempre que possível):
-  /analyst   → @analyst Cypher  — briefing, requisitos
-  /pm        → @pm Morpheus     — PRD, épicos, PITCH
-  /architect → @architect Trinity — arquitetura, SPEC, VETO
-  /dev       → @dev Neo         — implementação de código
-  /devops    → @devops Tank     — push, PR, deploy, release
-  /qa        → @qa Smith        — veredictos de qualidade
-  /reviewer  → @reviewer Switch — code review
-  /po        → @po Oracle       — validação de stories
-  /sm        → @sm Mouse        — criação de stories
-  /squad     → lista todos os agentes e como invocar
+# Import Rules (Constitution Article VI)
+GLOBAL_RULE_3=Always use absolute imports with @/ alias — never relative imports (../../..)
+GLOBAL_RULE_4=Import order: core libraries, external libs, UI components, utilities, stores, features, CSS
 
-=== COMPORTAMENTO PADRÃO ===
-SEM agente ativo: perguntar "Qual agente ativar? /squad para ver opções."
-COM agente ativo: anunciar [@agente] Nome iniciando... e ler MEMORY.md.
-MEMORY: Ler .claude/agent-memory/[agente]/MEMORY.md ao ativar. Atualizar ao descobrir padrões novos.
+# TypeScript Rules
+GLOBAL_RULE_5=No any type — use appropriate types or unknown with type guards
+GLOBAL_RULE_6=Always define interface for component props
 
-=== HANDOFF ===
-Ao transferir para outro agente, usar formato ≤400 tokens:
-[@agente-atual → @próximo]
-📋 Contexto: [2-3 frases]
-📌 Decisões: [lista]
-📁 Arquivos: [lista]
-⚠️ Pendências: [o que fazer]
-🔗 Story: STORY-NNN
+# Error Handling
+GLOBAL_RULE_7=Wrap operations in try/catch with descriptive error messages including context
+GLOBAL_RULE_8=Log errors with logger.error before re-throwing with context
 
-=== COMMITS ===
-Formato: tipo(escopo): descrição
-Co-Authored-By obrigatório: GEN.IA OS <genia@bedata.com.br>
-NUNCA commitar .env ou credenciais.
-
-=== IDS — REUTILIZAÇÃO ===
-REUSAR > ADAPTAR > CRIAR
-Verificar .genia/development/tasks/ antes de criar nova task.
-Verificar docs/stories/ antes de criar nova story.
-
-=== DOCUMENTAÇÃO ===
-PRD: docs/[projeto]/PRD.md
-SPEC: docs/[projeto]/SPEC-TECNICO.md
-Stories: docs/stories/STORY-NNN-slug.md
-STATE: .planning/STATE.md (todo projeto em .Apps/)
+# Quality Standards
+GLOBAL_RULE_9=All code must pass npm run lint, npm run typecheck, and npm test before completion
+GLOBAL_RULE_10=Zero external dependencies unless explicitly approved — prefer Node.js stdlib
